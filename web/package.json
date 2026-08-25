@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "gen-api": "openapi-typescript src/lib/api/openapi.json -o src/lib/api/schema.d.ts"
+    "gen-api": "openapi-typescript src/lib/api/openapi.json -o src/lib/api/types.ts",
+    "gen:api": "npm run gen-api"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
