@@ -40,6 +40,11 @@ type _CheckAgentVersionOrigin = Expect<
   Equal<z.infer<typeof agentVersionOriginSchema>, components["schemas"]["AgentVersionOrigin"]>
 >;
 
+export const voicePersonaSchema = z.enum(["NEHA", "ROY", "ZOE", "SAM", "MIRA", "EESHA"]);
+type _CheckVoicePersona = Expect<
+  Equal<z.infer<typeof voicePersonaSchema>, components["schemas"]["VoicePersona"]>
+>;
+
 /** Hunar call lifecycle status — see CLAUDE.md. Terminal states: {@link TERMINAL_CALL_STATUSES}. */
 export const callStatusSchema = z.enum([
   "NOT_STARTED",
@@ -65,11 +70,48 @@ export const TERMINAL_CALL_STATUSES = new Set<CallStatus>([
 export const rehearsalRunStatusSchema = z.enum(["PENDING", "RUNNING", "COMPLETED", "FAILED"]);
 export type RehearsalRunStatus = z.infer<typeof rehearsalRunStatusSchema>;
 
+export const weekdaySchema = z.enum([
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY",
+]);
+// `Weekday` is a Python Literal, not an enum class, so it has no named OpenAPI component — it's
+// inlined wherever it's used. Checked against that inline usage site instead of a named schema.
+type _CheckWeekday = Expect<
+  Equal<z.infer<typeof weekdaySchema>, components["schemas"]["GuardrailsRead"]["allowed_days"][number]>
+>;
+
+const retryIntervalHoursSchema = z.union([
+  z.literal(0),
+  z.literal(3),
+  z.literal(6),
+  z.literal(9),
+  z.literal(12),
+  z.literal(24),
+]);
+
 // ------------------------------------------------------------------------------------ envelopes
 
 const jsonRecord = z.record(z.string(), z.unknown());
 
 // -------------------------------------------------------------------------------------- healthz
+
+export const guardrailsReadSchema = z.object({
+  allowed_days: z.array(weekdaySchema),
+  earliest_call_time: z.string(),
+  last_call_time: z.string(),
+  timezone: z.string(),
+  max_retry_count: z.number(),
+  retry_interval_hours: retryIntervalHoursSchema,
+  inside_window_now: z.boolean(),
+});
+type _CheckGuardrailsRead = Expect<
+  Equal<z.infer<typeof guardrailsReadSchema>, components["schemas"]["GuardrailsRead"]>
+>;
 
 export const healthzResponseSchema = z
   .object({
@@ -112,6 +154,26 @@ export const versionHistoryRowSchema = z.object({
 });
 type _CheckVersionHistoryRow = Expect<
   Equal<z.infer<typeof versionHistoryRowSchema>, components["schemas"]["VersionHistoryRow"]>
+>;
+
+export const agentVersionReadSchema = z.object({
+  id: z.uuid(),
+  job_id: z.uuid(),
+  version_no: z.number(),
+  language: languageSchema,
+  origin: agentVersionOriginSchema,
+  voice_persona: voicePersonaSchema,
+  persona_name: z.string(),
+  agent_prompt: z.string(),
+  objective: z.string(),
+  introduction: z.string(),
+  result_prompt: z.string(),
+  result_schema: jsonRecord,
+  hunar_agent_id: z.string().nullable(),
+  created_at: z.string(),
+});
+type _CheckAgentVersionRead = Expect<
+  Equal<z.infer<typeof agentVersionReadSchema>, components["schemas"]["AgentVersionRead"]>
 >;
 
 export const requirementsUpdateResponseSchema = z.object({
@@ -210,12 +272,14 @@ export const boardRowSchema = z.object({
   consent_recorded_at: z.string().nullable(),
   dnc: z.boolean(),
   outreach_id: z.string().nullable(),
+  agent_version_id: z.uuid().nullable(),
   status: callStatusSchema.nullable(),
   lifecycle_status: z.string().nullable(),
   duration_seconds: z.number().nullable(),
   recording_url: z.string().nullable(),
   result: jsonRecord.nullable(),
   call_summary: z.string().nullable(),
+  is_simulated: z.boolean(),
 });
 // `status` is narrowed from the generated `string | null` to the closed CallStatus enum — an
 // exact Equal check would fail on that intentional narrowing, so this one checks structure
@@ -226,6 +290,9 @@ type _CheckBoardRowShape = Expect<
     Omit<components["schemas"]["BoardRow"], "status">
   >
 >;
+/** The narrowed type (status: CallStatus, not string) — use this, not
+ * `components["schemas"]["BoardRow"]`, wherever a BoardRow is handled after parsing. */
+export type BoardRow = z.infer<typeof boardRowSchema>;
 
 export const boardResponseSchema = z.object({
   job_id: z.uuid(),

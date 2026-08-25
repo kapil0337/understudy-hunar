@@ -240,6 +240,26 @@ async def test_duplicate_recording_webhook_is_not_reapplied(db_session: AsyncSes
     assert second.duplicate is True
 
 
+async def test_same_payload_delivered_three_times_applies_once_and_logs_three_events(
+    db_session: AsyncSession,
+) -> None:
+    """Redelivery is normal for a webhook provider — every attempt is logged regardless of
+    outcome (WebhookEvent's own docstring: append-only, valid or not) while the candidate-facing
+    state changes exactly once, on the first delivery."""
+    await _make_outreach(db_session, status=CallStatus.INITIATED)
+    payload = load_fixture("webhook_call_status.json")
+
+    outcomes = [await _process(db_session, "status", payload) for _ in range(3)]
+
+    assert [o.duplicate for o in outcomes] == [False, True, True]
+    assert [o.applied for o in outcomes] == [True, False, False]
+
+    event_count = (
+        await db_session.execute(select(func.count()).select_from(WebhookEvent))
+    ).scalar_one()
+    assert event_count == 3
+
+
 # ------------------------------------------------------------------------- status precedence
 
 

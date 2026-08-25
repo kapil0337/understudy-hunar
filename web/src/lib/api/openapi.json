@@ -30,6 +30,28 @@
         }
       }
     },
+    "/guardrails": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "The calling window and retry policy every published agent uses",
+        "description": "One fixed, org-wide policy (app/services/guardrails.py) \u2014 sent explicitly on every publish rather than left to Hunar's org defaults, precisely so it can be read back here instead of being opaque.",
+        "operationId": "get_guardrails_guardrails_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardrailsRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/jobs": {
       "get": {
         "tags": [
@@ -583,6 +605,49 @@
         }
       }
     },
+    "/versions/{version_id}": {
+      "get": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "One agent version's full built prompt and result schema",
+        "operationId": "get_version_versions__version_id__get",
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentVersionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/versions/{version_id}/rehearse": {
       "post": {
         "tags": [
@@ -610,6 +675,58 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RehearseAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/versions/{version_id}/latest-run": {
+      "get": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "This version's most recent rehearsal run, if it has one",
+        "description": "null if the version has never been rehearsed \u2014 a valid state, not an error, so this returns 200 rather than 404.",
+        "operationId": "get_latest_run_versions__version_id__latest_run_get",
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/RunRead"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Latest Run Versions  Version Id  Latest Run Get"
                 }
               }
             }
@@ -1028,6 +1145,94 @@
         ],
         "title": "AgentVersionOrigin"
       },
+      "AgentVersionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "version_no": {
+            "type": "integer",
+            "title": "Version No"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/AgentVersionOrigin"
+          },
+          "voice_persona": {
+            "$ref": "#/components/schemas/VoicePersona"
+          },
+          "persona_name": {
+            "type": "string",
+            "title": "Persona Name"
+          },
+          "agent_prompt": {
+            "type": "string",
+            "title": "Agent Prompt"
+          },
+          "objective": {
+            "type": "string",
+            "title": "Objective"
+          },
+          "introduction": {
+            "type": "string",
+            "title": "Introduction"
+          },
+          "result_prompt": {
+            "type": "string",
+            "title": "Result Prompt"
+          },
+          "result_schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result Schema"
+          },
+          "hunar_agent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hunar Agent Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "job_id",
+          "version_no",
+          "language",
+          "origin",
+          "voice_persona",
+          "persona_name",
+          "agent_prompt",
+          "objective",
+          "introduction",
+          "result_prompt",
+          "result_schema",
+          "hunar_agent_id",
+          "created_at"
+        ],
+        "title": "AgentVersionRead",
+        "description": "GET /versions/{id} \u2014 the version's full built prompt/schema, not just its identity\n(VersionSummary/VersionHistoryRow carry only the latter). Needed wherever a screen must\nshow or diff against the exact text that was built for this version, e.g. the rehearsal\nscreen's patch DiffView, which diffs the current agent_prompt against a proposed one."
+      },
       "BlockedCandidate": {
         "properties": {
           "candidate_id": {
@@ -1133,6 +1338,18 @@
             ],
             "title": "Outreach Id"
           },
+          "agent_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Version Id"
+          },
           "status": {
             "anyOf": [
               {
@@ -1199,6 +1416,10 @@
               }
             ],
             "title": "Call Summary"
+          },
+          "is_simulated": {
+            "type": "boolean",
+            "title": "Is Simulated"
           }
         },
         "additionalProperties": false,
@@ -1211,12 +1432,14 @@
           "consent_recorded_at",
           "dnc",
           "outreach_id",
+          "agent_version_id",
           "status",
           "lifecycle_status",
           "duration_seconds",
           "recording_url",
           "result",
-          "call_summary"
+          "call_summary",
+          "is_simulated"
         ],
         "title": "BoardRow",
         "description": "One candidate plus their latest outreach attempt, if any. Fields from Outreach are None\nwhen the candidate has never been called."
@@ -1671,6 +1894,70 @@
           "phone_e164"
         ],
         "title": "ConsentCreate"
+      },
+      "GuardrailsRead": {
+        "properties": {
+          "allowed_days": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY"
+              ]
+            },
+            "type": "array",
+            "title": "Allowed Days"
+          },
+          "earliest_call_time": {
+            "type": "string",
+            "title": "Earliest Call Time"
+          },
+          "last_call_time": {
+            "type": "string",
+            "title": "Last Call Time"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "max_retry_count": {
+            "type": "integer",
+            "title": "Max Retry Count"
+          },
+          "retry_interval_hours": {
+            "type": "integer",
+            "enum": [
+              0,
+              3,
+              6,
+              9,
+              12,
+              24
+            ],
+            "title": "Retry Interval Hours"
+          },
+          "inside_window_now": {
+            "type": "boolean",
+            "title": "Inside Window Now"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "allowed_days",
+          "earliest_call_time",
+          "last_call_time",
+          "timezone",
+          "max_retry_count",
+          "retry_interval_hours",
+          "inside_window_now"
+        ],
+        "title": "GuardrailsRead"
       },
       "HTTPValidationError": {
         "properties": {
@@ -2292,6 +2579,18 @@
           "hunar_agent_id"
         ],
         "title": "VersionSummary"
+      },
+      "VoicePersona": {
+        "type": "string",
+        "enum": [
+          "NEHA",
+          "ROY",
+          "ZOE",
+          "SAM",
+          "MIRA",
+          "EESHA"
+        ],
+        "title": "VoicePersona"
       },
       "WebhookEventRead": {
         "properties": {

@@ -20,6 +20,17 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      // `_`-prefixed = intentionally unused — e.g. lib/api/schemas.ts's `_Check*` types, which
+      // exist only to make `tsc` fail if a hand-written Zod schema drifts from the generated
+      // OpenAPI type.
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

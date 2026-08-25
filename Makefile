@@ -9,8 +9,14 @@ down:
 logs:
 	docker compose logs -f
 
+DEV_DSN = postgresql+asyncpg://understudy:understudy@localhost:5432/understudy
+
+# Idempotent — safe to run again against an already-seeded database (it no-ops). Talks to the
+# dev postgres directly (same pattern as `test` below), not through the backend container, so it
+# works whether or not `make up` is already running.
 seed:
-	@echo "No fixtures defined yet — add data under backend/fixtures/ and wire up a seed script."
+	docker compose up -d --wait postgres
+	cd backend && DATABASE_URL="$(DEV_DSN)" uv run python scripts/seed.py
 
 TEST_DSN = postgresql+asyncpg://understudy:understudy@localhost:5433/understudy_test
 

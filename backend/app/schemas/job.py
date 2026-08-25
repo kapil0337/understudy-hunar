@@ -8,7 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import AgentVersionOrigin, Language
+from app.models.enums import AgentVersionOrigin, Language, VoicePersona
 
 
 class JobCreate(BaseModel):
@@ -46,6 +46,30 @@ class VersionSummary(BaseModel):
     language: Language
     origin: AgentVersionOrigin
     hunar_agent_id: str | None
+
+
+class AgentVersionRead(BaseModel):
+    """GET /versions/{id} — the version's full built prompt/schema, not just its identity
+    (VersionSummary/VersionHistoryRow carry only the latter). Needed wherever a screen must
+    show or diff against the exact text that was built for this version, e.g. the rehearsal
+    screen's patch DiffView, which diffs the current agent_prompt against a proposed one."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    job_id: uuid.UUID
+    version_no: int
+    language: Language
+    origin: AgentVersionOrigin
+    voice_persona: VoicePersona
+    persona_name: str
+    agent_prompt: str
+    objective: str
+    introduction: str
+    result_prompt: str
+    result_schema: dict[str, Any]
+    hunar_agent_id: str | None
+    created_at: datetime
 
 
 class RequirementsUpdateResponse(BaseModel):

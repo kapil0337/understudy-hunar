@@ -215,6 +215,12 @@ class GeminiProvider:
                     return await self._attempt(model, payload)
         except _Retryable as exc:
             raise exc.original from None
+        except _RETRYABLE_TRANSPORT as exc:
+            # Retries exhausted on a timeout/connection failure. Wrap so the router
+            # (app/services/llm.py) sees LLMProviderError and falls back, per the documented
+            # contract in app/integrations/llm/base.py — a bare httpx exception here would
+            # otherwise escape uncaught and skip the fallback provider entirely.
+            raise LLMProviderError(self.name, f"{type(exc).__name__}: {exc}") from exc
 
         raise AssertionError("unreachable: AsyncRetrying always yields or raises")
 

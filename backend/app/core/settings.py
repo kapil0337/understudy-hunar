@@ -81,6 +81,13 @@ class Settings(BaseSettings):
         default="", description="Comma-separated E.164 numbers permitted for outbound demo calls"
     )
 
+    cors_origins: str = Field(
+        default="http://localhost:3000",
+        description="Comma-separated origins allowed to call this API (the web app's own "
+        "origin). Defaults to the local Next.js dev server; production sets this to the deployed "
+        "Vercel URL.",
+    )
+
     public_base_url: str | None = Field(
         default=None,
         description="Publicly reachable base URL for this service (e.g. an ngrok tunnel or "
@@ -93,6 +100,10 @@ class Settings(BaseSettings):
     @property
     def demo_allowed_numbers_list(self) -> list[str]:
         return [number.strip() for number in self.demo_allowed_numbers.split(",") if number.strip()]
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
     def capabilities(self) -> dict[str, bool]:

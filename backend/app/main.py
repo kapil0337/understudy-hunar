@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 import structlog
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import router as api_router
 from app.core.errors import register_exception_handlers
@@ -75,5 +76,14 @@ app = FastAPI(
 )
 
 app.add_middleware(RequestIDMiddleware)
+# The web app's own origin only — never "*", since credentials-free or not, this is the API
+# surface a browser calls directly (CLAUDE.md: no raw calls bypass the adapter/typed-client
+# discipline on the frontend either).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_headers=["*"],
+)
 register_exception_handlers(app)
 app.include_router(api_router)

@@ -29,6 +29,7 @@ from app.models.cache import ProviderCache
 from app.models.enums import AgentVersionOrigin, Language, VoicePersona
 from app.models.job import Job
 from app.schemas.compiled_jd import CompiledJD
+from app.services import guardrails as guardrails_service
 from app.services.llm import LLMService, get_llm_service
 
 logger = structlog.get_logger()
@@ -511,6 +512,8 @@ async def publish_version(
                 result_prompt=version.result_prompt,
                 result_schema=version.result_schema,
                 custom_variables=variables,
+                retry_config=guardrails_service.RETRY_CONFIG,
+                guardrails=guardrails_service.GUARDRAILS,
             )
         )
         logger.info("agent_version_published", version_id=str(version.id), created=True)
@@ -528,6 +531,8 @@ async def publish_version(
                 result_prompt=version.result_prompt,
                 result_schema=version.result_schema,
                 custom_variables=variables,
+                retry_config=guardrails_service.RETRY_CONFIG,
+                guardrails=guardrails_service.GUARDRAILS,
             ),
         )
         logger.info("agent_version_published", version_id=str(version.id), created=False)

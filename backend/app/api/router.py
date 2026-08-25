@@ -4,6 +4,8 @@ from fastapi import APIRouter
 
 from app.api.routes import candidates, debug, jobs, patches, runs, versions, webhooks
 from app.core.settings import get_settings
+from app.schemas.guardrails import GuardrailsRead
+from app.services import guardrails as guardrails_service
 
 router = APIRouter()
 
@@ -18,6 +20,26 @@ async def healthz() -> dict[str, object]:
         "environment": settings.environment,
         "capabilities": settings.capabilities,
     }
+
+
+@router.get(
+    "/guardrails",
+    tags=["jobs"],
+    summary="The calling window and retry policy every published agent uses",
+    description="One fixed, org-wide policy (app/services/guardrails.py) — sent explicitly on "
+    "every publish rather than left to Hunar's org defaults, precisely so it can be read back "
+    "here instead of being opaque.",
+)
+async def get_guardrails() -> GuardrailsRead:
+    return GuardrailsRead(
+        allowed_days=guardrails_service.GUARDRAILS.allowed_days,
+        earliest_call_time=guardrails_service.GUARDRAILS.earliest_call_time,
+        last_call_time=guardrails_service.GUARDRAILS.last_call_time,
+        timezone=guardrails_service.TIMEZONE,
+        max_retry_count=guardrails_service.RETRY_CONFIG.max_retry_count,
+        retry_interval_hours=guardrails_service.RETRY_CONFIG.retry_interval_hours,
+        inside_window_now=guardrails_service.is_within_calling_window(),
+    )
 
 
 router.include_router(jobs.router)

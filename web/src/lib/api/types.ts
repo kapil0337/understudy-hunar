@@ -25,6 +25,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guardrails": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The calling window and retry policy every published agent uses
+         * @description One fixed, org-wide policy (app/services/guardrails.py) — sent explicitly on every publish rather than left to Hunar's org defaults, precisely so it can be read back here instead of being opaque.
+         */
+        get: operations["get_guardrails_guardrails_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/jobs": {
         parameters: {
             query?: never;
@@ -234,6 +254,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One agent version's full built prompt and result schema */
+        get: operations["get_version_versions__version_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/versions/{version_id}/rehearse": {
         parameters: {
             query?: never;
@@ -248,6 +285,26 @@ export interface paths {
          * @description Runs all six personas against this version and scores the result. Returns immediately with a run id in PENDING status; poll GET /runs/{id} for progress.
          */
         post: operations["rehearse_version_versions__version_id__rehearse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/versions/{version_id}/latest-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * This version's most recent rehearsal run, if it has one
+         * @description null if the version has never been rehearsed — a valid state, not an error, so this returns 200 rather than 404.
+         */
+        get: operations["get_latest_run_versions__version_id__latest_run_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -415,6 +472,51 @@ export interface components {
          */
         AgentVersionOrigin: "COMPILED" | "PATCHED";
         /**
+         * AgentVersionRead
+         * @description GET /versions/{id} — the version's full built prompt/schema, not just its identity
+         *     (VersionSummary/VersionHistoryRow carry only the latter). Needed wherever a screen must
+         *     show or diff against the exact text that was built for this version, e.g. the rehearsal
+         *     screen's patch DiffView, which diffs the current agent_prompt against a proposed one.
+         */
+        AgentVersionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Version No */
+            version_no: number;
+            language: components["schemas"]["Language"];
+            origin: components["schemas"]["AgentVersionOrigin"];
+            voice_persona: components["schemas"]["VoicePersona"];
+            /** Persona Name */
+            persona_name: string;
+            /** Agent Prompt */
+            agent_prompt: string;
+            /** Objective */
+            objective: string;
+            /** Introduction */
+            introduction: string;
+            /** Result Prompt */
+            result_prompt: string;
+            /** Result Schema */
+            result_schema: {
+                [key: string]: unknown;
+            };
+            /** Hunar Agent Id */
+            hunar_agent_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
          * BlockedCandidate
          * @description One candidate call_candidates refused to dial, and why. Recruiters must see this list —
          *     per CLAUDE.md the guard is unbypassable, so a skip is never silent.
@@ -461,6 +563,8 @@ export interface components {
             dnc: boolean;
             /** Outreach Id */
             outreach_id: string | null;
+            /** Agent Version Id */
+            agent_version_id: string | null;
             /** Status */
             status: string | null;
             /** Lifecycle Status */
@@ -475,6 +579,8 @@ export interface components {
             } | null;
             /** Call Summary */
             call_summary: string | null;
+            /** Is Simulated */
+            is_simulated: boolean;
         };
         /** CallLaunchSummary */
         CallLaunchSummary: {
@@ -622,6 +728,26 @@ export interface components {
              * @default MANUAL
              */
             channel: string;
+        };
+        /** GuardrailsRead */
+        GuardrailsRead: {
+            /** Allowed Days */
+            allowed_days: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+            /** Earliest Call Time */
+            earliest_call_time: string;
+            /** Last Call Time */
+            last_call_time: string;
+            /** Timezone */
+            timezone: string;
+            /** Max Retry Count */
+            max_retry_count: number;
+            /**
+             * Retry Interval Hours
+             * @enum {integer}
+             */
+            retry_interval_hours: 0 | 3 | 6 | 9 | 12 | 24;
+            /** Inside Window Now */
+            inside_window_now: boolean;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -875,6 +1001,11 @@ export interface components {
             /** Hunar Agent Id */
             hunar_agent_id: string | null;
         };
+        /**
+         * VoicePersona
+         * @enum {string}
+         */
+        VoicePersona: "NEHA" | "ROY" | "ZOE" | "SAM" | "MIRA" | "EESHA";
         /** WebhookEventRead */
         WebhookEventRead: {
             /**
@@ -927,6 +1058,26 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    get_guardrails_guardrails_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardrailsRead"];
                 };
             };
         };
@@ -1307,6 +1458,37 @@ export interface operations {
             };
         };
     };
+    get_version_versions__version_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentVersionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     rehearse_version_versions__version_id__rehearse_post: {
         parameters: {
             query?: never;
@@ -1325,6 +1507,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RehearseAccepted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_run_versions__version_id__latest_run_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunRead"] | null;
                 };
             };
             /** @description Validation Error */

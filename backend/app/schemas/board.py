@@ -23,12 +23,14 @@ class BoardRow(BaseModel):
     dnc: bool
 
     outreach_id: uuid.UUID | None
+    agent_version_id: uuid.UUID | None
     status: str | None
     lifecycle_status: str | None
     duration_seconds: int | None
     recording_url: str | None
     result: dict[str, Any] | None
     call_summary: str | None
+    is_simulated: bool
 
 
 class BoardResponse(BaseModel):

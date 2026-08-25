@@ -39,6 +39,20 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-status-queued: var(--status-queued);
+  --color-status-queued-bg: var(--status-queued-bg);
+  --color-status-ringing: var(--status-ringing);
+  --color-status-ringing-bg: var(--status-ringing-bg);
+  --color-status-in-progress: var(--status-in-progress);
+  --color-status-in-progress-bg: var(--status-in-progress-bg);
+  --color-status-completed: var(--status-completed);
+  --color-status-completed-bg: var(--status-completed-bg);
+  --color-status-not-connected: var(--status-not-connected);
+  --color-status-not-connected-bg: var(--status-not-connected-bg);
+  --color-status-failed: var(--status-failed);
+  --color-status-failed-bg: var(--status-failed-bg);
+  --color-status-simulated: var(--status-simulated);
+  --color-status-simulated-bg: var(--status-simulated-bg);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -55,8 +69,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.52 0.19 230);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -66,7 +80,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.52 0.19 230);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -75,46 +89,76 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.52 0.19 230);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --status-queued: oklch(0.5 0 0);
+  --status-queued-bg: oklch(0 0 0 / 5%);
+  --status-ringing: oklch(0.6 0.17 70);
+  --status-ringing-bg: oklch(0.6 0.17 70 / 12%);
+  --status-in-progress: oklch(0.52 0.19 230);
+  --status-in-progress-bg: oklch(0.52 0.19 230 / 12%);
+  --status-completed: oklch(0.55 0.17 149);
+  --status-completed-bg: oklch(0.55 0.17 149 / 12%);
+  --status-not-connected: oklch(0.556 0 0);
+  --status-not-connected-bg: oklch(0 0 0 / 4%);
+  --status-failed: oklch(0.577 0.245 27.325);
+  --status-failed-bg: oklch(0.577 0.245 27.325 / 12%);
+  --status-simulated: oklch(0.55 0.19 305);
+  --status-simulated-bg: oklch(0.55 0.19 305 / 12%);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.94 0 0);
+  --card: oklch(0.15 0 0);
+  --card-foreground: oklch(0.94 0 0);
+  --popover: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.94 0 0);
+  --primary: oklch(0.685 0.169 237.32);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.94 0 0);
+  --muted: oklch(0.17 0 0);
+  --muted-foreground: oklch(0.63 0 0);
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.94 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.685 0.169 237.32);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: oklch(0.08 0 0);
+  --sidebar-foreground: oklch(0.94 0 0);
+  --sidebar-primary: oklch(0.685 0.169 237.32);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.94 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.685 0.169 237.32);
+
+  --status-queued: oklch(0.75 0 0);
+  --status-queued-bg: oklch(1 0 0 / 8%);
+  --status-ringing: oklch(0.795 0.184 86.047);
+  --status-ringing-bg: oklch(0.795 0.184 86.047 / 16%);
+  --status-in-progress: oklch(0.685 0.169 237.32);
+  --status-in-progress-bg: oklch(0.685 0.169 237.32 / 16%);
+  --status-completed: oklch(0.72 0.19 149.6);
+  --status-completed-bg: oklch(0.72 0.19 149.6 / 16%);
+  --status-not-connected: oklch(0.6 0 0);
+  --status-not-connected-bg: oklch(1 0 0 / 6%);
+  --status-failed: oklch(0.704 0.191 22.216);
+  --status-failed-bg: oklch(0.704 0.191 22.216 / 16%);
+  --status-simulated: oklch(0.71 0.19 305);
+  --status-simulated-bg: oklch(0.71 0.19 305 / 16%);
 }
 
 @layer base {
@@ -127,4 +171,17 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Diagonal hatch marking simulated (rehearsal) content — never mistaken for a real call result,
+   even by someone who can't see color (SimulatedBadge always pairs this with a text label). */
+.status-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--status-simulated) 0,
+    var(--status-simulated) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  background-color: var(--status-simulated-bg);
 }

@@ -17,8 +17,9 @@ Or via the monorepo's `docker compose` setup — see the [root README](../README
 - `npm run build` / `npm run start` — production build and serve
 - `npm run lint` — eslint
 - `npm run format` — prettier --write
-- `npm run gen-api` — regenerate `src/lib/api/schema.d.ts` from the backend's OpenAPI schema
-  (`make gen-api` from the repo root does both steps)
+- `npm run gen-api` (alias: `npm run gen:api`) — regenerate `src/lib/api/types.ts` from the
+  backend's OpenAPI schema (`make gen-api` from the repo root does both steps: writes
+  `src/lib/api/openapi.json`, then runs this)
 
 ## Deployment
 

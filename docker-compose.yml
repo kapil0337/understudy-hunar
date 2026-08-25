@@ -47,6 +47,8 @@ services:
       # Always the in-network hostname — a developer's local .env may point
       # DATABASE_URL elsewhere, but inside compose only `postgres` resolves.
       DATABASE_URL: postgresql+asyncpg://understudy:understudy@postgres:5432/understudy
+      # The web container's own origin, matching its published port below.
+      CORS_ORIGINS: http://localhost:3000
     ports:
       - "8000:8000"
     volumes:

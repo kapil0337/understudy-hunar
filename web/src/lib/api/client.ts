@@ -9,10 +9,12 @@
 import { z } from "zod";
 import type { components } from "./types";
 import {
+  agentVersionReadSchema,
   boardResponseSchema,
   callLaunchSummarySchema,
   candidateReadSchema,
   caseReadSchema,
+  guardrailsReadSchema,
   healthzResponseSchema,
   httpValidationErrorSchema,
   jobReadSchema,
@@ -140,6 +142,10 @@ type Language = components["schemas"]["Language"];
 export const api = {
   healthz: (signal?: AbortSignal) => request("/healthz", { schema: healthzResponseSchema, signal }),
 
+  guardrails: {
+    get: (signal?: AbortSignal) => request("/guardrails", { schema: guardrailsReadSchema, signal }),
+  },
+
   jobs: {
     list: (signal?: AbortSignal) =>
       request("/jobs", { schema: z.array(jobReadSchema), signal }),
@@ -207,10 +213,20 @@ export const api = {
   },
 
   versions: {
+    get: (versionId: string, signal?: AbortSignal) =>
+      request(`/versions/${versionId}`, { schema: agentVersionReadSchema, signal }),
+
     rehearse: (versionId: string, signal?: AbortSignal) =>
       request(`/versions/${versionId}/rehearse`, {
         method: "POST",
         schema: rehearseAcceptedSchema,
+        signal,
+      }),
+
+    /** null when the version has never been rehearsed — a valid state, not an error. */
+    latestRun: (versionId: string, signal?: AbortSignal) =>
+      request(`/versions/${versionId}/latest-run`, {
+        schema: runReadSchema.nullable(),
         signal,
       }),
   },

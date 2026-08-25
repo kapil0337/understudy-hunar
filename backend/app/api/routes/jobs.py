@@ -378,12 +378,14 @@ async def get_board(
                 consent_recorded_at=candidate.consent_recorded_at,
                 dnc=candidate.dnc,
                 outreach_id=latest.id if latest else None,
+                agent_version_id=latest.agent_version_id if latest else None,
                 status=latest.status.value if latest else None,
                 lifecycle_status=latest.lifecycle_status if latest else None,
                 duration_seconds=latest.duration_seconds if latest else None,
                 recording_url=latest.recording_url if latest else None,
                 result=latest.result if latest else None,
                 call_summary=latest.call_summary if latest else None,
+                is_simulated=latest.is_simulated if latest else False,
             )
         )
     return BoardResponse(job_id=job_id, rows=rows)
