@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "message": "Insufficient calling minutes remaining.",
+  "details": {
+    "minutes_remaining": 0
+  }
+}

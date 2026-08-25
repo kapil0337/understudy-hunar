@@ -1,0 +1,12 @@
+.git
+.venv
+node_modules
+.next
+tests
+docs
+*.md
+.env*
+
+npm-debug.log*
+.dockerignore
+Dockerfile

@@ -1,0 +1,2385 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Understudy",
+    "description": "Rehearse-then-dial voice recruiting on the Hunar Voice Agents API.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Liveness and capability probe",
+        "description": "Liveness/capability probe. Reports which optional integrations are configured\nso a reviewer running with only a database can see what's degraded and why.",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Healthz Healthz Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List jobs",
+        "operationId": "list_jobs_jobs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JobRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Jobs Jobs Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Create a job",
+        "description": "Stores the raw job description. Nothing is compiled yet \u2014 PUT /jobs/{id}/requirements does that.",
+        "operationId": "create_job_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get one job",
+        "operationId": "get_job_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/requirements": {
+      "put": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Update a job's requirements",
+        "description": "Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, unpublished) for every language the compiled JD implies. Never edits an existing version \u2014 versions are immutable (CLAUDE.md).",
+        "operationId": "update_requirements_jobs__job_id__requirements_put",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequirementsUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequirementsUpdateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/versions": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Version history with composite score per version",
+        "operationId": "list_versions_jobs__job_id__versions_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionHistoryRow"
+                  },
+                  "title": "Response List Versions Jobs  Job Id  Versions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/versions/{version_no}/publish": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Publish a draft version to Hunar",
+        "description": "`language` disambiguates: versions are numbered per (job, language), so version_no alone is not unique across languages.",
+        "operationId": "publish_job_version_jobs__job_id__versions__version_no__publish_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "version_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version No"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/personas": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "The six rehearsal personas",
+        "operationId": "list_personas_jobs__job_id__personas_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonaRead"
+                  },
+                  "title": "Response List Personas Jobs  Job Id  Personas Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/source": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Source candidates",
+        "description": "Every field falls back to the job's own compiled search_query when omitted, so re-sourcing more of the same needs no body at all.",
+        "operationId": "source_candidates_jobs__job_id__source_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/candidates": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List candidates, best match first",
+        "operationId": "list_candidates_jobs__job_id__candidates_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CandidateRead"
+                  },
+                  "title": "Response List Candidates Jobs  Job Id  Candidates Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/call": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Launch outbound screening calls",
+        "description": "Blocked candidates are returned WITH reasons, never silently skipped \u2014 the consent/DNC guard is unbypassable (CLAUDE.md).",
+        "operationId": "launch_calls_jobs__job_id__call_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CallRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallLaunchSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/board": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "The live candidate/call board",
+        "description": "Refreshes non-terminal outreach rows on read (polling), then reads whatever state is current \u2014 the board is correct even if Hunar's webhooks never arrive.",
+        "operationId": "get_board_jobs__job_id__board_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/export": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Export candidates as CSV",
+        "description": "One row per candidate, one column per screening question id plus the four standard result fields, pulled from each candidate's latest call result.",
+        "operationId": "export_candidates_jobs__job_id__export_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/versions/{version_id}/rehearse": {
+      "post": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "Rehearse an agent version",
+        "description": "Runs all six personas against this version and scores the result. Returns immediately with a run id in PENDING status; poll GET /runs/{id} for progress.",
+        "operationId": "rehearse_version_versions__version_id__rehearse_post",
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RehearseAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "A rehearsal run's status, scores, and per-case summaries",
+        "operationId": "get_run_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{run_id}/cases/{case_id}": {
+      "get": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "One persona's full transcript, extraction, ground truth, metrics and failures",
+        "operationId": "get_case_runs__run_id__cases__case_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{run_id}/patch": {
+      "post": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "Propose a prompt patch addressing this run's worst failures",
+        "operationId": "propose_run_patch_runs__run_id__patch_post",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patches/{patch_id}/accept": {
+      "post": {
+        "tags": [
+          "rehearsal"
+        ],
+        "summary": "Accept a proposed patch",
+        "description": "Creates AgentVersion n+1 (origin=PATCHED) from the patch's prompt, then immediately rehearses it against the same personas as the parent run \u2014 a patch's effect is measured, never assumed.",
+        "operationId": "accept_run_patch_patches__patch_id__accept_post",
+        "parameters": [
+          {
+            "name": "patch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Patch Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchAcceptResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/candidates/{candidate_id}": {
+      "patch": {
+        "tags": [
+          "candidates"
+        ],
+        "summary": "Update a candidate's phone, language, or DNC flag",
+        "description": "A plain field edit \u2014 unlike POST .../consent, this never sets consent_recorded_at. The outbound-call guard still checks consent independently at call time regardless of what phone_e164 is set to here.",
+        "operationId": "patch_candidate_candidates__candidate_id__patch",
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Candidate Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidatePatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/candidates/{candidate_id}/consent": {
+      "post": {
+        "tags": [
+          "candidates"
+        ],
+        "summary": "Record consent",
+        "description": "Sets phone_e164 and consent_recorded_at together \u2014 the only route that does, per CLAUDE.md's rule that a call needs an explicitly consented number.",
+        "operationId": "record_candidate_consent_candidates__candidate_id__consent_post",
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Candidate Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/hunar/{kind}": {
+      "post": {
+        "tags": [
+          "webhooks"
+        ],
+        "summary": "Receive a Hunar call-lifecycle webhook",
+        "description": "`kind` is one of status|recording|result|summary. The signature is verified over the RAW request body (see app/integrations/hunar/signature.py); an invalid signature returns 401 and is never applied. An unrecognised call/request id is still accepted (200) and logged rather than erroring, since Hunar would otherwise retry a payload it has no way to fix. `X-Hunar-Signature` is this project's assumed header name for the signature \u2014 CLAUDE.md documents the HMAC computation itself but not the header carrying it.",
+        "operationId": "receive_hunar_webhook_webhooks_hunar__kind__post",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "status",
+                "recording",
+                "result",
+                "summary"
+              ],
+              "type": "string",
+              "title": "Kind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Receive Hunar Webhook Webhooks Hunar  Kind  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/debug/webhooks": {
+      "get": {
+        "tags": [
+          "debug"
+        ],
+        "summary": "Recent raw webhook events, valid or not",
+        "description": "The append-only log every inbound Hunar webhook is recorded to, regardless of whether its signature verified or it resolved to a known call \u2014 see WebhookEvent's docstring. Diagnostic only.",
+        "operationId": "list_webhook_events_debug_webhooks_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WebhookEventRead"
+                  },
+                  "title": "Response List Webhook Events Debug Webhooks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentVersionOrigin": {
+        "type": "string",
+        "enum": [
+          "COMPILED",
+          "PATCHED"
+        ],
+        "title": "AgentVersionOrigin"
+      },
+      "BlockedCandidate": {
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Candidate Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "reason"
+        ],
+        "title": "BlockedCandidate",
+        "description": "One candidate call_candidates refused to dial, and why. Recruiters must see this list \u2014\nper CLAUDE.md the guard is unbypassable, so a skip is never silent."
+      },
+      "BoardResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/BoardRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id",
+          "rows"
+        ],
+        "title": "BoardResponse"
+      },
+      "BoardRow": {
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Candidate Id"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "match_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Score"
+          },
+          "phone_e164": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone E164"
+          },
+          "consent_recorded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Recorded At"
+          },
+          "dnc": {
+            "type": "boolean",
+            "title": "Dnc"
+          },
+          "outreach_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outreach Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "lifecycle_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lifecycle Status"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "recording_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recording Url"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "call_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Summary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "full_name",
+          "match_score",
+          "phone_e164",
+          "consent_recorded_at",
+          "dnc",
+          "outreach_id",
+          "status",
+          "lifecycle_status",
+          "duration_seconds",
+          "recording_url",
+          "result",
+          "call_summary"
+        ],
+        "title": "BoardRow",
+        "description": "One candidate plus their latest outreach attempt, if any. Fields from Outreach are None\nwhen the candidate has never been called."
+      },
+      "CallLaunchSummary": {
+        "properties": {
+          "queued": {
+            "items": {
+              "$ref": "#/components/schemas/QueuedCall"
+            },
+            "type": "array",
+            "title": "Queued"
+          },
+          "blocked": {
+            "items": {
+              "$ref": "#/components/schemas/BlockedCandidate"
+            },
+            "type": "array",
+            "title": "Blocked"
+          },
+          "versions_used": {
+            "additionalProperties": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "object",
+            "title": "Versions Used"
+          },
+          "estimated_minutes": {
+            "type": "number",
+            "title": "Estimated Minutes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "queued",
+          "blocked",
+          "versions_used",
+          "estimated_minutes"
+        ],
+        "title": "CallLaunchSummary"
+      },
+      "CallRequest": {
+        "properties": {
+          "candidate_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Candidate Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_ids"
+        ],
+        "title": "CallRequest"
+      },
+      "CandidatePatch": {
+        "properties": {
+          "phone_e164": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone E164"
+          },
+          "preferred_language": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Language"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dnc": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dnc"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CandidatePatch",
+        "description": "PATCH /candidates/{id} \u2014 phone, language, dnc, per the API surface. Every field is\noptional; only what is provided is changed."
+      },
+      "CandidateRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "source_provider": {
+            "type": "string",
+            "title": "Source Provider"
+          },
+          "source_ref": {
+            "type": "string",
+            "title": "Source Ref"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "headline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headline"
+          },
+          "current_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Title"
+          },
+          "current_company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Company"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "skills": {
+            "items": {},
+            "type": "array",
+            "title": "Skills"
+          },
+          "years_experience": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Years Experience"
+          },
+          "linkedin_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin Url"
+          },
+          "phone_e164": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone E164"
+          },
+          "preferred_language": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Language"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "match_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Score"
+          },
+          "match_breakdown": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Breakdown"
+          },
+          "consent_recorded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Recorded At"
+          },
+          "consent_channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Channel"
+          },
+          "dnc": {
+            "type": "boolean",
+            "title": "Dnc"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "job_id",
+          "source_provider",
+          "source_ref",
+          "full_name",
+          "headline",
+          "current_title",
+          "current_company",
+          "location",
+          "skills",
+          "years_experience",
+          "linkedin_url",
+          "phone_e164",
+          "preferred_language",
+          "match_score",
+          "match_breakdown",
+          "consent_recorded_at",
+          "consent_channel",
+          "dnc"
+        ],
+        "title": "CandidateRead"
+      },
+      "CaseRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "persona_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Persona Id"
+          },
+          "archetype": {
+            "type": "string",
+            "title": "Archetype"
+          },
+          "transcript": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript"
+          },
+          "extracted_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Result"
+          },
+          "ground_truth": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Ground Truth"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics"
+          },
+          "failures": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "run_id",
+          "persona_id",
+          "archetype",
+          "transcript",
+          "extracted_result",
+          "ground_truth",
+          "metrics",
+          "failures"
+        ],
+        "title": "CaseRead"
+      },
+      "CaseSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "persona_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Persona Id"
+          },
+          "archetype": {
+            "type": "string",
+            "title": "Archetype"
+          },
+          "turn_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turn Count"
+          },
+          "estimated_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "persona_id",
+          "archetype",
+          "turn_count",
+          "estimated_seconds"
+        ],
+        "title": "CaseSummary",
+        "description": "One row of RunRead.case_summaries \u2014 enough to pick a case to drill into, not the full\ntranscript (see GET /runs/{id}/cases/{case_id} for that)."
+      },
+      "ConsentCreate": {
+        "properties": {
+          "phone_e164": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Phone E164"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "default": "MANUAL"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "phone_e164"
+        ],
+        "title": "ConsentCreate"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JobCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Title"
+          },
+          "raw_jd": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Raw Jd"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "raw_jd"
+        ],
+        "title": "JobCreate"
+      },
+      "JobRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "raw_jd": {
+            "type": "string",
+            "title": "Raw Jd"
+          },
+          "compiled": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compiled"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "raw_jd",
+          "compiled",
+          "created_at"
+        ],
+        "title": "JobRead"
+      },
+      "Language": {
+        "type": "string",
+        "enum": [
+          "ENGLISH",
+          "HINDI",
+          "TAMIL",
+          "TELUGU",
+          "KANNADA",
+          "MARATHI",
+          "MALAYALAM",
+          "GUJARATI",
+          "BENGALI",
+          "TURKISH",
+          "ARABIC",
+          "SPANISH"
+        ],
+        "title": "Language",
+        "description": "Belongs to the agent, not the call \u2014 see CLAUDE.md."
+      },
+      "PatchAcceptResponse": {
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/VersionSummary"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunRead"
+          },
+          "score_delta": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Score Delta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "run",
+          "score_delta"
+        ],
+        "title": "PatchAcceptResponse"
+      },
+      "PatchRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "proposed_agent_prompt": {
+            "type": "string",
+            "title": "Proposed Agent Prompt"
+          },
+          "rationale": {
+            "items": {},
+            "type": "array",
+            "title": "Rationale"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "resulting_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resulting Version Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "run_id",
+          "proposed_agent_prompt",
+          "rationale",
+          "accepted",
+          "resulting_version_id"
+        ],
+        "title": "PatchRead"
+      },
+      "PersonaRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "archetype": {
+            "type": "string",
+            "title": "Archetype"
+          },
+          "profile": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Profile"
+          },
+          "ground_truth": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Ground Truth"
+          },
+          "behaviour": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Behaviour"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "archetype",
+          "profile",
+          "ground_truth",
+          "behaviour"
+        ],
+        "title": "PersonaRead"
+      },
+      "QueuedCall": {
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Candidate Id"
+          },
+          "outreach_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outreach Id"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "hunar_call_id": {
+            "type": "string",
+            "title": "Hunar Call Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "outreach_id",
+          "request_id",
+          "hunar_call_id"
+        ],
+        "title": "QueuedCall"
+      },
+      "RehearseAccepted": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "status"
+        ],
+        "title": "RehearseAccepted"
+      },
+      "RequirementsUpdate": {
+        "properties": {
+          "raw_jd": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Raw Jd"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "raw_jd"
+        ],
+        "title": "RequirementsUpdate",
+        "description": "Body for PUT /jobs/{id}/requirements \u2014 a revised raw JD. Recompiling always creates new\ndraft AgentVersion row(s); it never edits an existing one (CLAUDE.md: versions immutable)."
+      },
+      "RequirementsUpdateResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/VersionSummary"
+            },
+            "type": "array",
+            "title": "Versions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id",
+          "versions"
+        ],
+        "title": "RequirementsUpdateResponse"
+      },
+      "RunRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "agent_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Agent Version Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "scores": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scores"
+          },
+          "llm_calls": {
+            "type": "integer",
+            "title": "Llm Calls"
+          },
+          "cached_calls": {
+            "type": "integer",
+            "title": "Cached Calls"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "case_summaries": {
+            "items": {
+              "$ref": "#/components/schemas/CaseSummary"
+            },
+            "type": "array",
+            "title": "Case Summaries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "agent_version_id",
+          "status",
+          "scores",
+          "llm_calls",
+          "cached_calls",
+          "started_at",
+          "finished_at",
+          "error",
+          "case_summaries"
+        ],
+        "title": "RunRead"
+      },
+      "SourceRequest": {
+        "properties": {
+          "titles": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Titles"
+          },
+          "skills": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skills"
+          },
+          "locations": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locations"
+          },
+          "min_years": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Years"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Limit",
+            "default": 10
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SourceRequest",
+        "description": "Body for POST /jobs/{id}/source. Every field optional \u2014 omitted fields fall back to the\njob's own compiled search_query, so 'source more like this' needs no body at all."
+      },
+      "SourceResponse": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateRead"
+            },
+            "type": "array",
+            "title": "Candidates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider",
+          "cached",
+          "candidates"
+        ],
+        "title": "SourceResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VersionHistoryRow": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "version_no": {
+            "type": "integer",
+            "title": "Version No"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/AgentVersionOrigin"
+          },
+          "hunar_agent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hunar Agent Id"
+          },
+          "latest_composite_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Composite Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version_no",
+          "language",
+          "origin",
+          "hunar_agent_id",
+          "latest_composite_score"
+        ],
+        "title": "VersionHistoryRow",
+        "description": "One row of GET /jobs/{id}/versions: a version plus its most recent rehearsal composite,\nif it has been rehearsed at all."
+      },
+      "VersionSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "version_no": {
+            "type": "integer",
+            "title": "Version No"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/AgentVersionOrigin"
+          },
+          "hunar_agent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hunar Agent Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "job_id",
+          "version_no",
+          "language",
+          "origin",
+          "hunar_agent_id"
+        ],
+        "title": "VersionSummary"
+      },
+      "WebhookEventRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "signature_valid": {
+            "type": "boolean",
+            "title": "Signature Valid"
+          },
+          "raw_payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Raw Payload"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "event_type",
+          "call_id",
+          "request_id",
+          "signature_valid",
+          "raw_payload",
+          "received_at"
+        ],
+        "title": "WebhookEventRead"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "jobs",
+      "description": "A job holds the raw JD, its compiled requirements, agent versions, sourced candidates, and the live call board. Requirements are compiled into a new draft AgentVersion per language \u2014 versions are immutable, never edited in place."
+    },
+    {
+      "name": "rehearsal",
+      "description": "Rehearse an agent version against six comparable personas before it ever calls a real person, score the result on four independent metrics, and patch the prompt to fix what failed \u2014 with the patch's effect measured by re-rehearsing, never assumed."
+    },
+    {
+      "name": "candidates",
+      "description": "Per-candidate edits and consent. A call is only ever placed with an explicitly consented number (or one on the demo allow-list) \u2014 see POST /jobs/{id}/call's unbypassable guard."
+    },
+    {
+      "name": "webhooks",
+      "description": "Inbound Hunar call-lifecycle events. Signature-verified, append-only logged regardless of outcome, and idempotent \u2014 GET /jobs/{id}/board's own polling is what keeps the board correct even if these never arrive."
+    },
+    {
+      "name": "debug",
+      "description": "Diagnostic read-only views, not part of the product surface."
+    },
+    {
+      "name": "health",
+      "description": "Liveness and capability probe."
+    }
+  ]
+}

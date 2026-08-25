@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "message": "Agent not found.",
+  "details": {
+    "id": "agt_00000000000000000000000001"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "agt_00000000000000000000000001",
+  "name": "Understudy Screener (EN)",
+  "language": "ENGLISH",
+  "voice_persona": "NEHA",
+  "persona_name": "Neha",
+  "agent_prompt": "You are a recruiter screening candidates for a backend role.",
+  "objective": "Determine interest, notice period and expected CTC.",
+  "introduction": "Hi {{candidate_name}}, calling about the {{role_title}} role.",
+  "result_prompt": "Summarise interest, notice period and expected CTC.",
+  "result_schema": {
+    "type": "object",
+    "properties": {
+      "interested": {
+        "type": "boolean"
+      },
+      "notice_period_days": {
+        "type": "integer"
+      },
+      "expected_ctc": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "interested"
+    ]
+  },
+  "custom_variables": [
+    "candidate_name",
+    "role_title"
+  ],
+  "created_at": "2026-08-01T09:15:00Z",
+  "updated_at": "2026-08-01T09:15:00Z"
+}

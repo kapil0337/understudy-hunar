@@ -1,0 +1,13 @@
+{
+  "event_type": "call.status",
+  "call_id": "cal_00000000000000000000000001",
+  "request_id": "job1234-cand5678-a1",
+  "agent_id": "agt_00000000000000000000000001",
+  "timestamp": "2026-08-02T10:01:00Z",
+  "status": "IN_PROGRESS",
+  "lifecycle_status": "DIALING",
+  "answered_by": "HUMAN",
+  "engagement_status": "ENGAGED",
+  "duration_seconds": 12,
+  "error_message": null
+}

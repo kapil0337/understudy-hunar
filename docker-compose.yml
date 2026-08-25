@@ -1,0 +1,74 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: understudy
+      POSTGRES_PASSWORD: understudy
+      POSTGRES_DB: understudy
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U understudy -d understudy"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Only started for `make test` (docker compose --profile test up). tmpfs +
+  # no volume: a disposable database that's fast and never carries state
+  # between test runs.
+  postgres-test:
+    image: postgres:17-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: understudy
+      POSTGRES_PASSWORD: understudy
+      POSTGRES_DB: understudy_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U understudy -d understudy_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      # Always the in-network hostname — a developer's local .env may point
+      # DATABASE_URL elsewhere, but inside compose only `postgres` resolves.
+      DATABASE_URL: postgresql+asyncpg://understudy:understudy@postgres:5432/understudy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    env_file:
+      - path: ./web/.env.local
+        required: false
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

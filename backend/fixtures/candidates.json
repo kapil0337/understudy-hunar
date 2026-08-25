@@ -1,0 +1,644 @@
+[
+  {
+    "source_ref": "fx_001",
+    "full_name": "Karthik Raja",
+    "headline": "Delivery Rider at Speedy Wheels Logistics",
+    "current_title": "Delivery Rider",
+    "current_company": "Speedy Wheels Logistics",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "city navigation"
+    ],
+    "years_experience": 7.0,
+    "linkedin_url": "https://linkedin.com/in/karthik-raja-001",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_002",
+    "full_name": "Priya Suresh",
+    "headline": "Food Delivery Executive at Urban Express Logistics",
+    "current_title": "Food Delivery Executive",
+    "current_company": "Urban Express Logistics",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "prior delivery experience"
+    ],
+    "years_experience": 8.5,
+    "linkedin_url": "https://linkedin.com/in/priya-suresh-002",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_003",
+    "full_name": "Senthil Kumar",
+    "headline": "Two-Wheeler Delivery Partner at QuickServe Delivery",
+    "current_title": "Two-Wheeler Delivery Partner",
+    "current_company": "QuickServe Delivery",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "city navigation",
+      "customer service"
+    ],
+    "years_experience": 1.0,
+    "linkedin_url": "https://linkedin.com/in/senthil-kumar-003",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_004",
+    "full_name": "Lakshmi Narayanan",
+    "headline": "Logistics Delivery Associate at CityLink Couriers",
+    "current_title": "Logistics Delivery Associate",
+    "current_company": "CityLink Couriers",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "city navigation",
+      "basic English"
+    ],
+    "years_experience": 1.0,
+    "linkedin_url": "https://linkedin.com/in/lakshmi-narayanan-004",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_005",
+    "full_name": "Vijay Anand",
+    "headline": "Delivery Rider at Speedy Wheels Logistics",
+    "current_title": "Delivery Rider",
+    "current_company": "Speedy Wheels Logistics",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "city navigation"
+    ],
+    "years_experience": 2.5,
+    "linkedin_url": "https://linkedin.com/in/vijay-anand-005",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_006",
+    "full_name": "Kavitha Elango",
+    "headline": "Food Delivery Executive at Urban Express Logistics",
+    "current_title": "Food Delivery Executive",
+    "current_company": "Urban Express Logistics",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "prior delivery experience"
+    ],
+    "years_experience": 4.0,
+    "linkedin_url": "https://linkedin.com/in/kavitha-elango-006",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_007",
+    "full_name": "Rajesh Murugan",
+    "headline": "Two-Wheeler Delivery Partner at QuickServe Delivery",
+    "current_title": "Two-Wheeler Delivery Partner",
+    "current_company": "QuickServe Delivery",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "city navigation",
+      "customer service"
+    ],
+    "years_experience": 4.0,
+    "linkedin_url": "https://linkedin.com/in/rajesh-murugan-007",
+    "preferred_language": "TAMIL"
+  },
+  {
+    "source_ref": "fx_008",
+    "full_name": "Meena Bharathi",
+    "headline": "Logistics Delivery Associate at CityLink Couriers",
+    "current_title": "Logistics Delivery Associate",
+    "current_company": "CityLink Couriers",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "city navigation",
+      "basic English"
+    ],
+    "years_experience": 5.5,
+    "linkedin_url": "https://linkedin.com/in/meena-bharathi-008",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_009",
+    "full_name": "Arun Prakash",
+    "headline": "Delivery Rider at Speedy Wheels Logistics",
+    "current_title": "Delivery Rider",
+    "current_company": "Speedy Wheels Logistics",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "city navigation"
+    ],
+    "years_experience": 7.0,
+    "linkedin_url": "https://linkedin.com/in/arun-prakash-009",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_010",
+    "full_name": "Divya Shankar",
+    "headline": "Food Delivery Executive at Urban Express Logistics",
+    "current_title": "Food Delivery Executive",
+    "current_company": "Urban Express Logistics",
+    "location": "Chennai",
+    "skills": [
+      "two-wheeler riding",
+      "smartphone use",
+      "prior delivery experience"
+    ],
+    "years_experience": 7.0,
+    "linkedin_url": "https://linkedin.com/in/divya-shankar-010",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_011",
+    "full_name": "Manjunath Gowda",
+    "headline": "Retail Sales Associate at CityMart Retail",
+    "current_title": "Retail Sales Associate",
+    "current_company": "CityMart Retail",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "billing",
+      "spoken Kannada"
+    ],
+    "years_experience": 0.0,
+    "linkedin_url": "https://linkedin.com/in/manjunath-gowda-011",
+    "preferred_language": "KANNADA"
+  },
+  {
+    "source_ref": "fx_012",
+    "full_name": "Shreya Hegde",
+    "headline": "Store Associate at BrightStore Retail",
+    "current_title": "Store Associate",
+    "current_company": "BrightStore Retail",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "spoken Kannada",
+      "spoken English"
+    ],
+    "years_experience": 1.5,
+    "linkedin_url": "https://linkedin.com/in/shreya-hegde-012",
+    "preferred_language": "KANNADA"
+  },
+  {
+    "source_ref": "fx_013",
+    "full_name": "Nagaraj Shetty",
+    "headline": "Customer Service Associate at ValueMart",
+    "current_title": "Customer Service Associate",
+    "current_company": "ValueMart",
+    "location": "Bengaluru",
+    "skills": [
+      "billing",
+      "cash handling",
+      "inventory management"
+    ],
+    "years_experience": 3.0,
+    "linkedin_url": "https://linkedin.com/in/nagaraj-shetty-013",
+    "preferred_language": "KANNADA"
+  },
+  {
+    "source_ref": "fx_014",
+    "full_name": "Pooja Rao",
+    "headline": "Billing Executive at Metro Retail Pvt Ltd",
+    "current_title": "Billing Executive",
+    "current_company": "Metro Retail Pvt Ltd",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "billing",
+      "spoken English"
+    ],
+    "years_experience": 3.0,
+    "linkedin_url": "https://linkedin.com/in/pooja-rao-014",
+    "preferred_language": "KANNADA"
+  },
+  {
+    "source_ref": "fx_015",
+    "full_name": "Girish Kumar",
+    "headline": "Retail Sales Associate at CityMart Retail",
+    "current_title": "Retail Sales Associate",
+    "current_company": "CityMart Retail",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "billing",
+      "spoken Kannada"
+    ],
+    "years_experience": 4.5,
+    "linkedin_url": "https://linkedin.com/in/girish-kumar-015",
+    "preferred_language": "KANNADA"
+  },
+  {
+    "source_ref": "fx_016",
+    "full_name": "Anitha Nayak",
+    "headline": "Store Associate at BrightStore Retail",
+    "current_title": "Store Associate",
+    "current_company": "BrightStore Retail",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "spoken Kannada",
+      "spoken English"
+    ],
+    "years_experience": 6.0,
+    "linkedin_url": "https://linkedin.com/in/anitha-nayak-016",
+    "preferred_language": "KANNADA"
+  },
+  {
+    "source_ref": "fx_017",
+    "full_name": "Ravi Shankar",
+    "headline": "Customer Service Associate at ValueMart",
+    "current_title": "Customer Service Associate",
+    "current_company": "ValueMart",
+    "location": "Bengaluru",
+    "skills": [
+      "billing",
+      "cash handling",
+      "inventory management"
+    ],
+    "years_experience": 6.0,
+    "linkedin_url": "https://linkedin.com/in/ravi-shankar-017",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_018",
+    "full_name": "Sowmya Bhat",
+    "headline": "Billing Executive at Metro Retail Pvt Ltd",
+    "current_title": "Billing Executive",
+    "current_company": "Metro Retail Pvt Ltd",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "billing",
+      "spoken English"
+    ],
+    "years_experience": 7.5,
+    "linkedin_url": "https://linkedin.com/in/sowmya-bhat-018",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_019",
+    "full_name": "Prakash Reddy",
+    "headline": "Retail Sales Associate at CityMart Retail",
+    "current_title": "Retail Sales Associate",
+    "current_company": "CityMart Retail",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "billing",
+      "spoken Kannada"
+    ],
+    "years_experience": 9.0,
+    "linkedin_url": "https://linkedin.com/in/prakash-reddy-019",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_020",
+    "full_name": "Deepa Kulkarni",
+    "headline": "Store Associate at BrightStore Retail",
+    "current_title": "Store Associate",
+    "current_company": "BrightStore Retail",
+    "location": "Bengaluru",
+    "skills": [
+      "customer service",
+      "spoken Kannada",
+      "spoken English"
+    ],
+    "years_experience": 0.0,
+    "linkedin_url": "https://linkedin.com/in/deepa-kulkarni-020",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_021",
+    "full_name": "Srinivas Reddy",
+    "headline": "Customer Support Associate at SafeGuard Services",
+    "current_title": "Customer Support Associate",
+    "current_company": "SafeGuard Services",
+    "location": "Hyderabad",
+    "skills": [
+      "customer service",
+      "spoken Telugu",
+      "communication skills"
+    ],
+    "years_experience": 0.0,
+    "linkedin_url": "https://linkedin.com/in/srinivas-reddy-021",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_022",
+    "full_name": "Swathi Rao",
+    "headline": "Kitchen Staff at QuickServe Hospitality",
+    "current_title": "Kitchen Staff",
+    "current_company": "QuickServe Hospitality",
+    "location": "Hyderabad",
+    "skills": [
+      "food safety",
+      "spoken Telugu",
+      "basic numeracy"
+    ],
+    "years_experience": 1.5,
+    "linkedin_url": "https://linkedin.com/in/swathi-rao-022",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_023",
+    "full_name": "Naveen Kumar",
+    "headline": "Security Guard at Metro Facilities Management",
+    "current_title": "Security Guard",
+    "current_company": "Metro Facilities Management",
+    "location": "Hyderabad",
+    "skills": [
+      "spoken Telugu",
+      "spoken Hindi",
+      "communication skills"
+    ],
+    "years_experience": 3.0,
+    "linkedin_url": "https://linkedin.com/in/naveen-kumar-023",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_024",
+    "full_name": "Anusha Chowdary",
+    "headline": "Housekeeping Associate at Urban Express Logistics",
+    "current_title": "Housekeeping Associate",
+    "current_company": "Urban Express Logistics",
+    "location": "Hyderabad",
+    "skills": [
+      "customer service",
+      "spoken Hindi",
+      "basic numeracy"
+    ],
+    "years_experience": 3.0,
+    "linkedin_url": "https://linkedin.com/in/anusha-chowdary-024",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_025",
+    "full_name": "Ramesh Babu",
+    "headline": "Food Delivery Executive at SafeGuard Services",
+    "current_title": "Food Delivery Executive",
+    "current_company": "SafeGuard Services",
+    "location": "Hyderabad",
+    "skills": [
+      "customer service",
+      "spoken Telugu",
+      "communication skills"
+    ],
+    "years_experience": 4.5,
+    "linkedin_url": "https://linkedin.com/in/ramesh-babu-025",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_026",
+    "full_name": "Sireesha Pilla",
+    "headline": "Customer Support Associate at QuickServe Hospitality",
+    "current_title": "Customer Support Associate",
+    "current_company": "QuickServe Hospitality",
+    "location": "Hyderabad",
+    "skills": [
+      "food safety",
+      "spoken Telugu",
+      "basic numeracy"
+    ],
+    "years_experience": 6.0,
+    "linkedin_url": "https://linkedin.com/in/sireesha-pilla-026",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_027",
+    "full_name": "Krishna Murthy",
+    "headline": "Kitchen Staff at Metro Facilities Management",
+    "current_title": "Kitchen Staff",
+    "current_company": "Metro Facilities Management",
+    "location": "Hyderabad",
+    "skills": [
+      "spoken Telugu",
+      "spoken Hindi",
+      "communication skills"
+    ],
+    "years_experience": 6.0,
+    "linkedin_url": "https://linkedin.com/in/krishna-murthy-027",
+    "preferred_language": "TELUGU"
+  },
+  {
+    "source_ref": "fx_028",
+    "full_name": "Padma Priya",
+    "headline": "Security Guard at Urban Express Logistics",
+    "current_title": "Security Guard",
+    "current_company": "Urban Express Logistics",
+    "location": "Hyderabad",
+    "skills": [
+      "customer service",
+      "spoken Hindi",
+      "basic numeracy"
+    ],
+    "years_experience": 7.5,
+    "linkedin_url": "https://linkedin.com/in/padma-priya-028",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_029",
+    "full_name": "Venkat Rao",
+    "headline": "Housekeeping Associate at SafeGuard Services",
+    "current_title": "Housekeeping Associate",
+    "current_company": "SafeGuard Services",
+    "location": "Hyderabad",
+    "skills": [
+      "customer service",
+      "spoken Telugu",
+      "communication skills"
+    ],
+    "years_experience": 9.0,
+    "linkedin_url": "https://linkedin.com/in/venkat-rao-029",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_030",
+    "full_name": "Haritha Devi",
+    "headline": "Food Delivery Executive at QuickServe Hospitality",
+    "current_title": "Food Delivery Executive",
+    "current_company": "QuickServe Hospitality",
+    "location": "Hyderabad",
+    "skills": [
+      "food safety",
+      "spoken Telugu",
+      "basic numeracy"
+    ],
+    "years_experience": 0.0,
+    "linkedin_url": "https://linkedin.com/in/haritha-devi-030",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_031",
+    "full_name": "Amit Deshmukh",
+    "headline": "Warehouse Picker Packer at Prime Warehouse Solutions",
+    "current_title": "Warehouse Picker Packer",
+    "current_company": "Prime Warehouse Solutions",
+    "location": "Pune",
+    "skills": [
+      "lifting up to 15kg",
+      "basic numeracy",
+      "barcode scanner"
+    ],
+    "years_experience": 4.0,
+    "linkedin_url": "https://linkedin.com/in/amit-deshmukh-031",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_032",
+    "full_name": "Sunita Jadhav",
+    "headline": "Warehouse Associate at Sunrise Logistics",
+    "current_title": "Warehouse Associate",
+    "current_company": "Sunrise Logistics",
+    "location": "Pune",
+    "skills": [
+      "basic numeracy",
+      "barcode scanner",
+      "inventory management"
+    ],
+    "years_experience": 5.5,
+    "linkedin_url": "https://linkedin.com/in/sunita-jadhav-032",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_033",
+    "full_name": "Rahul Pawar",
+    "headline": "Inventory Associate at Everyday Retail Co.",
+    "current_title": "Inventory Associate",
+    "current_company": "Everyday Retail Co.",
+    "location": "Pune",
+    "skills": [
+      "lifting up to 15kg",
+      "warehouse safety",
+      "forklift operation"
+    ],
+    "years_experience": 7.0,
+    "linkedin_url": "https://linkedin.com/in/rahul-pawar-033",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_034",
+    "full_name": "Neha Kulkarni",
+    "headline": "Logistics Helper at Metro Express Logistics",
+    "current_title": "Logistics Helper",
+    "current_company": "Metro Express Logistics",
+    "location": "Pune",
+    "skills": [
+      "barcode scanner",
+      "inventory management",
+      "basic numeracy"
+    ],
+    "years_experience": 7.0,
+    "linkedin_url": "https://linkedin.com/in/neha-kulkarni-034",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_035",
+    "full_name": "Sandeep More",
+    "headline": "Warehouse Picker Packer at Prime Warehouse Solutions",
+    "current_title": "Warehouse Picker Packer",
+    "current_company": "Prime Warehouse Solutions",
+    "location": "Pune",
+    "skills": [
+      "lifting up to 15kg",
+      "basic numeracy",
+      "barcode scanner"
+    ],
+    "years_experience": 8.5,
+    "linkedin_url": "https://linkedin.com/in/sandeep-more-035",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_036",
+    "full_name": "Kiran Shinde",
+    "headline": "Warehouse Associate at Sunrise Logistics",
+    "current_title": "Warehouse Associate",
+    "current_company": "Sunrise Logistics",
+    "location": "Pune",
+    "skills": [
+      "basic numeracy",
+      "barcode scanner",
+      "inventory management"
+    ],
+    "years_experience": 1.0,
+    "linkedin_url": "https://linkedin.com/in/kiran-shinde-036",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_037",
+    "full_name": "Vikram Patil",
+    "headline": "Inventory Associate at Everyday Retail Co.",
+    "current_title": "Inventory Associate",
+    "current_company": "Everyday Retail Co.",
+    "location": "Pune",
+    "skills": [
+      "lifting up to 15kg",
+      "warehouse safety",
+      "forklift operation"
+    ],
+    "years_experience": 1.0,
+    "linkedin_url": "https://linkedin.com/in/vikram-patil-037",
+    "preferred_language": "HINDI"
+  },
+  {
+    "source_ref": "fx_038",
+    "full_name": "Sangeeta Gaikwad",
+    "headline": "Logistics Helper at Metro Express Logistics",
+    "current_title": "Logistics Helper",
+    "current_company": "Metro Express Logistics",
+    "location": "Pune",
+    "skills": [
+      "barcode scanner",
+      "inventory management",
+      "basic numeracy"
+    ],
+    "years_experience": 2.5,
+    "linkedin_url": "https://linkedin.com/in/sangeeta-gaikwad-038",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_039",
+    "full_name": "Manoj Bhosale",
+    "headline": "Warehouse Picker Packer at Prime Warehouse Solutions",
+    "current_title": "Warehouse Picker Packer",
+    "current_company": "Prime Warehouse Solutions",
+    "location": "Pune",
+    "skills": [
+      "lifting up to 15kg",
+      "basic numeracy",
+      "barcode scanner"
+    ],
+    "years_experience": 4.0,
+    "linkedin_url": "https://linkedin.com/in/manoj-bhosale-039",
+    "preferred_language": "ENGLISH"
+  },
+  {
+    "source_ref": "fx_040",
+    "full_name": "Priyanka Salunkhe",
+    "headline": "Warehouse Associate at Sunrise Logistics",
+    "current_title": "Warehouse Associate",
+    "current_company": "Sunrise Logistics",
+    "location": "Pune",
+    "skills": [
+      "basic numeracy",
+      "barcode scanner",
+      "inventory management"
+    ],
+    "years_experience": 4.0,
+    "linkedin_url": "https://linkedin.com/in/priyanka-salunkhe-040",
+    "preferred_language": "ENGLISH"
+  }
+]

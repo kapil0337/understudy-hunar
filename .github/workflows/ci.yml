@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: understudy
+          POSTGRES_PASSWORD: understudy
+          POSTGRES_DB: understudy_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U understudy -d understudy_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://understudy:understudy@localhost:5432/understudy_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: ruff check
+        run: uv run ruff check .
+
+      - name: ruff format --check
+        run: uv run ruff format --check .
+
+      - name: mypy
+        run: uv run mypy app alembic tests
+
+      # alembic migrates whatever DATABASE_URL points at; scoped to this step only, that is
+      # deliberately the test database. pytest itself never sees DATABASE_URL — conftest
+      # points it at a dead DSN and the suite aborts if it ever equals TEST_DATABASE_URL.
+      - name: alembic upgrade head
+        run: uv run alembic upgrade head
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+
+      - name: pytest
+        run: uv run pytest
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      - name: tsc --noEmit
+        run: npx tsc --noEmit
+
+      - name: eslint
+        run: npm run lint
+
+      - name: next build
+        run: npm run build
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grep for live Hunar/NVIDIA key prefixes
+        # Two files legitimately contain these prefixes as *patterns to defend against*, not as
+        # secrets, and are filtered out below by exact path so the rest of the repo (including
+        # every fixtures/ directory) stays covered:
+        #   - backend/app/core/logging.py            declares them to redact them from logs
+        #   - backend/scripts/capture_hunar_fixtures.py  refuses to write a fixture matching them
+        # ci.yml is excluded by name because this step's own script contains the prefixes as the
+        # pattern being searched for. Adding to this list should require a good reason.
+        run: |
+          if grep -rEn \
+              --exclude-dir=.git \
+              --exclude-dir=node_modules \
+              --exclude-dir=.next \
+              --exclude-dir=.venv \
+              --exclude-dir=__pycache__ \
+              --exclude=ci.yml \
+              --exclude=*.pyc \
+              'hunar_va_live_sk_|nvapi-' . \
+              | grep -vE '^\./backend/(app/core/logging\.py|scripts/capture_hunar_fixtures\.py):'; then
+            echo "::error::Found a live-looking Hunar or NVIDIA API key prefix in the repo."
+            exit 1
+          fi

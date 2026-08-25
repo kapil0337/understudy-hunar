@@ -1,0 +1,25 @@
+{
+  "id": "cal_00000000000000000000000001",
+  "agent_id": "agt_00000000000000000000000001",
+  "callee_name": "Test Candidate",
+  "mobile_number": "+919876543210",
+  "status": "COMPLETED",
+  "request_id": "job1234-cand5678-a1",
+  "duration_seconds": 143,
+  "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+  "result": {
+    "interested": true,
+    "notice_period_days": 30,
+    "expected_ctc": "18 LPA"
+  },
+  "custom_data": {
+    "candidate_name": "Test Candidate",
+    "role_title": "Backend Engineer"
+  },
+  "retry_config": {
+    "max_retries": 2,
+    "retry_interval_hours": 6
+  },
+  "created_at": "2026-08-02T10:00:00Z",
+  "updated_at": "2026-08-02T10:03:12Z"
+}

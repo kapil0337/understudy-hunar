@@ -1,0 +1,102 @@
+{
+  "role_title": "Delivery Rider",
+  "seniority": "entry",
+  "employment_type": "full_time",
+  "must_have_skills": [
+    "two-wheeler riding",
+    "smartphone use",
+    "city navigation"
+  ],
+  "nice_to_have_skills": [
+    "prior delivery experience"
+  ],
+  "min_years_experience": 0,
+  "locations": [
+    "Chennai"
+  ],
+  "shift_pattern": "Morning 7AM-3PM or evening 3PM-11PM, 6 days a week",
+  "salary_range": "Rs 18,000 - Rs 24,000 per month",
+  "candidate_languages": [
+    "TAMIL",
+    "ENGLISH"
+  ],
+  "screening_questions": [
+    {
+      "id": "has_two_wheeler",
+      "text": "Do you have your own two-wheeler in working condition?",
+      "answer_type": "boolean",
+      "why_it_matters": "Own vehicle is mandatory for this role."
+    },
+    {
+      "id": "has_licence",
+      "text": "Do you have a valid two-wheeler driving licence?",
+      "answer_type": "boolean",
+      "why_it_matters": "Riding without a licence is not permitted."
+    },
+    {
+      "id": "preferred_shift",
+      "text": "Which shift suits you better, morning or evening?",
+      "answer_type": "enum",
+      "options": [
+        "morning",
+        "evening",
+        "either"
+      ],
+      "why_it_matters": "We staff both shifts and need to know availability."
+    },
+    {
+      "id": "years_riding",
+      "text": "How many years have you been riding a two-wheeler regularly?",
+      "answer_type": "number",
+      "why_it_matters": "Comfort in city traffic reduces early attrition."
+    },
+    {
+      "id": "has_smartphone",
+      "text": "Do you have an Android smartphone you can use for work?",
+      "answer_type": "boolean",
+      "why_it_matters": "The rider app only runs on Android."
+    }
+  ],
+  "knockout_criteria": [
+    {
+      "question_id": "has_two_wheeler",
+      "operator": "eq",
+      "value": false
+    },
+    {
+      "question_id": "has_licence",
+      "operator": "eq",
+      "value": false
+    },
+    {
+      "question_id": "has_smartphone",
+      "operator": "eq",
+      "value": false
+    }
+  ],
+  "facts_the_agent_may_state": [
+    "The role is delivery rider for Chennai operations covering Adyar, Velachery and T. Nagar.",
+    "Pay is Rs 18,000 to Rs 24,000 per month depending on shift and deliveries completed.",
+    "A fuel allowance of Rs 2,500 per month is paid separately.",
+    "Payouts are weekly, every Monday.",
+    "Shifts are morning 7 AM to 3 PM or evening 3 PM to 11 PM, six days a week with one weekly off.",
+    "Most deliveries are within 5 km of the assigned zone.",
+    "Company t-shirt, delivery bag and accident insurance cover are provided.",
+    "There is a Rs 1,000 joining bonus after 50 completed deliveries.",
+    "Freshers are welcome; prior delivery experience is not required.",
+    "An own two-wheeler, a valid licence and an Android smartphone are required."
+  ],
+  "search_query": {
+    "titles": [
+      "Delivery Rider",
+      "Delivery Executive"
+    ],
+    "skills": [
+      "two-wheeler riding"
+    ],
+    "locations": [
+      "Chennai"
+    ],
+    "min_years": 0
+  }
+}

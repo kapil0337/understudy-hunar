@@ -1,0 +1,105 @@
+{
+  "role_title": "Retail Sales Associate",
+  "seniority": "junior",
+  "employment_type": "full_time",
+  "must_have_skills": [
+    "customer service",
+    "billing",
+    "spoken Kannada",
+    "spoken English"
+  ],
+  "nice_to_have_skills": [
+    "spoken Hindi",
+    "POS systems"
+  ],
+  "min_years_experience": 1,
+  "locations": [
+    "Bengaluru"
+  ],
+  "shift_pattern": "Rotational 10AM-10PM, 5 days a week, weekend availability required",
+  "salary_range": "Rs 20,000 - Rs 26,000 per month plus incentive up to Rs 4,000",
+  "candidate_languages": [
+    "KANNADA",
+    "ENGLISH"
+  ],
+  "screening_questions": [
+    {
+      "id": "years_retail_experience",
+      "text": "How many years have you worked in retail or customer-facing sales?",
+      "answer_type": "number",
+      "why_it_matters": "The role requires at least one year of customer-facing experience."
+    },
+    {
+      "id": "speaks_kannada",
+      "text": "Are you comfortable speaking with customers in Kannada?",
+      "answer_type": "boolean",
+      "why_it_matters": "Most walk-in customers speak Kannada."
+    },
+    {
+      "id": "weekend_availability",
+      "text": "Can you work on weekends, which are our busiest days?",
+      "answer_type": "boolean",
+      "why_it_matters": "Weekend cover is mandatory for this role."
+    },
+    {
+      "id": "can_stand_full_shift",
+      "text": "Are you comfortable standing for a full shift on the shop floor?",
+      "answer_type": "boolean",
+      "why_it_matters": "The role is on the shop floor throughout the shift."
+    },
+    {
+      "id": "preferred_store",
+      "text": "Which store is easier for you to reach, Indiranagar or Koramangala?",
+      "answer_type": "enum",
+      "options": [
+        "Indiranagar",
+        "Koramangala",
+        "either"
+      ],
+      "why_it_matters": "We are staffing both locations."
+    }
+  ],
+  "knockout_criteria": [
+    {
+      "question_id": "years_retail_experience",
+      "operator": "lt",
+      "value": 1
+    },
+    {
+      "question_id": "speaks_kannada",
+      "operator": "eq",
+      "value": false
+    },
+    {
+      "question_id": "weekend_availability",
+      "operator": "eq",
+      "value": false
+    }
+  ],
+  "facts_the_agent_may_state": [
+    "The role is retail sales associate at our Indiranagar and Koramangala stores in Bengaluru.",
+    "Pay is Rs 20,000 to Rs 26,000 per month.",
+    "There is a monthly store-level sales incentive of up to Rs 4,000.",
+    "Shifts are rotational between 10 AM and 10 PM, five days a week with two rotating weekly offs.",
+    "Weekend availability is required because weekends are the busiest days.",
+    "Provident fund and ESI are provided as per statute.",
+    "Staff receive a 30 percent discount on all merchandise.",
+    "Uniform is provided.",
+    "The role requires at least one year of retail, hospitality or customer-facing sales experience.",
+    "Duties include greeting customers, explaining products, billing, restocking and month-end stock counts."
+  ],
+  "search_query": {
+    "titles": [
+      "Retail Sales Associate",
+      "Sales Associate"
+    ],
+    "skills": [
+      "customer service",
+      "billing"
+    ],
+    "locations": [
+      "Bengaluru"
+    ],
+    "min_years": 1
+  }
+}

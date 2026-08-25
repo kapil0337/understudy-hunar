@@ -1,0 +1,9 @@
+{
+  "success": false,
+  "message": "custom_data is missing required keys.",
+  "details": {
+    "custom_data": [
+      "role_title"
+    ]
+  }
+}

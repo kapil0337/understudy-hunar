@@ -1,0 +1,12 @@
+{
+  "event_type": "call.result",
+  "call_id": "cal_00000000000000000000000001",
+  "request_id": "job1234-cand5678-a1",
+  "agent_id": "agt_00000000000000000000000001",
+  "timestamp": "2026-08-02T10:03:25Z",
+  "result": {
+    "interested": true,
+    "notice_period_days": 30,
+    "expected_ctc": "18 LPA"
+  }
+}

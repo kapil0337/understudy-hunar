@@ -1,0 +1,13 @@
+{
+  "id": "cal_00000000000000000000000001",
+  "agent_id": "agt_00000000000000000000000001",
+  "callee_name": "Test Candidate",
+  "mobile_number": "+919876543210",
+  "status": "NOT_STARTED",
+  "request_id": "job1234-cand5678-a1",
+  "custom_data": {
+    "candidate_name": "Test Candidate",
+    "role_title": "Backend Engineer"
+  },
+  "created_at": "2026-08-02T10:00:00Z"
+}

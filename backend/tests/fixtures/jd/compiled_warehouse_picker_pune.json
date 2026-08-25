@@ -1,0 +1,104 @@
+{
+  "role_title": "Warehouse Picker Packer",
+  "seniority": "entry",
+  "employment_type": "full_time",
+  "must_have_skills": [
+    "lifting up to 15kg",
+    "basic numeracy",
+    "barcode scanner"
+  ],
+  "nice_to_have_skills": [
+    "prior warehouse experience"
+  ],
+  "min_years_experience": 0,
+  "locations": [
+    "Pune"
+  ],
+  "shift_pattern": "Day 8AM-5PM or night 8PM-5AM, 6 days a week",
+  "salary_range": "Rs 16,000 - Rs 21,000 per month",
+  "candidate_languages": [
+    "MARATHI",
+    "ENGLISH"
+  ],
+  "screening_questions": [
+    {
+      "id": "can_lift_15kg",
+      "text": "Are you able to lift up to 15 kilos repeatedly through a shift?",
+      "answer_type": "boolean",
+      "why_it_matters": "Lifting is a core physical requirement of the role."
+    },
+    {
+      "id": "shift_preference",
+      "text": "Would you prefer the day shift or the night shift?",
+      "answer_type": "enum",
+      "options": [
+        "day",
+        "night",
+        "either"
+      ],
+      "why_it_matters": "We are staffing both shifts and night carries an allowance."
+    },
+    {
+      "id": "can_reach_chakan",
+      "text": "Can you reach our Chakan facility, or one of the Chakan or Bhosari shuttle pickup points?",
+      "answer_type": "boolean",
+      "why_it_matters": "Reliable travel to site is essential for shift work."
+    },
+    {
+      "id": "warehouse_experience_years",
+      "text": "How many years of warehouse work have you done, if any?",
+      "answer_type": "number",
+      "why_it_matters": "Experience is preferred though we train freshers."
+    },
+    {
+      "id": "comfortable_standing",
+      "text": "Are you comfortable standing and walking for a full shift?",
+      "answer_type": "boolean",
+      "why_it_matters": "The role is on foot for the whole shift."
+    }
+  ],
+  "knockout_criteria": [
+    {
+      "question_id": "can_lift_15kg",
+      "operator": "eq",
+      "value": false
+    },
+    {
+      "question_id": "can_reach_chakan",
+      "operator": "eq",
+      "value": false
+    },
+    {
+      "question_id": "comfortable_standing",
+      "operator": "eq",
+      "value": false
+    }
+  ],
+  "facts_the_agent_may_state": [
+    "The role is warehouse picker and packer at our fulfilment centre in Chakan, Pune.",
+    "Pay is Rs 16,000 to Rs 21,000 per month based on shift and experience.",
+    "The night shift carries an additional allowance of Rs 3,000 per month.",
+    "Overtime is paid at 1.5 times the hourly rate.",
+    "Salary is credited by the 7th of each month.",
+    "Shifts are day 8 AM to 5 PM or night 8 PM to 5 AM, six days a week.",
+    "Safety shoes and gloves are provided.",
+    "A subsidised canteen meal is provided each shift.",
+    "A free shuttle runs from Chakan and Bhosari pickup points.",
+    "The work involves picking with a handheld scanner, packing cartons and lifting up to 15 kg.",
+    "Freshers are trained; prior warehouse experience is preferred but not required."
+  ],
+  "search_query": {
+    "titles": [
+      "Warehouse Picker",
+      "Packer"
+    ],
+    "skills": [
+      "picking",
+      "packing"
+    ],
+    "locations": [
+      "Pune"
+    ],
+    "min_years": 0
+  }
+}

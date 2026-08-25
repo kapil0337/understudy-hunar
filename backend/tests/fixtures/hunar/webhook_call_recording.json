@@ -1,0 +1,9 @@
+{
+  "event_type": "call.recording",
+  "call_id": "cal_00000000000000000000000001",
+  "request_id": "job1234-cand5678-a1",
+  "agent_id": "agt_00000000000000000000000001",
+  "timestamp": "2026-08-02T10:03:20Z",
+  "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+  "duration_seconds": 143
+}

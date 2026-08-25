@@ -1,0 +1,8 @@
+{
+  "event_type": "call.summary",
+  "call_id": "cal_00000000000000000000000001",
+  "request_id": "job1234-cand5678-a1",
+  "agent_id": "agt_00000000000000000000000001",
+  "timestamp": "2026-08-02T10:03:30Z",
+  "summary": "Candidate is interested; 30 day notice; expects 18 LPA."
+}
