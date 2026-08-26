@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -13,6 +15,7 @@ from app.core.logging import RequestIDMiddleware, configure_logging
 from app.core.settings import get_settings
 from app.db.migrate import run_migrations_with_lock
 from app.db.session import engine
+from app.worker import poll_loop
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -64,7 +67,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.warning("reduced_capability", disabled_integrations=disabled)
     else:
         logger.info("all_integrations_enabled")
+
+    # See Settings.run_worker_inline: only set on a platform that can't run app/worker.py as
+    # its own service at all. Everywhere else, the dedicated worker is strictly better (it
+    # isn't tied to the API process's own restarts/sleep) and this task is never created.
+    worker_task = asyncio.create_task(poll_loop()) if settings.run_worker_inline else None
+
     yield
+
+    if worker_task is not None:
+        worker_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await worker_task
 
 
 app = FastAPI(

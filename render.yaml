@@ -1,6 +1,13 @@
-# Render Blueprint for the backend only: the API (web service) and the job-queue worker it
-# depends on for every LLM call. The frontend deploys to Vercel from source (see web/README.md)
-# — Vercel does not read this file and does not run web/Dockerfile.
+# Render Blueprint for the backend only. The frontend deploys to Vercel from source (see
+# web/README.md) — Vercel does not read this file and does not run web/Dockerfile.
+#
+# One service, not two: a free-tier Render workspace rejects a `type: worker` service outright
+# ("service type is not available for this plan"), so RUN_WORKER_INLINE=true below runs
+# app/worker.py's poll loop as a background task inside the API process itself (see
+# app/main.py's lifespan) instead of as a separate service. If you're on a plan that supports
+# Background Workers, prefer splitting it back out — see git history for the two-service version
+# (a `type: worker` block, same image, `dockerCommand: python -m app.worker`, without
+# RUN_WORKER_INLINE) — a dedicated worker isn't tied to the API process's own restarts/sleep.
 #
 # `dockerContext: ./backend` matters on top of `dockerfilePath`: without it Render uploads the
 # whole monorepo (web/, docs/, node_modules once installed locally, etc.) as build context on
@@ -33,6 +40,8 @@ services:
         value: production
       - key: LOG_LEVEL
         value: INFO
+      - key: RUN_WORKER_INLINE
+        value: "true"
       - key: DATABASE_URL
         fromDatabase:
           name: understudy-db
@@ -45,7 +54,10 @@ services:
       - key: CHANNEL
         value: manual
       # Secrets — set these in the Render dashboard, not here. Every one of them is optional:
-      # the app boots and reports reduced capability without them (GET /healthz).
+      # the app boots and reports reduced capability without them (GET /healthz) — except that
+      # with RUN_WORKER_INLINE, at least one LLM key is what makes compile/rehearse/personas/
+      # patches actually run instead of sitting PENDING (same requirement a separate worker
+      # service would have had).
       - key: HUNAR_API_KEY
         sync: false
       - key: NVIDIA_API_KEY
@@ -59,38 +71,4 @@ services:
       - key: DEMO_ALLOWED_NUMBERS
         sync: false
       - key: PUBLIC_BASE_URL
-        sync: false
-
-  # Claims and executes BackgroundJob rows (compile_jd, regenerate_personas, propose_patch,
-  # rehearse) — see app/worker.py and app/services/background_jobs.py. Without this service,
-  # every one of those returns 202 and then sits PENDING forever: nothing is polling the queue.
-  # Same image as the web service, just a different start command and no HTTP port/health check.
-  # Only needs an LLM key and the database — it never touches Hunar, sourcing, or CORS.
-  #
-  # Render's free tier has historically only covered Web Services and Static Sites, not
-  # Background Workers — if `plan: free` isn't offered for this service type when you deploy,
-  # this one service needs at least Starter.
-  - type: worker
-    name: understudy-worker
-    runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    dockerCommand: python -m app.worker
-    plan: free
-    region: singapore
-    numInstances: 1
-    envVars:
-      - key: ENVIRONMENT
-        value: production
-      - key: LOG_LEVEL
-        value: INFO
-      - key: DATABASE_URL
-        fromDatabase:
-          name: understudy-db
-          property: connectionString
-      - key: NVIDIA_API_KEY
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
-      - key: GROQ_API_KEY
         sync: false

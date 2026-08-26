@@ -105,6 +105,16 @@ class Settings(BaseSettings):
         "without webhooks ever arriving.",
     )
 
+    run_worker_inline: bool = Field(
+        default=False,
+        description="Run app/worker.py's poll loop as a background task inside the API "
+        "process itself, instead of relying on a separate `python -m app.worker` service. For "
+        "a platform that can't run a second, portless service at all (e.g. a free-tier Render "
+        "workspace, which rejects a `type: worker` service outright) — see render.yaml. Local "
+        "Docker and any platform that *can* run a second service should leave this False and "
+        "keep the dedicated worker, which isn't subject to the API process's own restarts/sleep.",
+    )
+
     @property
     def demo_allowed_numbers_list(self) -> list[str]:
         return [number.strip() for number in self.demo_allowed_numbers.split(",") if number.strip()]

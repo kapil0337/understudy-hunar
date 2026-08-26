@@ -1,14 +1,21 @@
-"""Worker process: claims BackgroundJob rows and runs the LLM-heavy operation each names.
+"""Claims BackgroundJob rows and runs the LLM-heavy operation each names.
 
-Run with `python -m app.worker`. Same image/deps as the API (see backend/Dockerfile) — deployed
-as a second, portless service so the API's HTTP request path never blocks on a multi-minute
-chain of LLM calls (see app/services/background_jobs.py for why this exists instead of
-running the work inline).
+poll_loop() is used two ways:
 
-Deliberately simple: one process, a sleep-poll loop, no signal handling — an in-flight job that
-gets killed by a deploy just leaves its BackgroundJob (and, for `rehearse`, its RehearsalRun) in
-RUNNING forever, same as any other crash. Acceptable here; worth a retry/reaper pass before this
-carries real traffic.
+  * `python -m app.worker` — a second, portless process/service (see backend/Dockerfile,
+    docker-compose.yml), so the API's HTTP request path never blocks on a multi-minute chain of
+    LLM calls (see app/services/background_jobs.py for why this exists instead of running the
+    work inline). This is the shape to prefer wherever the platform supports a second service.
+  * app/main.py's lifespan, as a background asyncio task in the API process itself, when
+    RUN_WORKER_INLINE=true — for a platform (e.g. a free-tier Render workspace) that doesn't
+    support a second "background worker" service type at all. Same polling, same handlers, just
+    sharing the API's own process instead of getting one of its own.
+
+Deliberately simple: a sleep-poll loop, no signal handling beyond asyncio.CancelledError — an
+in-flight job that gets killed by a deploy (or, inline, by the API process itself shutting down
+mid-job) just leaves its BackgroundJob (and, for `rehearse`, its RehearsalRun) in RUNNING
+forever, same as any other crash. Acceptable here; worth a retry/reaper pass before this carries
+real traffic.
 """
 
 from __future__ import annotations
@@ -137,16 +144,22 @@ async def _process_one() -> bool:
         return True
 
 
-async def main() -> None:
-    settings = get_settings()
-    configure_logging(settings.log_level)
-    await run_migrations_with_lock(engine)
+async def poll_loop() -> None:
+    """Runs until cancelled. Caller is responsible for migrations having already run — main()
+    below does that for the standalone process; app/main.py's lifespan already does it for the
+    API itself before ever spawning this as a background task."""
     logger.info("worker_started")
-
     while True:
         processed = await _process_one()
         if not processed:
             await asyncio.sleep(POLL_INTERVAL_SECONDS)
+
+
+async def main() -> None:
+    settings = get_settings()
+    configure_logging(settings.log_level)
+    await run_migrations_with_lock(engine)
+    await poll_loop()
 
 
 if __name__ == "__main__":
