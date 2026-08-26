@@ -1,12 +1,13 @@
-"""Postgres-backed job queue: enqueue from a route, claim-and-execute from app/worker.py.
+"""Postgres-backed job queue: enqueue from a route, claim-and-execute from
+app/services/job_runner.py (via app/worker.py's loop, or app/api/routes/internal.py's bounded
+drain on a serverless deployment).
 
 Exists because compile_jd, regenerate_personas, propose_patch, and rehearse each make several
 sequential LLM calls and can run for minutes — too long to run inline in a request handler that
-might be served by a short-timeout serverless function (see docs/architecture or the plan this
-implements). No new infra: the background_job table IS the queue, claimed with
-`FOR UPDATE SKIP LOCKED` so multiple worker instances never double-process the same row — the
-same pattern the rest of this app already uses Postgres for instead of an external queue
-(RehearsalRun.status, refresh_outreach's polling).
+might be served by a short-timeout serverless function. No new infra: the background_job table
+IS the queue, claimed with `FOR UPDATE SKIP LOCKED` so multiple worker instances never
+double-process the same row — the same pattern the rest of this app already uses Postgres for
+instead of an external queue (RehearsalRun.status, refresh_outreach's polling).
 """
 
 from __future__ import annotations
@@ -14,11 +15,16 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, Literal
 
+import httpx
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
+from app.core.settings import get_settings
 from app.models.background_job import BackgroundJob
+
+logger = structlog.get_logger()
 
 JobKind = Literal["compile_jd", "regenerate_personas", "propose_patch", "rehearse"]
 
@@ -28,6 +34,37 @@ async def enqueue(session: AsyncSession, kind: JobKind, payload: dict[str, Any])
     session.add(job)
     await session.flush()
     return job
+
+
+async def enqueue_and_trigger(
+    session: AsyncSession, kind: JobKind, payload: dict[str, Any]
+) -> BackgroundJob:
+    """enqueue() + commit, then a best-effort nudge at POST /internal/process-jobs — the
+    serverless (Vercel) equivalent of app/worker.py already being awake and about to poll.
+
+    A no-op nudge (PUBLIC_BASE_URL or CRON_SECRET unset — true for local dev, Docker, Render,
+    and every test, all of which already have app/worker.py polling) is not a failure, and
+    neither is the nudge failing outright: that route is also on a Cron schedule, so this call
+    is purely a latency optimization, never a correctness dependency. Every current caller's
+    only write before this point is the job row itself, so folding the commit in here (rather
+    than leaving it to the caller) changes nothing about what gets persisted.
+    """
+    job = await enqueue(session, kind, payload)
+    await session.commit()
+    await _trigger_processing()
+    return job
+
+
+async def _trigger_processing() -> None:
+    settings = get_settings()
+    if not settings.public_base_url or not settings.cron_secret:
+        return
+    url = f"{settings.public_base_url.rstrip('/')}/internal/process-jobs"
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            await client.get(url, headers={"Authorization": f"Bearer {settings.cron_secret}"})
+    except httpx.HTTPError:
+        logger.warning("background_job_trigger_failed", url=url)
 
 
 async def claim_next(session: AsyncSession) -> BackgroundJob | None:

@@ -132,10 +132,9 @@ async def update_requirements(
     job_id: uuid.UUID, body: RequirementsUpdate, session: AsyncSession = Depends(get_db)
 ) -> RequirementsUpdateAccepted:
     await _get_job(session, job_id)
-    background_job = await background_jobs.enqueue(
+    background_job = await background_jobs.enqueue_and_trigger(
         session, "compile_jd", {"job_id": str(job_id), "raw_jd": body.raw_jd}
     )
-    await session.commit()
     return RequirementsUpdateAccepted(background_job_id=background_job.id)
 
 
@@ -245,10 +244,9 @@ async def list_personas(
     if existing:
         return [PersonaRead.model_validate(p, from_attributes=True) for p in existing]
 
-    background_job = await background_jobs.enqueue(
+    background_job = await background_jobs.enqueue_and_trigger(
         session, "regenerate_personas", {"job_id": str(job.id)}
     )
-    await session.commit()
     response.status_code = status.HTTP_202_ACCEPTED
     return PersonaGenerationAccepted(background_job_id=background_job.id)
 

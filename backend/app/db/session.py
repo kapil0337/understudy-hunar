@@ -12,7 +12,17 @@ settings = get_settings()
 # cold start dies on a stale pooled connection and looks like a random 500.
 # pool_recycle=300: proactively drop connections older than 5 minutes, ahead of whichever side
 # (Neon, Render, or an intermediate proxy) closes idle connections first.
-engine = create_async_engine(settings.database_url, pool_pre_ping=True, pool_recycle=300)
+# statement_cache_size=0: asyncpg's own prepared-statement cache breaks against a PgBouncer-style
+# transaction-mode pooler (Neon's pooled connection string, used by the Vercel deployment) —
+# a statement prepared on one physical connection can get reused against a different one under
+# the pool's next transaction, raising "prepared statement does not exist". A direct connection
+# doesn't need this, but disabling it there costs nothing worth keeping this branchless for.
+engine = create_async_engine(
+    settings.database_url,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    connect_args={"statement_cache_size": 0},
+)
 async_session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
 

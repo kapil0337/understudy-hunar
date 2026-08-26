@@ -163,10 +163,41 @@ stack up and seeded first; see `web/playwright.config.ts`).
 | `PUBLIC_BASE_URL` | `https://understudy-backend.onrender.com` | Optional — enables Hunar webhook callbacks; polling keeps the board correct without it |
 | `SOURCING_PROVIDER` | `fixtures` \| `pdl` | Optional — default `fixtures` |
 | `NEXT_PUBLIC_API_BASE_URL` (web) | `http://localhost:8000` | **Required** — the only public env var |
+| `CRON_SECRET` | — | Only for the all-Vercel path below — unset means `/internal/process-jobs` 404s |
 
-Deployment: `render.yaml` deploys the backend to Render (Docker, `/healthz` health check); the
-frontend deploys to Vercel from source — Vercel does not run `web/Dockerfile`, which exists only
-for the `docker compose` setup above and for self-hosting.
+### Deployment
+
+Two supported shapes, same codebase either way:
+
+**Render + Vercel** (`render.yaml`) — a persistent backend process, closest to the local Docker
+setup. `render.yaml` deploys the API and a second `worker` service (`app/worker.py`'s
+continuous poll loop) plus a managed Postgres; Vercel deploys the frontend from source
+(`web/Dockerfile` is never run there — it exists only for the `docker compose` setup above and
+for self-hosting).
+
+**All-Vercel** (`backend/vercel.json`) — the API deploys as a second Vercel project (Root
+Directory `backend`; `backend/api/index.py` is the entrypoint Vercel's Python runtime detects,
+`backend/requirements.txt` is generated from `uv.lock` via `uv export --no-dev --no-hashes
+--no-emit-project -o requirements.txt` and needs regenerating after any dependency change).
+Vercel has no persistent-process equivalent of `app/worker.py`, so this path replaces it with
+`GET /internal/process-jobs` (GET, not POST, because Vercel Cron invokes the configured path
+with GET): every route that enqueues a `BackgroundJob` also fires a best-effort, fire-and-forget
+nudge at that endpoint right after committing (`background_jobs.enqueue_and_trigger`), so the app
+feels as responsive as the polling worker without waiting for a Cron tick; `vercel.json`'s
+`crons` entry is the guaranteed-eventually backstop if that nudge doesn't land. The endpoint 404s unless `CRON_SECRET`
+is set (Vercel's own convention — it sends `Authorization: Bearer $CRON_SECRET` to Cron-invoked
+routes automatically once that env var exists), and processes one job per invocation, since a
+single job can itself run for minutes and this runs inline in a serverless function
+(`vercel.json` sets `maxDuration: 60` for it — raise it if your plan allows more and `rehearse`
+jobs are timing out). Point the backend project's `DATABASE_URL` at a pooled Postgres connection
+string (Vercel Postgres/Neon) — `app/db/session.py` already sets `statement_cache_size=0` for
+asyncpg's compatibility with a PgBouncer-style transaction pooler. Migrations still run from
+`app/main.py`'s `lifespan` hook, advisory-lock-guarded against concurrent cold starts; this
+assumes Vercel's Python runtime invokes ASGI lifespan events — confirm via `GET /healthz` after
+first deploy, and run `alembic upgrade head` manually against the Neon DB once if it doesn't.
+Wire the two Vercel projects together the same way as the Render path: the frontend's
+`NEXT_PUBLIC_API_BASE_URL` points at the backend project's URL, and the backend's `CORS_ORIGINS`
+points back at the frontend's.
 
 ## Limitations — what's simulated, what's real
 

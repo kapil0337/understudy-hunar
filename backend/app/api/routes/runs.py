@@ -129,6 +129,7 @@ async def propose_run_patch(
     run = await _get_run(session, run_id)
     await _compiled_for_run(session, run)  # fail fast if there's nothing to patch against
 
-    job = await background_jobs.enqueue(session, "propose_patch", {"run_id": str(run_id)})
-    await session.commit()
+    job = await background_jobs.enqueue_and_trigger(
+        session, "propose_patch", {"run_id": str(run_id)}
+    )
     return PatchProposalAccepted(background_job_id=job.id)

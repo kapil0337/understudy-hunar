@@ -205,10 +205,9 @@ async def create_and_enqueue_rehearsal(
     run = RehearsalRun(agent_version_id=version.id, status="PENDING")
     session.add(run)
     await session.flush()
-    await background_jobs.enqueue(
+    await background_jobs.enqueue_and_trigger(
         session,
         "rehearse",
         {"agent_version_id": str(version.id), "run_id": str(run.id)},
     )
-    await session.commit()
     return run
