@@ -93,7 +93,7 @@ export interface paths {
         get?: never;
         /**
          * Update a job's requirements
-         * @description Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, unpublished) for every language the compiled JD implies. Never edits an existing version — versions are immutable (CLAUDE.md).
+         * @description Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, unpublished) for every language the compiled JD implies. Never edits an existing version — versions are immutable (CLAUDE.md). Compiling is an LLM call, so this returns immediately with a job id; poll GET /background-jobs/{id}, then GET /jobs/{id}/versions once COMPLETED.
          */
         put: operations["update_requirements_jobs__job_id__requirements_put"];
         post?: never;
@@ -147,7 +147,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The six rehearsal personas */
+        /**
+         * The six rehearsal personas
+         * @description Returns the generated personas, or 202 + a job id on the first call for a job (generating them is an LLM call, deferred to app/worker.py) — poll GET /background-jobs/{id} then re-GET this same endpoint once COMPLETED.
+         */
         get: operations["list_personas_jobs__job_id__personas_get"];
         put?: never;
         post?: never;
@@ -354,8 +357,31 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Propose a prompt patch addressing this run's worst failures */
+        /**
+         * Propose a prompt patch addressing this run's worst failures
+         * @description Proposing a patch is an LLM call, so this returns immediately with a job id; poll GET /background-jobs/{id}, then GET /patches/{id} (result.patch_id) once COMPLETED.
+         */
         post: operations["propose_run_patch_runs__run_id__patch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/patches/{patch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One proposed patch
+         * @description Fetch a patch proposed by POST /runs/{id}/patch — that endpoint returns 202 immediately since proposing a patch is an LLM call; poll GET /background-jobs/{id} then fetch it here once COMPLETED.
+         */
+        get: operations["get_patch_patches__patch_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -373,7 +399,7 @@ export interface paths {
         put?: never;
         /**
          * Accept a proposed patch
-         * @description Creates AgentVersion n+1 (origin=PATCHED) from the patch's prompt, then immediately rehearses it against the same personas as the parent run — a patch's effect is measured, never assumed.
+         * @description Creates AgentVersion n+1 (origin=PATCHED) from the patch's prompt immediately, then enqueues rehearsing it against the same personas as the parent run — a patch's effect is measured, never assumed. Poll GET /versions/{version.id}/latest-run for the rehearsal.
          */
         post: operations["accept_run_patch_patches__patch_id__accept_post"];
         delete?: never;
@@ -433,7 +459,7 @@ export interface paths {
         put?: never;
         /**
          * Receive a Hunar call-lifecycle webhook
-         * @description `kind` is one of status|recording|result|summary. The signature is verified over the RAW request body (see app/integrations/hunar/signature.py); an invalid signature returns 401 and is never applied. An unrecognised call/request id is still accepted (200) and logged rather than erroring, since Hunar would otherwise retry a payload it has no way to fix. `X-Hunar-Signature` is this project's assumed header name for the signature — CLAUDE.md documents the HMAC computation itself but not the header carrying it.
+         * @description `kind` is one of status|recording|result|summary. The signature is carried in the `X-Hunar-Signature` header, timed by `X-Hunar-Timestamp` (confirmed header names), and verified over the RAW request body (see app/integrations/hunar/signature.py). A request missing either header returns 400 naming the missing one; a present-but-wrong signature returns 401 and is never applied. An unrecognised call/request id is still accepted (200) and logged rather than erroring, since Hunar would otherwise retry a payload it has no way to fix.
          */
         post: operations["receive_hunar_webhook_webhooks_hunar__kind__post"];
         delete?: never;
@@ -454,6 +480,26 @@ export interface paths {
          * @description The append-only log every inbound Hunar webhook is recorded to, regardless of whether its signature verified or it resolved to a known call — see WebhookEvent's docstring. Diagnostic only.
          */
         get: operations["list_webhook_events_debug_webhooks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/background-jobs/{background_job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Status of a deferred LLM-heavy operation
+         * @description The one poll target shared by every operation the API defers to app/worker.py (compile_jd, regenerate_personas, propose_patch, rehearse) — PENDING/RUNNING/COMPLETED/FAILED, same convention as RehearsalRun.status.
+         */
+        get: operations["get_background_job_background_jobs__background_job_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -515,6 +561,33 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** BackgroundJobRead */
+        BackgroundJobRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Status */
+            status: string;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            /** Error */
+            error: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
         };
         /**
          * BlockedCandidate
@@ -732,7 +805,7 @@ export interface components {
         /** GuardrailsRead */
         GuardrailsRead: {
             /** Allowed Days */
-            allowed_days: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+            allowed_days: ("MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN")[];
             /** Earliest Call Time */
             earliest_call_time: string;
             /** Last Call Time */
@@ -788,14 +861,37 @@ export interface components {
          * @enum {string}
          */
         Language: "ENGLISH" | "HINDI" | "TAMIL" | "TELUGU" | "KANNADA" | "MARATHI" | "MALAYALAM" | "GUJARATI" | "BENGALI" | "TURKISH" | "ARABIC" | "SPANISH";
-        /** PatchAcceptResponse */
-        PatchAcceptResponse: {
+        /**
+         * PatchAcceptAccepted
+         * @description 202 response for POST /patches/{id}/accept: the new version exists immediately (a fast,
+         *     DB-only write), but rehearsing it is deferred to app/worker.py — poll
+         *     GET /versions/{version.id}/latest-run for the run, same as the standalone rehearse
+         *     endpoint. score_delta is not included here since the new run has no scores yet; compute it
+         *     client-side once both runs' scores are available.
+         */
+        PatchAcceptAccepted: {
             version: components["schemas"]["VersionSummary"];
-            run: components["schemas"]["RunRead"];
-            /** Score Delta */
-            score_delta: {
-                [key: string]: number;
-            };
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /** Status */
+            status: string;
+        };
+        /**
+         * PatchProposalAccepted
+         * @description 202 response for POST /runs/{id}/patch: proposing a patch is one LLM call (plus a
+         *     possible retry), deferred to app/worker.py rather than run inline. Poll
+         *     GET /background-jobs/{id}; once COMPLETED, result.patch_id names the row to fetch via
+         *     GET /patches/{id}.
+         */
+        PatchProposalAccepted: {
+            /**
+             * Background Job Id
+             * Format: uuid
+             */
+            background_job_id: string;
         };
         /** PatchRead */
         PatchRead: {
@@ -817,6 +913,19 @@ export interface components {
             accepted: boolean;
             /** Resulting Version Id */
             resulting_version_id: string | null;
+        };
+        /**
+         * PersonaGenerationAccepted
+         * @description 202 response for GET /jobs/{id}/personas when no personas exist yet for this job.
+         *     Generating them is an LLM call, deferred to app/worker.py. Poll GET /background-jobs/{id},
+         *     then re-GET this same endpoint once COMPLETED — it will return the generated list.
+         */
+        PersonaGenerationAccepted: {
+            /**
+             * Background Job Id
+             * Format: uuid
+             */
+            background_job_id: string;
         };
         /** PersonaRead */
         PersonaRead: {
@@ -876,15 +985,18 @@ export interface components {
             /** Raw Jd */
             raw_jd: string;
         };
-        /** RequirementsUpdateResponse */
-        RequirementsUpdateResponse: {
+        /**
+         * RequirementsUpdateAccepted
+         * @description 202 response for PUT /jobs/{id}/requirements: compiling a JD is an LLM call, deferred to
+         *     app/worker.py. Poll GET /background-jobs/{id}; once COMPLETED, result.version_ids names the
+         *     new draft AgentVersion(s) — fetch them via GET /jobs/{id}/versions.
+         */
+        RequirementsUpdateAccepted: {
             /**
-             * Job Id
+             * Background Job Id
              * Format: uuid
              */
-            job_id: string;
-            /** Versions */
-            versions: components["schemas"]["VersionSummary"][];
+            background_job_id: string;
         };
         /** RunRead */
         RunRead: {
@@ -1182,12 +1294,12 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
-            200: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RequirementsUpdateResponse"];
+                    "application/json": components["schemas"]["RequirementsUpdateAccepted"];
                 };
             };
             /** @description Validation Error */
@@ -1283,7 +1395,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PersonaRead"][];
+                    "application/json": components["schemas"]["PersonaRead"][] | components["schemas"]["PersonaGenerationAccepted"];
                 };
             };
             /** @description Validation Error */
@@ -1626,6 +1738,37 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchProposalAccepted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_patch_patches__patch_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1657,12 +1800,12 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            200: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PatchAcceptResponse"];
+                    "application/json": components["schemas"]["PatchAcceptAccepted"];
                 };
             };
             /** @description Validation Error */
@@ -1797,6 +1940,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WebhookEventRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_background_job_background_jobs__background_job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                background_job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackgroundJobRead"];
                 };
             };
             /** @description Validation Error */

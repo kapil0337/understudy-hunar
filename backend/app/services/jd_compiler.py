@@ -112,8 +112,23 @@ Rules that matter most:
    rehearsal is scored, so include every fact a candidate would reasonably need, and include
    ONLY facts actually supported by the job description. Never invent a benefit or a number.
 
-3. knockout_criteria: only reference ids that exist in screening_questions. For enum questions,
+3. knockout_criteria: for every screening question whose why_it_matters states or implies it is
+   a hard requirement (mandatory, required, must-have — not merely preferred or nice-to-have),
+   add a knockout_criteria entry disqualifying the answer that fails it. A JD with an explicit
+   "requirements"/"what we need" list almost always yields at least one knockout criterion —
+   an empty knockout_criteria on such a JD is very likely a missed requirement, not a sign the
+   role has none. Only reference ids that exist in screening_questions, and for enum questions
    only use values listed in that question's options.
+
+   Worked example — a JD says "What we need: own two-wheeler in working condition, valid
+   licence" and you write the screening question
+     {"id": "has_two_wheeler", "answer_type": "boolean",
+      "why_it_matters": "Own vehicle is mandatory for this role."}
+   Because that requirement is mandatory, knockout_criteria MUST include
+     {"question_id": "has_two_wheeler", "operator": "eq", "value": false}
+   — a candidate who answers false is disqualified. Do this for EVERY mandatory requirement, not
+   just the first. Do not stop after one; check every screening question against its own
+   why_it_matters before deciding knockout_criteria is complete.
 
 4. candidate_languages: Hunar language enums (ENGLISH, HINDI, TAMIL, TELUGU, KANNADA, MARATHI,
    MALAYALAM, GUJARATI, BENGALI) implied by the locations. Include the regional language of

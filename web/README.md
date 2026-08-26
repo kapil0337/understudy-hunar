@@ -20,6 +20,9 @@ Or via the monorepo's `docker compose` setup — see the [root README](../README
 - `npm run gen-api` (alias: `npm run gen:api`) — regenerate `src/lib/api/types.ts` from the
   backend's OpenAPI schema (`make gen-api` from the repo root does both steps: writes
   `src/lib/api/openapi.json`, then runs this)
+- `npm run test` — vitest (component/logic unit tests, no browser)
+- `npm run test:e2e` — Playwright, against seeded data (`make seed` from the repo root first) —
+  see `playwright.config.ts` for what it expects already running
 
 ## Deployment
 

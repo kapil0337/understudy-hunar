@@ -1,10 +1,11 @@
 """Candidate sourcing: picks a provider, serves from provider_cache when possible, and falls
-back to fixtures on a PDL auth or quota error.
+back to fixtures on an auth or quota error from the configured provider.
 
 Caching here exists for the same reason as app/services/llm.py's cache: PDL's free tier is 100
-credits/month, so a repeated search during a demo must not spend more of them. Every response —
-from either provider — is cached under sha256(provider, query, limit), and the result carries
-`cached` so the UI can show a "cached" badge and prove no credits were burned.
+credits/month, and Coresignal spends real per-profile collect credits on every search — a
+repeated search during a demo must not spend more of them. Every response — from any provider —
+is cached under sha256(provider, query, limit), and the result carries `cached` so the UI can
+show a "cached" badge and prove no credits were burned.
 """
 
 from __future__ import annotations
@@ -29,6 +30,7 @@ from app.integrations.sourcing.base import (
     SourcingQuotaExceeded,
     SourcingResult,
 )
+from app.integrations.sourcing.coresignal import CoresignalProvider
 from app.integrations.sourcing.fixtures import FixtureProvider
 from app.integrations.sourcing.pdl import PDLProvider
 from app.models.cache import ProviderCache
@@ -140,6 +142,8 @@ def _build_providers(settings: Settings) -> dict[str, SourcingProvider]:
     providers: dict[str, SourcingProvider] = {"fixtures": FixtureProvider()}
     if settings.pdl_api_key:
         providers["pdl"] = PDLProvider(settings.pdl_api_key)
+    if settings.coresignal_api_key:
+        providers["coresignal"] = CoresignalProvider(settings.coresignal_api_key)
     return providers
 
 

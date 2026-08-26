@@ -2,8 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
-import { TERMINAL_CALL_STATUSES } from "@/lib/api/schemas";
+import { TERMINAL_CALL_STATUSES, type BoardRow } from "@/lib/api/schemas";
 import { queryKeys } from "./queryKeys";
+
+/** True while any row still has a call in flight — a null status (never called) is not "in
+ * flight", it's simply nothing to poll for. Exported (not inlined into refetchInterval) so it has
+ * a unit test independent of mocking react-query's polling internals. */
+export function hasNonTerminalRow(rows: BoardRow[]): boolean {
+  return rows.some((row) => row.status !== null && !TERMINAL_CALL_STATUSES.has(row.status));
+}
 
 /** GET /jobs/{id}/board polls itself into a fresh state on every read (the backend refreshes
  * non-terminal outreach rows from Hunar before responding), so client-side polling here is purely
@@ -16,10 +23,7 @@ export function useBoard(jobId: string | undefined) {
     refetchInterval: (query) => {
       const rows = query.state.data?.rows;
       if (!rows) return false;
-      const hasNonTerminalRow = rows.some(
-        (row) => row.status !== null && !TERMINAL_CALL_STATUSES.has(row.status),
-      );
-      return hasNonTerminalRow ? 3000 : false;
+      return hasNonTerminalRow(rows) ? 3000 : false;
     },
   });
 }

@@ -6,13 +6,35 @@ import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import app.worker as worker_module
 from app.api.deps import get_hunar_client, get_optional_hunar_client
 from app.db.session import get_db
 from app.integrations.hunar.client import HunarClient
 from app.main import app
+from app.models.background_job import BackgroundJob
+from app.services import background_jobs
 
 # Not a real key — same fixture-only convention as tests/integrations/conftest.py.
 TEST_HUNAR_API_KEY = "test-key-not-a-real-credential"
+
+
+async def run_pending_background_job(session: AsyncSession) -> BackgroundJob:
+    """Synchronously run the single oldest PENDING BackgroundJob, mirroring app/worker.py's
+    claim-dispatch-complete loop one step at a time, using the test's own session/connection
+    rather than a real worker process. Must reuse this session (not app.worker._process_one's
+    own async_session_factory()) — see api_client's docstring on why a second DB connection
+    can't see this session's uncommitted-to-Postgres, savepoint-only "commits"."""
+    job = await background_jobs.claim_next(session)
+    assert job is not None, "expected a pending background_job"
+    handler = worker_module._HANDLERS[job.kind]
+    try:
+        result = await handler(session, job.payload)
+    except Exception as exc:  # noqa: BLE001 - mirrors app/worker.py's own handling
+        await session.rollback()
+        await background_jobs.mark_failed(session, job, str(exc))
+    else:
+        await background_jobs.mark_completed(session, job, result)
+    return job
 
 
 @pytest.fixture

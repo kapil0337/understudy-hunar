@@ -142,6 +142,41 @@ class DatabaseLLMCache:
             await session.commit()
 
 
+def _require_all_properties(schema: dict[str, Any]) -> dict[str, Any]:
+    """Force every object property into `required`, recursively through $defs/items/anyOf.
+
+    Both providers are asked for schema-constrained "strict" output (NVIDIA's
+    response_format strict=True, Gemini's responseSchema), but Pydantic's model_json_schema()
+    only lists fields with no default in `required` — every `= None` or `default_factory=list`
+    field is silently optional from the model's point of view. In practice a model asked to
+    fill in a field that isn't required just omits it rather than reasoning about whether it
+    applies, which defeats the entire point of a schema meant to be exhaustively filled in
+    (see jd_compiler.py's compile prompt: a model is told to derive knockout_criteria but, left
+    optional in the schema, kept omitting the key rather than emitting `[]`). Nothing here makes
+    a field's VALUE mandatory — `X | None` still renders as nullable via anyOf — only its
+    presence in the output.
+    """
+
+    def visit(node: Any) -> None:
+        if not isinstance(node, dict):
+            return
+        if node.get("type") == "object" and isinstance(node.get("properties"), dict):
+            node["required"] = list(node["properties"].keys())
+            for prop in node["properties"].values():
+                visit(prop)
+        items = node.get("items")
+        if isinstance(items, dict):
+            visit(items)
+        for sub in (node.get("$defs") or {}).values():
+            visit(sub)
+        for branch_key in ("anyOf", "oneOf", "allOf"):
+            for branch in node.get(branch_key) or []:
+                visit(branch)
+
+    visit(schema)
+    return schema
+
+
 def cache_key(role: str, model: str, messages: list[Message], schema_name: str) -> str:
     """sha256(role, model, messages, schema name), per CLAUDE.md.
 
@@ -190,7 +225,7 @@ class LLMService:
         response_model: type[M],
         temperature: float = 0.2,
     ) -> M:
-        schema = response_model.model_json_schema()
+        schema = _require_all_properties(response_model.model_json_schema())
         schema_name = response_model.__name__
 
         raw = await self._call(role, messages, temperature, schema=schema, schema_name=schema_name)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
@@ -14,7 +14,7 @@ from app.models.job import Job
 from app.models.rehearsal import RehearsalRun
 from app.schemas.job import AgentVersionRead
 from app.schemas.run import RehearseAccepted, RunRead
-from app.services.rehearsal.run import rehearse_in_background
+from app.services.rehearsal.run import create_and_enqueue_rehearsal
 
 router = APIRouter(prefix="/versions", tags=["rehearsal"])
 
@@ -41,7 +41,6 @@ async def get_version(
 )
 async def rehearse_version(
     version_id: uuid.UUID,
-    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_db),
 ) -> RehearseAccepted:
     version = await session.get(AgentVersion, version_id)
@@ -54,11 +53,7 @@ async def rehearse_version(
             status.HTTP_409_CONFLICT, f"job {version.job_id} has no compiled JD to rehearse against"
         )
 
-    run = RehearsalRun(agent_version_id=version.id, status="PENDING")
-    session.add(run)
-    await session.commit()
-
-    background_tasks.add_task(rehearse_in_background, version.id, run.id)
+    run = await create_and_enqueue_rehearsal(session, version)
     return RehearseAccepted(run_id=run.id, status=run.status)
 
 

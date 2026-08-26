@@ -47,16 +47,8 @@ CallStatus = Literal[
 
 RetryIntervalHours = Literal[0, 3, 6, 9, 12, 24]
 
-WEEKDAYS: tuple[str, ...] = (
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY",
-)
-Weekday = Literal["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+WEEKDAYS: tuple[str, ...] = ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+Weekday = Literal["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
 # HH:MM, 24-hour.
 TimeOfDay = Annotated[str, Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")]

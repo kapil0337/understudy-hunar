@@ -141,9 +141,10 @@ async def run_rehearsal(
 
 
 async def rehearse_in_background(agent_version_id: uuid.UUID, run_id: uuid.UUID) -> None:
-    """Entry point for POST /versions/{id}/rehearse's FastAPI BackgroundTask: the route creates
-    a PENDING RehearsalRun and returns its id in the 202 response before this ever runs, so this
-    function opens its own session rather than reusing the (by-then-closed) request session.
+    """Entry point for app/worker.py's "rehearse" job kind: the route (POST
+    /versions/{id}/rehearse or POST /patches/{id}/accept) creates a PENDING RehearsalRun and
+    enqueues a BackgroundJob before this ever runs, so this function opens its own session
+    rather than reusing the (by-then-closed) request session.
     """
     from app.db.session import async_session_factory
     from app.models.job import Job
@@ -174,3 +175,23 @@ async def rehearse_in_background(agent_version_id: uuid.UUID, run_id: uuid.UUID)
         await session.commit()
 
         await run_rehearsal(session, version, compiled, personas, run=run)
+
+
+async def create_and_enqueue_rehearsal(
+    session: AsyncSession, version: AgentVersion
+) -> RehearsalRun:
+    """Create a PENDING RehearsalRun and enqueue the worker job that will run it — shared by
+    POST /versions/{id}/rehearse and POST /patches/{id}/accept, both of which defer the same
+    work rather than running run_rehearsal inline in the request."""
+    from app.services import background_jobs
+
+    run = RehearsalRun(agent_version_id=version.id, status="PENDING")
+    session.add(run)
+    await session.flush()
+    await background_jobs.enqueue(
+        session,
+        "rehearse",
+        {"agent_version_id": str(version.id), "run_id": str(run.id)},
+    )
+    await session.commit()
+    return run

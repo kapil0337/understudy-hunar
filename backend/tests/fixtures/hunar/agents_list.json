@@ -1,75 +1,957 @@
 {
-  "count": 2,
-  "next": null,
-  "previous": null,
   "results": [
     {
       "id": "agt_00000000000000000000000001",
-      "name": "Understudy Screener (EN)",
+      "name": "Delivery Rider — Neha v1 (English)",
       "language": "ENGLISH",
       "voice_persona": "NEHA",
       "persona_name": "Neha",
-      "agent_prompt": "You are a recruiter screening candidates for a backend role.",
-      "objective": "Determine interest, notice period and expected CTC.",
-      "introduction": "Hi {{candidate_name}}, calling about the {{role_title}} role.",
-      "result_prompt": "Summarise interest, notice period and expected CTC.",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
       "result_schema": {
         "type": "object",
-        "properties": {
-          "interested": {
-            "type": "boolean"
-          },
-          "notice_period_days": {
-            "type": "integer"
-          },
-          "expected_ctc": {
-            "type": "string"
-          }
-        },
         "required": [
-          "interested"
-        ]
+          "have_two_wheeler",
+          "have_driving_licence",
+          "have_android_smartphone",
+          "comfortable_riding_in_chennai",
+          "can_read_addresses",
+          "interested",
+          "qualified",
+          "earliest_start",
+          "rejection_reason"
+        ],
+        "properties": {
+          "qualified": {
+            "type": "boolean",
+            "description": "Did the candidate pass every knockout criterion?"
+          },
+          "interested": {
+            "type": "boolean",
+            "description": "Did the candidate express interest in proceeding?"
+          },
+          "earliest_start": {
+            "type": "string",
+            "description": "When the candidate said they could start, in their own words."
+          },
+          "have_two_wheeler": {
+            "type": "boolean",
+            "description": "Do you have a two-wheeler in working condition?"
+          },
+          "rejection_reason": {
+            "type": "string",
+            "description": "If not qualified or not interested, the reason. Empty otherwise."
+          },
+          "can_read_addresses": {
+            "type": "boolean",
+            "description": "Can you read basic English or Tamil addresses on the app?"
+          },
+          "have_driving_licence": {
+            "type": "boolean",
+            "description": "Do you have a valid two-wheeler driving licence?"
+          },
+          "have_android_smartphone": {
+            "type": "boolean",
+            "description": "Do you have an Android smartphone?"
+          },
+          "comfortable_riding_in_chennai": {
+            "type": "boolean",
+            "description": "Are you comfortable riding in Chennai city traffic?"
+          }
+        }
       },
       "custom_variables": [
-        "candidate_name",
+        "role_location",
         "role_title"
       ],
-      "created_at": "2026-08-01T09:15:00Z",
-      "updated_at": "2026-08-01T09:15:00Z"
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Neha",
+      "summary": "This recruiting agent screens candidates for the Delivery Rider position in Adyar, assessing qualifications and interest in under 90 seconds for a logistics company.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260825_100950.png",
+      "agent_code": "FD53",
+      "result_variables": [
+        "type",
+        "required",
+        "properties"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
     },
     {
       "id": "agt_00000000000000000000000002",
-      "name": "Understudy Screener (HI)",
-      "language": "HINDI",
-      "voice_persona": "EESHA",
-      "persona_name": "Eesha",
-      "agent_prompt": "You are a recruiter screening candidates for a backend role.",
-      "objective": "Determine interest, notice period and expected CTC.",
-      "introduction": "Hi {{candidate_name}}, calling about the {{role_title}} role.",
-      "result_prompt": "Summarise interest, notice period and expected CTC.",
+      "name": "HR First-Round Screening Agent",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Neha",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "string",
+        "reachable": "boolean",
+        "interested": "boolean",
+        "current_ctc": "string",
+        "expected_ctc": "string",
+        "role_interests": "string",
+        "career_interests": "string",
+        "negotiation_range": "string",
+        "open_to_negotiation": "boolean",
+        "overall_recommendation": "string"
+      },
+      "custom_variables": [
+        "location",
+        "company",
+        "job_role"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Neha",
+      "summary": "This HR screening assistant conducts first-round phone interviews for job applicants, focusing on compensation and career interests for positions in the recruitment industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260820_193903.png",
+      "agent_code": "FD49",
+      "result_variables": [
+        "summary",
+        "reachable",
+        "interested",
+        "current_ctc",
+        "expected_ctc",
+        "role_interests",
+        "career_interests",
+        "negotiation_range",
+        "open_to_negotiation",
+        "overall_recommendation"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000003",
+      "name": "Outbound Sourcing Outreach Agent",
+      "language": "ENGLISH",
+      "voice_persona": "ROY",
+      "persona_name": "Roy",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "call_summary": "",
+        "notice_period": "",
+        "interest_level": "",
+        "consented_to_call": "",
+        "preferred_contact_method": ""
+      },
+      "custom_variables": [
+        "current_company",
+        "sourcing_reason",
+        "company",
+        "current_title",
+        "job_role"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Roy",
+      "summary": "This agent conducts respectful cold outreach to gauge interest in job openings, targeting professionals in specific roles across various industries, facilitating recruitment for companies.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260822_220224.png",
+      "agent_code": "FD52",
+      "result_variables": [
+        "call_summary",
+        "notice_period",
+        "interest_level",
+        "consented_to_call",
+        "preferred_contact_method"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000004",
+      "name": "First Round Screening Agent",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Neha",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "current_ctc": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "overall_summary": "",
+        "reason_for_leaving": "",
+        "skill_confirmations": [
+          {
+            "skill": "",
+            "confidence": "",
+            "candidate_response_summary": ""
+          }
+        ],
+        "years_of_experience": ""
+      },
+      "custom_variables": [
+        "company",
+        "jd_skills",
+        "job_role",
+        "resume_summary"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Neha",
+      "summary": "This agent conducts first-round phone interviews for job candidates at a company, providing HR with structured feedback. It targets recruitment professionals in the hiring industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260822_201828.png",
+      "agent_code": "FD51",
+      "result_variables": [
+        "current_ctc",
+        "expected_ctc",
+        "notice_period",
+        "overall_summary",
+        "reason_for_leaving",
+        "skill_confirmations",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000005",
+      "name": "Candidate Reachout Agent",
+      "language": "ENGLISH",
+      "voice_persona": "ROY",
+      "persona_name": "Roy",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "string",
+        "reachable": "boolean",
+        "interested": "boolean",
+        "best_contact": "string",
+        "notice_period": "string",
+        "objection_reason": "string"
+      },
+      "custom_variables": [
+        "company",
+        "current_title",
+        "job_role"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Roy",
+      "summary": "This agent conducts warm outreach to potential candidates for job roles, targeting professionals in various industries. It captures interest levels and contact details for follow-up.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260822_140648.png",
+      "agent_code": "FD50",
+      "result_variables": [
+        "summary",
+        "reachable",
+        "interested",
+        "best_contact",
+        "notice_period",
+        "objection_reason"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000006",
+      "name": "Screening: ML engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "The AI recruiting assistant screens candidates for Machine Learning Engineer roles, assessing skills and experience for tech companies, while maintaining a friendly and professional interaction.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260817_165500.png",
+      "agent_code": "FD48",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000007",
+      "name": "Screening: machine learning engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This AI recruiting assistant screens candidates for a Machine Learning Engineer role, assessing technical skills, notice periods, and salary expectations for a tech-focused hiring process in the AI industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260817_165236.png",
+      "agent_code": "FD47",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000008",
+      "name": "Screening: machine learning engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This AI recruiting assistant screens candidates for Machine Learning Engineer positions, assessing technical skills and qualifications for the tech industry, while facilitating communication with the recruitment team.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260817_164840.png",
+      "agent_code": "FD46",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000009",
+      "name": "Screening: machine learning engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This AI recruiting assistant screens candidates for Machine Learning Engineer roles, assessing skills, experience, and expectations while serving tech companies in the AI and machine learning industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_114530.png",
+      "agent_code": "FD45",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000010",
+      "name": "Screening: Software engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "sql": "integer",
+        "python": "integer",
+        "fastapi": "integer",
+        "experience": "float",
+        "interested": "boolean",
+        "notice_period": "integer",
+        "salary_expectation": "integer"
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This AI agent screens candidates for Software Engineer roles by assessing their experience, technical skills, notice period, and salary expectations, targeting HR professionals in the tech industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_113746.png",
+      "agent_code": "FD44",
+      "result_variables": [
+        "sql",
+        "python",
+        "fastapi",
+        "experience",
+        "interested",
+        "notice_period",
+        "salary_expectation"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000011",
+      "name": "Screening: Software engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "sql": "integer",
+        "python": "integer",
+        "fastapi": "integer",
+        "experience": "float",
+        "interested": "boolean",
+        "notice_period": "integer",
+        "salary_expectation": "integer"
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This agent screens candidates for software engineering roles by assessing their technical skills, experience, notice period, and salary expectations, targeting recruitment teams in the tech industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_113740.png",
+      "agent_code": "FD43",
+      "result_variables": [
+        "sql",
+        "python",
+        "fastapi",
+        "experience",
+        "interested",
+        "notice_period",
+        "salary_expectation"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000012",
+      "name": "Screening: Business Development Executive",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This AI recruiting assistant screens candidates for Business Development roles, evaluating their skills, experience, and salary expectations for companies in the employment and recruitment industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_095306.png",
+      "agent_code": "FD42",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000013",
+      "name": "Screening: Business Development Executive",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This AI recruiting assistant screens candidates for Business Development roles, assessing their skills, experience, and expectations in a professional and engaging manner for the recruitment industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_094954.png",
+      "agent_code": "FD41",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000014",
+      "name": "Screening: AI/ML engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This hiring assistant screens candidates for AI/ML engineer roles by evaluating experience, technical skills, notice periods, and salary expectations, serving companies in the tech industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_094444.png",
+      "agent_code": "FD40",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000015",
+      "name": "Screening: AI/ML engineer",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Seema",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Seema",
+      "summary": "This recruiting assistant screens candidates for AI/ML engineer positions by assessing their experience, technical skills, notice periods, and salary expectations in the technology industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260816_075400.png",
+      "agent_code": "FD39",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000016",
+      "name": "Tech Recruitment Screening Agent",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Sarah",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "qualified": "boolean",
+        "interested": "boolean",
+        "skills_match": "string",
+        "notice_period": "string",
+        "expected_salary": "string",
+        "recruiter_summary": "string",
+        "relevant_experience": "string",
+        "interview_availability": "string"
+      },
+      "custom_variables": [
+        "company_name",
+        "job_title",
+        "questions"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Sarah",
+      "summary": "This AI recruiter from XYZ Company engages candidates for the Software Engineer role, screening their qualifications and interest through brief, respectful conversations in the technology industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260814_071020.png",
+      "agent_code": "FD36",
+      "result_variables": [
+        "qualified",
+        "interested",
+        "skills_match",
+        "notice_period",
+        "expected_salary",
+        "recruiter_summary",
+        "relevant_experience",
+        "interview_availability"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000017",
+      "name": "Candidate Reachout Agent",
+      "language": "ENGLISH",
+      "voice_persona": "ROY",
+      "persona_name": "Roy",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "summary": "",
+        "interested": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "best_callback_time": ""
+      },
+      "custom_variables": [
+        "jd_summary",
+        "job_title",
+        "company"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Roy",
+      "summary": "Roy is an AI recruiting assistant for the tech industry, connecting with candidates about job openings, assessing interest, and gathering key information for recruiters to facilitate follow-ups.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260815_201225.png",
+      "agent_code": "FD38",
+      "result_variables": [
+        "summary",
+        "interested",
+        "expected_ctc",
+        "notice_period",
+        "best_callback_time"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000018",
+      "name": "AI Hiring Screener",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Neha",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "current_ctc": "",
+        "availability": "",
+        "current_role": "",
+        "expected_ctc": "",
+        "notice_period": "",
+        "recommendation": "",
+        "years_of_experience": ""
+      },
+      "custom_variables": [
+        "company",
+        "job_role"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Neha",
+      "summary": "Neha is an AI recruiting screener for a technology company, conducting initial phone interviews for job candidates while gathering essential information for recruiter evaluations.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260815_201222.png",
+      "agent_code": "FD37",
+      "result_variables": [
+        "current_ctc",
+        "availability",
+        "current_role",
+        "expected_ctc",
+        "notice_period",
+        "recommendation",
+        "years_of_experience"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000019",
+      "name": "[HunarHire] Candidate Screening",
+      "language": "ENGLISH",
+      "voice_persona": "NEHA",
+      "persona_name": "Neha",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
       "result_schema": {
         "type": "object",
         "properties": {
+          "summary": {
+            "type": "string",
+            "description": "Two or three sentences summarising what the candidate said."
+          },
+          "answer_1": {
+            "type": "string",
+            "description": "The candidate's answer to question 1 from the interview_questions list, in their own words. Use an empty string if the question was never asked or answered."
+          },
+          "answer_2": {
+            "type": "string",
+            "description": "The candidate's answer to question 2 from the interview_questions list, in their own words. Use an empty string if the question was never asked or answered."
+          },
+          "answer_3": {
+            "type": "string",
+            "description": "The candidate's answer to question 3 from the interview_questions list, in their own words. Use an empty string if the question was never asked or answered."
+          },
+          "answer_4": {
+            "type": "string",
+            "description": "The candidate's answer to question 4 from the interview_questions list, in their own words. Use an empty string if the question was never asked or answered."
+          },
+          "answer_5": {
+            "type": "string",
+            "description": "The candidate's answer to question 5 from the interview_questions list, in their own words. Use an empty string if the question was never asked or answered."
+          },
+          "answer_6": {
+            "type": "string",
+            "description": "The candidate's answer to question 6 from the interview_questions list, in their own words. Use an empty string if the question was never asked or answered."
+          },
           "interested": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "true if the candidate expressed interest in moving forward, false if they declined or are not looking."
           },
-          "notice_period_days": {
-            "type": "integer"
+          "current_role": {
+            "type": "string",
+            "description": "The candidate's current job title and employer, in their own words."
           },
-          "expected_ctc": {
-            "type": "string"
+          "location_fit": {
+            "type": "string",
+            "description": "Whether the candidate can work from the role's location, and any caveats."
+          },
+          "notice_period": {
+            "type": "string",
+            "description": "Notice period or earliest joining date as stated by the candidate."
+          },
+          "recommendation": {
+            "type": "string",
+            "description": "One of STRONG_YES, YES, MAYBE or NO, reflecting how well the candidate matches the stated requirements based on this conversation alone."
+          },
+          "years_experience": {
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Years of relevant experience. Use a plain number when given one; record ranges or approximations as text exactly as stated."
+          },
+          "best_time_to_call": {
+            "type": "string",
+            "description": "A preferred callback time if the candidate asked to be contacted later."
+          },
+          "expected_compensation": {
+            "type": "string",
+            "description": "Compensation expectation as stated, including currency and units."
           }
-        },
-        "required": [
-          "interested"
-        ]
+        }
       },
       "custom_variables": [
-        "candidate_name",
-        "role_title"
+        "job_location",
+        "required_skills",
+        "experience_range",
+        "interview_questions",
+        "job_summary",
+        "job_title",
+        "company_name"
       ],
-      "created_at": "2026-08-01T09:15:00Z",
-      "updated_at": "2026-08-01T09:15:00Z"
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Neha",
+      "summary": "This AI agent screens candidates for recruitment by conducting brief phone interviews to assess their experience, availability, and interest, helping companies streamline hiring processes in the HR industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260814_065756.png",
+      "agent_code": "FD35",
+      "result_variables": [
+        "type",
+        "properties"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
+    },
+    {
+      "id": "agt_00000000000000000000000020",
+      "name": "ForgeHire Screening",
+      "language": "ENGLISH",
+      "voice_persona": "ROY",
+      "persona_name": "Arjun",
+      "agent_prompt": null,
+      "objective": null,
+      "introduction": null,
+      "result_prompt": null,
+      "result_schema": {
+        "concerns": "",
+        "strengths": "",
+        "next_steps": "",
+        "call_outcome": "",
+        "notice_period": "",
+        "overall_score": "",
+        "interest_level": "",
+        "recommendation": "",
+        "role_fit_score": "",
+        "technical_score": "",
+        "experience_score": "",
+        "candidate_summary": "",
+        "communication_score": "",
+        "years_of_experience": "",
+        "key_skills_mentioned": ""
+      },
+      "custom_variables": [
+        "experience_range",
+        "required_skills",
+        "interview_duration",
+        "interview_questions",
+        "job_summary",
+        "company_name",
+        "job_title"
+      ],
+      "created_at": null,
+      "updated_at": null,
+      "status": "ACTIVE",
+      "voice_name": "Arjun",
+      "summary": "This AI recruiting assistant conducts initial screening interviews for a company, providing evidence-based candidate scores while ensuring a fair and structured hiring process in the recruitment industry.",
+      "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260813_182351.png",
+      "agent_code": "FD34",
+      "result_variables": [
+        "concerns",
+        "strengths",
+        "next_steps",
+        "call_outcome",
+        "notice_period",
+        "overall_score",
+        "interest_level",
+        "recommendation",
+        "role_fit_score",
+        "technical_score",
+        "experience_score",
+        "candidate_summary",
+        "communication_score",
+        "years_of_experience",
+        "key_skills_mentioned"
+      ],
+      "required_variables": [
+        "callee_name",
+        "mobile_number"
+      ]
     }
-  ]
+  ],
+  "count": 53,
+  "next": "https://api.voice.hunar.ai/external/v1/agents/?page=2",
+  "previous": null
 }

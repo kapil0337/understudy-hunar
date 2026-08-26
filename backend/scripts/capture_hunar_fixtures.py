@@ -36,6 +36,15 @@ PLACEHOLDER_IN = "+919876543210"
 PLACEHOLDER_US = "+12025550123"
 PLACEHOLDER_RECORDING = "https://recordings.example.invalid/scrubbed/rec_0001.mp3"
 PLACEHOLDER_NAME = "Test Candidate"
+# A call's `result` is free text a real agent generated about a real candidate — it can name
+# them, quote their salary, summarise what they said, none of which is caught by scrubbing known
+# key names. Every string value under `result` is replaced wholesale rather than pattern-matched
+# for names, since "looks like a name" is not reliably detectable and the fixture only needs the
+# key/type shape to exercise result: dict[str, Any] parsing, not the real prose.
+PLACEHOLDER_RESULT_TEXT = "[scrubbed]"
+# Hunar's own sentinel for "not asked/answered this call" — not candidate-derived, safe to keep
+# so tests can assert on it.
+_RESULT_SENTINEL = "NOT AVAILABLE"
 
 # Keys whose values are replaced wholesale, by key name, wherever they appear.
 _SECRET_KEYS = {"api_key", "apikey", "x-api-key", "token", "authorization", "secret"}
@@ -77,13 +86,16 @@ def _scrub_phone(value: str) -> str:
     return PLACEHOLDER_US if value.startswith("+1") else PLACEHOLDER_IN
 
 
-def scrub(value: Any, ids: _IdAllocator, *, kind: str | None = None) -> Any:
+def scrub(
+    value: Any, ids: _IdAllocator, *, kind: str | None = None, in_result: bool = False
+) -> Any:
     """Recursively replace anything sensitive. Structure and key names are preserved so the
     fixture still exercises the real parsing path."""
     if isinstance(value, dict):
         out: dict[str, Any] = {}
         for key, item in value.items():
             lowered = key.lower()
+            nested_in_result = in_result or lowered == "result"
             if lowered in _SECRET_KEYS:
                 continue  # drop entirely rather than placeholder it
             elif lowered in _PHONE_KEYS and isinstance(item, str):
@@ -98,12 +110,14 @@ def scrub(value: Any, ids: _IdAllocator, *, kind: str | None = None) -> Any:
                 out[key] = ids.fake_for("agent", item)
             elif lowered == "call_id" and isinstance(item, str):
                 out[key] = ids.fake_for("call", item)
+            elif in_result and isinstance(item, str) and item != _RESULT_SENTINEL:
+                out[key] = PLACEHOLDER_RESULT_TEXT
             else:
-                out[key] = scrub(item, ids, kind=kind)
+                out[key] = scrub(item, ids, kind=kind, in_result=nested_in_result)
         return out
 
     if isinstance(value, list):
-        return [scrub(item, ids, kind=kind) for item in value]
+        return [scrub(item, ids, kind=kind, in_result=in_result) for item in value]
 
     if isinstance(value, str):
         # Catch anything phone- or URL-shaped that the key-name rules missed.

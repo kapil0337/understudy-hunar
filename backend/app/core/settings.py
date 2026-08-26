@@ -12,9 +12,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL is the only setting with no default: the app cannot do
     anything useful without a database, so it fails loudly at startup if
-    that is missing. HUNAR_API_KEY, NVIDIA_API_KEY, and PDL_API_KEY are
-    optional — the app boots without them and reports reduced capability,
-    so a reviewer can run it with only a database.
+    that is missing. HUNAR_API_KEY, NVIDIA_API_KEY, PDL_API_KEY, and
+    CORESIGNAL_API_KEY are optional — the app boots without them and
+    reports reduced capability, so a reviewer can run it with only a
+    database.
     """
 
     model_config = SettingsConfigDict(
@@ -44,11 +45,13 @@ class Settings(BaseSettings):
         default=None, description="NVIDIA API key. Server-side only, never sent to /web."
     )
     pdl_api_key: str | None = Field(default=None, description="People Data Labs API key")
+    coresignal_api_key: str | None = Field(default=None, description="Coresignal API key")
 
-    sourcing_provider: Literal["pdl", "fixtures"] = Field(
-        default="fixtures",
+    sourcing_provider: Literal["pdl", "coresignal", "fixtures"] = Field(
+        default="coresignal",
         description="Which candidate sourcing provider to use. Falls back to fixtures at "
-        "call time on a PDL auth or quota error regardless of this setting.",
+        "call time on an auth or quota error from the configured provider, regardless of "
+        "this setting.",
     )
     channel: Literal["manual", "whatsapp"] = Field(
         default="manual",
@@ -64,12 +67,12 @@ class Settings(BaseSettings):
     llm_provider_compiler: str = "nvidia"
     llm_model_compiler: str = "meta/llama-3.3-70b-instruct"
     llm_fallback_provider_compiler: str | None = "gemini"
-    llm_fallback_model_compiler: str | None = "gemini-2.5-flash-lite"
+    llm_fallback_model_compiler: str | None = "gemini-3.5-flash-lite"
 
     llm_provider_simulator: str = "nvidia"
     llm_model_simulator: str = "meta/llama-3.3-70b-instruct"
     llm_fallback_provider_simulator: str | None = "gemini"
-    llm_fallback_model_simulator: str | None = "gemini-2.5-flash-lite"
+    llm_fallback_model_simulator: str | None = "gemini-3.5-flash-lite"
 
     llm_cache_enabled: bool = Field(
         default=True,
@@ -112,6 +115,7 @@ class Settings(BaseSettings):
             "hunar": self.hunar_api_key is not None,
             "nvidia": self.nvidia_api_key is not None,
             "pdl": self.pdl_api_key is not None,
+            "coresignal": self.coresignal_api_key is not None,
             "gemini": self.gemini_api_key is not None,
         }
 

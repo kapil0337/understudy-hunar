@@ -241,16 +241,14 @@ async def _personas_for_job(session: AsyncSession, job_id: uuid.UUID) -> list[Pe
     return list(rows.scalars().all())
 
 
-async def accept_patch(
-    session: AsyncSession,
-    patch: PromptPatch,
-    compiled: CompiledJD,
-    *,
-    llm: LLMService | None = None,
-) -> AcceptedPatch:
-    """Accept patch: create version n+1 (origin=PATCHED) from its proposed_agent_prompt, then
-    immediately rehearse that new version against the same personas the parent run used — a
-    patch's effect is measured, never assumed."""
+async def create_accepted_patch_version(session: AsyncSession, patch: PromptPatch) -> AgentVersion:
+    """The fast, DB-only half of accepting a patch: create version n+1 (origin=PATCHED) from
+    its proposed_agent_prompt and mark the patch accepted. Does NOT rehearse — the caller (the
+    API route) enqueues that separately via create_and_enqueue_rehearsal, since a full rehearsal
+    is several minutes of sequential LLM calls and has no place running inline in a request
+    handler. accept_patch below still does both inline, for callers (scripts/demo_rehearsal.py)
+    that want the whole pipeline synchronously with no worker involved.
+    """
     base_run = await session.get(RehearsalRun, patch.run_id)
     if base_run is None:
         raise PatchProposalError(f"rehearsal_run {patch.run_id} not found for patch {patch.id}")
@@ -266,9 +264,25 @@ async def accept_patch(
     session.add(patch)
     await session.flush()
 
+    return new_version
+
+
+async def accept_patch(
+    session: AsyncSession,
+    patch: PromptPatch,
+    compiled: CompiledJD,
+    *,
+    llm: LLMService | None = None,
+) -> AcceptedPatch:
+    """Accept patch: create version n+1 (origin=PATCHED) from its proposed_agent_prompt, then
+    immediately rehearse that new version against the same personas the parent run used — a
+    patch's effect is measured, never assumed. Fully synchronous: see
+    create_accepted_patch_version for the deferred-rehearsal split the API route uses instead."""
+    new_version = await create_accepted_patch_version(session, patch)
+
     # Personas persist per job (app/services/personas.py) rather than per run, so "the same
     # personas" the parent run used is simply every persona on this job.
-    personas = await _personas_for_job(session, base_version.job_id)
+    personas = await _personas_for_job(session, new_version.job_id)
     new_run = await run_rehearsal(session, new_version, compiled, personas, llm=llm)
 
     return AcceptedPatch(version=new_version, run=new_run)

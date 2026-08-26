@@ -13,12 +13,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from app.integrations.hunar.models import Guardrails, RetryConfig
+from app.integrations.hunar.models import WEEKDAYS, Guardrails, RetryConfig
 
 TIMEZONE = "Asia/Kolkata"
 
 GUARDRAILS = Guardrails(
-    allowed_days=["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    allowed_days=["MON", "TUE", "WED", "THU", "FRI"],
     earliest_call_time="10:00",
     last_call_time="18:00",
 )
@@ -31,7 +31,9 @@ def is_within_calling_window(now: datetime | None = None) -> bool:
     moment = now.astimezone(UTC) if now is not None else datetime.now(UTC)
     shifted = moment + _IST_OFFSET  # naive clock-time shift; IST has no DST to account for
 
-    if shifted.strftime("%A").upper() not in GUARDRAILS.allowed_days:
+    # weekday() is Monday=0..Sunday=6, matching WEEKDAYS' order — avoids locale-dependent
+    # strftime("%A") output.
+    if WEEKDAYS[shifted.weekday()] not in GUARDRAILS.allowed_days:
         return False
     current_time = shifted.strftime("%H:%M")
     return GUARDRAILS.earliest_call_time <= current_time <= GUARDRAILS.last_call_time

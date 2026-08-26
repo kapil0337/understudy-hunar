@@ -28,13 +28,11 @@ async def test_list_agents(hunar_client: HunarClient) -> None:
     page = await hunar_client.list_agents()
 
     assert route.called
-    assert page.count == 2
-    assert [agent.name for agent in page.results] == [
-        "Understudy Screener (EN)",
-        "Understudy Screener (HI)",
-    ]
+    assert page.count == 53
+    assert len(page.results) == 20
+    assert page.results[0].name == "Delivery Rider — Neha v1 (English)"
     assert page.results[0].language == "ENGLISH"
-    assert page.results[0].custom_variables == ["candidate_name", "role_title"]
+    assert page.results[0].custom_variables == ["role_location", "role_title"]
 
 
 @respx.mock
@@ -198,8 +196,10 @@ async def test_list_calls(hunar_client: HunarClient) -> None:
 
     page = await hunar_client.list_calls()
 
-    assert page.count == 1
-    assert page.results[0].status == "COMPLETED"
+    assert page.count == 488
+    # Not pinned to page.results[0]: it is whichever call is most recent on the live account at
+    # capture time, which can be one still in progress rather than COMPLETED.
+    assert any(call.status == "COMPLETED" for call in page.results)
 
 
 @respx.mock
@@ -220,16 +220,27 @@ async def test_list_calls_forwards_query_params(hunar_client: HunarClient) -> No
 async def test_get_call_exposes_result_and_recording_but_no_transcript(
     hunar_client: HunarClient,
 ) -> None:
-    fixture = load_fixture("call_detail.json")
+    """Uses one specific completed call from calls_list.json rather than call_detail.json:
+    the latter always reflects whichever call is most recent on the live account, which can be
+    a call still in progress (null result/recording) depending on when it was captured."""
+    calls = load_fixture("calls_list.json")["results"]
+    fixture = next(c for c in calls if c["id"] == "cal_00000000000000000000000004")
     call_id = fixture["id"]
     respx.get(f"{BASE_URL}calls/{call_id}/").mock(return_value=httpx.Response(200, json=fixture))
 
     call = await hunar_client.get_call(call_id)
 
     assert call.result == {
-        "interested": True,
-        "notice_period_days": 30,
-        "expected_ctc": "18 LPA",
+        "summary": "NOT AVAILABLE",
+        "reachable": "NOT AVAILABLE",
+        "interested": "NOT AVAILABLE",
+        "current_ctc": "NOT AVAILABLE",
+        "expected_ctc": "NOT AVAILABLE",
+        "role_interests": "NOT AVAILABLE",
+        "career_interests": "NOT AVAILABLE",
+        "negotiation_range": "NOT AVAILABLE",
+        "open_to_negotiation": "NOT AVAILABLE",
+        "overall_recommendation": "NOT AVAILABLE",
     }
     assert call.recording_url is not None
     # There is NO transcript field in the Hunar API (CLAUDE.md); nothing should invent one.
@@ -238,8 +249,13 @@ async def test_get_call_exposes_result_and_recording_but_no_transcript(
 
 @respx.mock
 async def test_get_call_maps_response_retry_field_name(hunar_client: HunarClient) -> None:
-    """Requests send max_retry_count; responses come back as max_retries (CLAUDE.md)."""
+    """Requests send max_retry_count; responses come back as max_retries (CLAUDE.md).
+
+    The captured call never retried, so its real retry_config.max_retries is null — that field
+    is overridden here to demonstrate the mapping against a call that did.
+    """
     fixture = load_fixture("call_detail.json")
+    fixture["retry_config"] = {"max_retries": 2, "retry_interval_hours": 6}
     call_id = fixture["id"]
     respx.get(f"{BASE_URL}calls/{call_id}/").mock(return_value=httpx.Response(200, json=fixture))
 
@@ -254,13 +270,17 @@ async def test_get_call_maps_response_retry_field_name(hunar_client: HunarClient
 
 @respx.mock
 async def test_list_numbers_exposes_allowed_countries(hunar_client: HunarClient) -> None:
+    """The org currently has no numbers provisioned (see tests/fixtures/hunar/README.md), so
+    this only confirms an empty page parses cleanly. allowed_countries extraction itself is
+    covered by test_hunar_preflight.py's check_destination_allowed tests, which build
+    PhoneNumber objects directly rather than depending on this fixture."""
     respx.get(f"{BASE_URL}numbers/").mock(
         return_value=httpx.Response(200, json=load_fixture("numbers_list.json"))
     )
 
     page = await hunar_client.list_numbers()
 
-    assert [number.allowed_countries for number in page.results] == [["IN", "AE"], ["US", "CA"]]
+    assert page.results == []
 
 
 # --------------------------------------------------------------------- error mapping
@@ -350,7 +370,7 @@ async def test_retries_5xx_then_succeeds(hunar_client: HunarClient) -> None:
     page = await hunar_client.list_agents()
 
     assert route.call_count == 2
-    assert page.count == 2
+    assert page.count == 53
 
 
 @respx.mock
@@ -378,7 +398,7 @@ async def test_retries_connect_errors(hunar_client: HunarClient) -> None:
     page = await hunar_client.list_agents()
 
     assert route.call_count == 2
-    assert page.count == 2
+    assert page.count == 53
 
 
 @respx.mock
@@ -449,4 +469,4 @@ async def test_client_works_as_async_context_manager() -> None:
     async with HunarClient(TEST_API_KEY) as client:
         page = await client.list_numbers()
 
-    assert page.count == 2
+    assert page.count == 0

@@ -26,6 +26,14 @@ export const queryKeys = {
       [...queryKeys.runs.all(), "latest-for-version", versionId] as const,
   },
 
+  patches: {
+    detail: (patchId: string) => ["patches", "detail", patchId] as const,
+  },
+
+  backgroundJobs: {
+    detail: (backgroundJobId: string) => ["backgroundJobs", "detail", backgroundJobId] as const,
+  },
+
   debug: {
     webhookEvents: (limit?: number) => ["debug", "webhookEvents", limit] as const,
   },

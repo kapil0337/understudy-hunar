@@ -114,7 +114,7 @@ def test_guardrails_absent_is_allowed() -> None:
 def test_guardrails_accepts_three_days_and_three_hour_window() -> None:
     check_guardrails(
         Guardrails(
-            allowed_days=["MONDAY", "TUESDAY", "WEDNESDAY"],
+            allowed_days=["MON", "TUE", "WED"],
             earliest_call_time="10:00",
             last_call_time="13:00",
         )
@@ -125,7 +125,7 @@ def test_guardrails_rejects_two_distinct_days() -> None:
     with pytest.raises(PreflightError, match="3 distinct days"):
         check_guardrails(
             Guardrails(
-                allowed_days=["MONDAY", "TUESDAY"],
+                allowed_days=["MON", "TUE"],
                 earliest_call_time="10:00",
                 last_call_time="18:00",
             )
@@ -137,7 +137,7 @@ def test_guardrails_counts_distinct_days_not_repeats() -> None:
     with pytest.raises(PreflightError, match="3 distinct days"):
         check_guardrails(
             Guardrails(
-                allowed_days=["MONDAY", "MONDAY", "MONDAY"],
+                allowed_days=["MON", "MON", "MON"],
                 earliest_call_time="10:00",
                 last_call_time="18:00",
             )
@@ -148,7 +148,7 @@ def test_guardrails_rejects_window_under_three_hours() -> None:
     with pytest.raises(PreflightError, match="at least 3 hours"):
         check_guardrails(
             Guardrails(
-                allowed_days=["MONDAY", "TUESDAY", "WEDNESDAY"],
+                allowed_days=["MON", "TUE", "WED"],
                 earliest_call_time="10:00",
                 last_call_time="12:59",
             )
@@ -159,7 +159,7 @@ def test_guardrails_rejects_inverted_window() -> None:
     with pytest.raises(PreflightError, match="at least 3 hours"):
         check_guardrails(
             Guardrails(
-                allowed_days=["MONDAY", "TUESDAY", "WEDNESDAY"],
+                allowed_days=["MON", "TUE", "WED"],
                 earliest_call_time="18:00",
                 last_call_time="09:00",
             )
@@ -170,7 +170,7 @@ def test_guardrails_rejects_inverted_window() -> None:
 def test_guardrails_model_rejects_malformed_time(bad_time: str) -> None:
     with pytest.raises(ValueError):
         Guardrails(
-            allowed_days=["MONDAY", "TUESDAY", "WEDNESDAY"],
+            allowed_days=["MON", "TUE", "WED"],
             earliest_call_time=bad_time,
             last_call_time="18:00",
         )

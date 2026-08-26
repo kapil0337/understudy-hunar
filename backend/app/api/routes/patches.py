@@ -5,29 +5,50 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.routes.runs import build_run_read
 from app.db.session import get_db
 from app.models.agent_version import AgentVersion
 from app.models.job import Job
 from app.models.rehearsal import PromptPatch, RehearsalRun
-from app.schemas.compiled_jd import CompiledJD
 from app.schemas.job import VersionSummary
-from app.schemas.run import PatchAcceptResponse
-from app.services.rehearsal.patch import PatchProposalError, accept_patch, score_delta
+from app.schemas.run import PatchAcceptAccepted, PatchRead
+from app.services.rehearsal.patch import PatchProposalError, create_accepted_patch_version
+from app.services.rehearsal.run import create_and_enqueue_rehearsal
 
 router = APIRouter(prefix="/patches", tags=["rehearsal"])
 
 
+@router.get(
+    "/{patch_id}",
+    summary="One proposed patch",
+    description="Fetch a patch proposed by POST /runs/{id}/patch — that endpoint returns 202 "
+    "immediately since proposing a patch is an LLM call; poll GET /background-jobs/{id} then "
+    "fetch it here once COMPLETED.",
+)
+async def get_patch(patch_id: uuid.UUID, session: AsyncSession = Depends(get_db)) -> PatchRead:
+    patch = await session.get(PromptPatch, patch_id)
+    if patch is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"no prompt_patch with id {patch_id}")
+    return PatchRead(
+        id=patch.id,
+        run_id=patch.run_id,
+        proposed_agent_prompt=patch.proposed_agent_prompt,
+        rationale=patch.rationale,
+        accepted=patch.accepted,
+        resulting_version_id=patch.resulting_version_id,
+    )
+
+
 @router.post(
     "/{patch_id}/accept",
+    status_code=status.HTTP_202_ACCEPTED,
     summary="Accept a proposed patch",
-    description="Creates AgentVersion n+1 (origin=PATCHED) from the patch's prompt, then "
-    "immediately rehearses it against the same personas as the parent run — a patch's effect "
-    "is measured, never assumed.",
+    description="Creates AgentVersion n+1 (origin=PATCHED) from the patch's prompt immediately, "
+    "then enqueues rehearsing it against the same personas as the parent run — a patch's effect "
+    "is measured, never assumed. Poll GET /versions/{version.id}/latest-run for the rehearsal.",
 )
 async def accept_run_patch(
     patch_id: uuid.UUID, session: AsyncSession = Depends(get_db)
-) -> PatchAcceptResponse:
+) -> PatchAcceptAccepted:
     patch = await session.get(PromptPatch, patch_id)
     if patch is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"no prompt_patch with id {patch_id}")
@@ -43,15 +64,16 @@ async def accept_run_patch(
         raise HTTPException(
             status.HTTP_409_CONFLICT, f"job {base_version.job_id} has no compiled JD"
         )
-    compiled = CompiledJD.model_validate(job.compiled)
 
     try:
-        accepted = await accept_patch(session, patch, compiled)
+        new_version = await create_accepted_patch_version(session, patch)
     except PatchProposalError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
 
-    return PatchAcceptResponse(
-        version=VersionSummary.model_validate(accepted.version, from_attributes=True),
-        run=await build_run_read(session, accepted.run),
-        score_delta=score_delta(base_run, accepted.run),
+    run = await create_and_enqueue_rehearsal(session, new_version)
+
+    return PatchAcceptAccepted(
+        version=VersionSummary.model_validate(new_version, from_attributes=True),
+        run_id=run.id,
+        status=run.status,
     )

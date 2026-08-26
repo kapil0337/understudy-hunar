@@ -10,6 +10,7 @@ import { z } from "zod";
 import type { components } from "./types";
 import {
   agentVersionReadSchema,
+  backgroundJobReadSchema,
   boardResponseSchema,
   callLaunchSummarySchema,
   candidateReadSchema,
@@ -18,11 +19,12 @@ import {
   healthzResponseSchema,
   httpValidationErrorSchema,
   jobReadSchema,
-  patchAcceptResponseSchema,
+  patchAcceptAcceptedSchema,
+  patchProposalAcceptedSchema,
   patchReadSchema,
-  personaReadSchema,
+  personasResponseSchema,
   rehearseAcceptedSchema,
-  requirementsUpdateResponseSchema,
+  requirementsUpdateAcceptedSchema,
   runReadSchema,
   sourceResponseSchema,
   versionHistoryRowSchema,
@@ -156,11 +158,13 @@ export const api = {
     create: (body: JobCreate, signal?: AbortSignal) =>
       request("/jobs", { method: "POST", body, schema: jobReadSchema, signal }),
 
+    /** Compiling is an LLM call — returns 202 + a background_job_id immediately; poll
+     * api.backgroundJobs.get, then refetch versions once COMPLETED. */
     updateRequirements: (jobId: string, body: RequirementsUpdate, signal?: AbortSignal) =>
       request(`/jobs/${jobId}/requirements`, {
         method: "PUT",
         body,
-        schema: requirementsUpdateResponseSchema,
+        schema: requirementsUpdateAcceptedSchema,
         signal,
       }),
 
@@ -183,8 +187,10 @@ export const api = {
         signal,
       }),
 
+    /** Returns the generated personas, or a background_job_id to poll on the first call for a
+     * job (generating them is an LLM call) — see personasResponseSchema. */
     listPersonas: (jobId: string, signal?: AbortSignal) =>
-      request(`/jobs/${jobId}/personas`, { schema: z.array(personaReadSchema), signal }),
+      request(`/jobs/${jobId}/personas`, { schema: personasResponseSchema, signal }),
 
     sourceCandidates: (jobId: string, body: SourceRequest, signal?: AbortSignal) =>
       request(`/jobs/${jobId}/source`, {
@@ -238,17 +244,33 @@ export const api = {
     getCase: (runId: string, caseId: string, signal?: AbortSignal) =>
       request(`/runs/${runId}/cases/${caseId}`, { schema: caseReadSchema, signal }),
 
+    /** Proposing a patch is an LLM call — returns 202 + a background_job_id; poll
+     * api.backgroundJobs.get, then api.patches.get(result.patch_id) once COMPLETED. */
     proposePatch: (runId: string, signal?: AbortSignal) =>
-      request(`/runs/${runId}/patch`, { method: "POST", schema: patchReadSchema, signal }),
+      request(`/runs/${runId}/patch`, {
+        method: "POST",
+        schema: patchProposalAcceptedSchema,
+        signal,
+      }),
   },
 
   patches: {
+    get: (patchId: string, signal?: AbortSignal) =>
+      request(`/patches/${patchId}`, { schema: patchReadSchema, signal }),
+
+    /** The new version exists immediately; rehearsing it is deferred — poll
+     * api.versions.latestRun(result.version.id) for the run. */
     accept: (patchId: string, signal?: AbortSignal) =>
       request(`/patches/${patchId}/accept`, {
         method: "POST",
-        schema: patchAcceptResponseSchema,
+        schema: patchAcceptAcceptedSchema,
         signal,
       }),
+  },
+
+  backgroundJobs: {
+    get: (backgroundJobId: string, signal?: AbortSignal) =>
+      request(`/background-jobs/${backgroundJobId}`, { schema: backgroundJobReadSchema, signal }),
   },
 
   candidates: {

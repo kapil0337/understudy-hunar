@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { components } from "@/lib/api/types";
+import { useBackgroundJob } from "./useBackgroundJobs";
 import { queryKeys } from "./queryKeys";
 
 type JobCreate = components["schemas"]["JobCreate"];

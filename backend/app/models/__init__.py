@@ -1,6 +1,7 @@
 from sqlmodel import SQLModel
 
 from app.models.agent_version import AgentVersion
+from app.models.background_job import BackgroundJob
 from app.models.cache import LLMCache, ProviderCache
 from app.models.candidate import Candidate
 from app.models.enums import AgentVersionOrigin, CallStatus, Language, VoicePersona
@@ -14,6 +15,7 @@ __all__ = [
     "SQLModel",
     "AgentVersion",
     "AgentVersionOrigin",
+    "BackgroundJob",
     "Candidate",
     "CallStatus",
     "Job",

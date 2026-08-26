@@ -3,17 +3,39 @@
 These JSON files are what `respx` replays in the test suite, so the suite keeps running after
 the Hunar API key expires.
 
-## Status: SYNTHETIC — replace with real captures while the key is alive
+## Status: REAL — captured 2026-08-26
 
-**These fixtures were hand-written from the API contract in [CLAUDE.md](../../../../CLAUDE.md),
-not captured from the live API.** No API key was available when they were created. They encode
-what the documentation says the responses look like, which is exactly the assumption most worth
-verifying against reality.
+The read-path fixtures (`agents_list.json`, `agent_detail.json`, `calls_list.json`,
+`call_detail.json`, `numbers_list.json`) are real, scrubbed captures from the live API, taken
+2026-08-26. The org had 0 numbers provisioned at capture time, so `numbers_list.json` has an
+empty `results`; `allowed_countries` extraction is covered instead by
+`test_hunar_preflight.py`'s `check_destination_allowed` tests against directly-constructed
+`PhoneNumber` objects.
 
-Until they are replaced with real captures, a passing test suite proves the adapter is
-self-consistent — not that it matches what Hunar actually returns.
+The capture surfaced one real adapter bug, now fixed: `guardrails.allowed_days` comes back as
+3-letter codes (`MON`, `TUE`, …), not the full weekday names (`MONDAY`, `TUESDAY`, …) the
+adapter previously assumed.
 
-Replace them with:
+It also surfaced a scrubber bug, now fixed: a call's `result` is LLM-generated prose about a
+real candidate (name, salary, what they said) shaped by whatever `result_schema` the agent
+declares — scrubbing by known key name alone (`callee_name`, etc.) missed it entirely, and an
+earlier capture briefly committed real candidate names and CTC figures buried in `result.summary`
+/ `result.call_summary` / etc. `capture_hunar_fixtures.py` now scrubs every string value nested
+under a call's `result` wholesale (`scripts/capture_hunar_fixtures.py`'s `in_result` handling),
+keeping only Hunar's own `"NOT AVAILABLE"` sentinel. See
+`tests/integrations/test_capture_scrubber.py::test_replaces_free_text_inside_call_result`.
+
+`call_detail.json` in particular reflects whichever call was most recent on the live account at
+capture time — it has been a completed call with a result in one capture and an in-progress call
+with an empty result and null recording_url in another. Tests that need a specific completed
+call use one picked out of `calls_list.json` by id instead of depending on `call_detail.json`'s
+current content.
+
+The write-path fixtures (`agent_created.json`, `agent_updated.json`, `call_created.json`) and
+the `error_*` / `webhook_*` files are still hand-written — those endpoints have side effects or
+aren't captured automatically. Treat them as SYNTHETIC until captured by hand.
+
+Re-capture the read-path fixtures with:
 
 ```bash
 export HUNAR_API_KEY=...           # while the key is still valid

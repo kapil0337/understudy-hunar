@@ -62,6 +62,10 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+      # Must be a build arg, not just the `environment:` below — see Dockerfile's comment on
+      # why NEXT_PUBLIC_API_BASE_URL has to be present when `npm run build` runs.
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
     env_file:
       - path: ./web/.env.local
         required: false

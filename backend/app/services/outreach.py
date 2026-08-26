@@ -159,7 +159,7 @@ def _build_custom_data(
 # than inventing an API field to carry a timezone that does not exist server-side.
 DEFAULT_RETRY_CONFIG = RetryConfig(max_retry_count=2, retry_interval_hours=6)
 DEFAULT_GUARDRAILS = Guardrails(
-    allowed_days=["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    allowed_days=["MON", "TUE", "WED", "THU", "FRI"],
     earliest_call_time="09:00",
     last_call_time="19:00",
 )

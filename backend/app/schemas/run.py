@@ -71,9 +71,26 @@ class PatchRead(BaseModel):
     resulting_version_id: uuid.UUID | None
 
 
-class PatchAcceptResponse(BaseModel):
+class PatchAcceptAccepted(BaseModel):
+    """202 response for POST /patches/{id}/accept: the new version exists immediately (a fast,
+    DB-only write), but rehearsing it is deferred to app/worker.py — poll
+    GET /versions/{version.id}/latest-run for the run, same as the standalone rehearse
+    endpoint. score_delta is not included here since the new run has no scores yet; compute it
+    client-side once both runs' scores are available."""
+
     model_config = ConfigDict(extra="forbid")
 
     version: VersionSummary
-    run: RunRead
-    score_delta: dict[str, float]
+    run_id: uuid.UUID
+    status: str
+
+
+class PatchProposalAccepted(BaseModel):
+    """202 response for POST /runs/{id}/patch: proposing a patch is one LLM call (plus a
+    possible retry), deferred to app/worker.py rather than run inline. Poll
+    GET /background-jobs/{id}; once COMPLETED, result.patch_id names the row to fetch via
+    GET /patches/{id}."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    background_job_id: uuid.UUID

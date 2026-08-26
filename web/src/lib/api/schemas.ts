@@ -70,15 +70,7 @@ export const TERMINAL_CALL_STATUSES = new Set<CallStatus>([
 export const rehearsalRunStatusSchema = z.enum(["PENDING", "RUNNING", "COMPLETED", "FAILED"]);
 export type RehearsalRunStatus = z.infer<typeof rehearsalRunStatusSchema>;
 
-export const weekdaySchema = z.enum([
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-]);
+export const weekdaySchema = z.enum(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]);
 // `Weekday` is a Python Literal, not an enum class, so it has no named OpenAPI component — it's
 // inlined wherever it's used. Checked against that inline usage site instead of a named schema.
 type _CheckWeekday = Expect<
@@ -112,6 +104,25 @@ export const guardrailsReadSchema = z.object({
 type _CheckGuardrailsRead = Expect<
   Equal<z.infer<typeof guardrailsReadSchema>, components["schemas"]["GuardrailsRead"]>
 >;
+
+// --------------------------------------------------------------------------- background jobs
+
+export const backgroundJobStatusSchema = z.enum(["PENDING", "RUNNING", "COMPLETED", "FAILED"]);
+
+/** The one generic status shape shared by every LLM-heavy operation deferred to app/worker.py
+ * (compile_jd, regenerate_personas, propose_patch, rehearse). `status` is narrowed from the
+ * generated `string` to a closed enum — same intentional narrowing as BoardRow.status below, so
+ * no exact Equal check against the generated type. */
+export const backgroundJobReadSchema = z.object({
+  id: z.uuid(),
+  kind: z.string(),
+  status: backgroundJobStatusSchema,
+  result: jsonRecord.nullable(),
+  error: z.string().nullable(),
+  created_at: z.string(),
+  started_at: z.string().nullable(),
+  finished_at: z.string().nullable(),
+});
 
 export const healthzResponseSchema = z
   .object({
@@ -176,14 +187,15 @@ type _CheckAgentVersionRead = Expect<
   Equal<z.infer<typeof agentVersionReadSchema>, components["schemas"]["AgentVersionRead"]>
 >;
 
-export const requirementsUpdateResponseSchema = z.object({
-  job_id: z.uuid(),
-  versions: z.array(versionSummarySchema),
-});
-type _CheckRequirementsUpdateResponse = Expect<
+// Compiling a JD, generating personas, proposing a patch, and rehearsing are all LLM-heavy
+// operations deferred to app/worker.py — each POST/PUT returns 202 + a background_job_id
+// immediately rather than the finished resource. Poll it via backgroundJobReadSchema below.
+
+export const requirementsUpdateAcceptedSchema = z.object({ background_job_id: z.uuid() });
+type _CheckRequirementsUpdateAccepted = Expect<
   Equal<
-    z.infer<typeof requirementsUpdateResponseSchema>,
-    components["schemas"]["RequirementsUpdateResponse"]
+    z.infer<typeof requirementsUpdateAcceptedSchema>,
+    components["schemas"]["RequirementsUpdateAccepted"]
   >
 >;
 
@@ -197,6 +209,21 @@ export const personaReadSchema = z.object({
 type _CheckPersonaRead = Expect<
   Equal<z.infer<typeof personaReadSchema>, components["schemas"]["PersonaRead"]>
 >;
+
+export const personaGenerationAcceptedSchema = z.object({ background_job_id: z.uuid() });
+type _CheckPersonaGenerationAccepted = Expect<
+  Equal<
+    z.infer<typeof personaGenerationAcceptedSchema>,
+    components["schemas"]["PersonaGenerationAccepted"]
+  >
+>;
+
+/** GET /jobs/{id}/personas returns either the generated list (200) or a job id to poll (202) —
+ * see PersonaGenerationAccepted's description on the backend. */
+export const personasResponseSchema = z.union([
+  z.array(personaReadSchema),
+  personaGenerationAcceptedSchema,
+]);
 
 // ----------------------------------------------------------------------------------- candidates
 
@@ -357,11 +384,28 @@ type _CheckPatchRead = Expect<
   Equal<z.infer<typeof patchReadSchema>, components["schemas"]["PatchRead"]>
 >;
 
-export const patchAcceptResponseSchema = z.object({
+/** Proposing a patch is an LLM call, deferred to app/worker.py — poll backgroundJobReadSchema,
+ * then GET /patches/{id} (result.patch_id) once COMPLETED. */
+export const patchProposalAcceptedSchema = z.object({ background_job_id: z.uuid() });
+type _CheckPatchProposalAccepted = Expect<
+  Equal<
+    z.infer<typeof patchProposalAcceptedSchema>,
+    components["schemas"]["PatchProposalAccepted"]
+  >
+>;
+
+/** The new version exists immediately; rehearsing it is deferred — poll
+ * GET /versions/{version.id}/latest-run for the run itself, same as the standalone rehearse
+ * endpoint. score_delta isn't included here (no scores yet) — compute it client-side once both
+ * runs are available. */
+export const patchAcceptAcceptedSchema = z.object({
   version: versionSummarySchema,
-  run: runReadSchema,
-  score_delta: z.record(z.string(), z.number()),
+  run_id: z.uuid(),
+  status: z.string(),
 });
+type _CheckPatchAcceptAccepted = Expect<
+  Equal<z.infer<typeof patchAcceptAcceptedSchema>, components["schemas"]["PatchAcceptAccepted"]>
+>;
 
 // ------------------------------------------------------------------------------------- webhooks
 

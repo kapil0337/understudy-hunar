@@ -1,32 +1,745 @@
 {
-  "count": 1,
-  "next": null,
-  "previous": null,
   "results": [
     {
       "id": "cal_00000000000000000000000001",
-      "agent_id": "agt_00000000000000000000000001",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "IN_PROGRESS",
+      "request_id": "bc89c705-445a-49ca-aa79-253937a7de43",
+      "duration_seconds": 0,
+      "recording_url": null,
+      "result": {},
+      "custom_data": {
+        "company": "",
+        "job_role": "Ai Engineer",
+        "location": ""
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-26T04:28:03.186000Z",
+      "updated_at": "2026-08-26T04:28:35.765000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "IN_PROGRESS",
+      "system_data": {
+        "greeting": "Good morning",
+        "callee_name": "Test Candidate",
+        "current_time": "09:58:24 26 August 2026 Wednesday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 0.0,
+      "user_speech_duration": 0.0,
+      "engagement_status": null,
+      "answered_by": null,
+      "call_ended_by": null,
+      "started_at": "2026-08-26T04:28:24.846Z",
+      "ended_at": null,
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {},
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000002",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "NOT_CONNECTED",
+      "request_id": "ed09f8e7-14e8-4f88-8a0d-2a37cafd8d81",
+      "duration_seconds": 0,
+      "recording_url": null,
+      "result": {},
+      "custom_data": {
+        "company": "",
+        "job_role": "",
+        "location": ""
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-26T04:14:09.021000Z",
+      "updated_at": "2026-08-26T04:15:10.816000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "NOT_CONNECTED",
+      "system_data": {
+        "greeting": "Good morning",
+        "callee_name": "Test Candidate",
+        "current_time": "09:44:24 26 August 2026 Wednesday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 0.0,
+      "user_speech_duration": 0.0,
+      "engagement_status": null,
+      "answered_by": null,
+      "call_ended_by": null,
+      "started_at": "2026-08-26T04:14:25.142Z",
+      "ended_at": "2026-08-26T04:14:59Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {},
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000003",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "NOT_CONNECTED",
+      "request_id": "46b9d528-7be4-46fb-9ea9-305e15e657f3",
+      "duration_seconds": 0,
+      "recording_url": null,
+      "result": {},
+      "custom_data": {
+        "company": "",
+        "job_role": "Ai Engineer",
+        "location": ""
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-26T04:08:05.968000Z",
+      "updated_at": "2026-08-26T04:09:12.087000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "NOT_CONNECTED",
+      "system_data": {
+        "greeting": "Good morning",
+        "callee_name": "Test Candidate",
+        "current_time": "09:38:26 26 August 2026 Wednesday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 0.0,
+      "user_speech_duration": 0.0,
+      "engagement_status": null,
+      "answered_by": null,
+      "call_ended_by": null,
+      "started_at": "2026-08-26T04:08:26.992Z",
+      "ended_at": "2026-08-26T04:09:01Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {},
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000004",
+      "agent_id": "agt_00000000000000000000000002",
       "callee_name": "Test Candidate",
       "mobile_number": "+919876543210",
       "status": "COMPLETED",
-      "request_id": "job1234-cand5678-a1",
-      "duration_seconds": 143,
+      "request_id": "802e6389-9803-4805-844e-59805d2dca4c",
+      "duration_seconds": 8,
       "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
       "result": {
-        "interested": true,
-        "notice_period_days": 30,
-        "expected_ctc": "18 LPA"
+        "summary": "NOT AVAILABLE",
+        "reachable": "NOT AVAILABLE",
+        "interested": "NOT AVAILABLE",
+        "current_ctc": "NOT AVAILABLE",
+        "expected_ctc": "NOT AVAILABLE",
+        "role_interests": "NOT AVAILABLE",
+        "career_interests": "NOT AVAILABLE",
+        "negotiation_range": "NOT AVAILABLE",
+        "open_to_negotiation": "NOT AVAILABLE",
+        "overall_recommendation": "NOT AVAILABLE"
       },
       "custom_data": {
-        "candidate_name": "Test Candidate",
-        "role_title": "Backend Engineer"
+        "company": "",
+        "job_role": "Engineer",
+        "location": ""
       },
       "retry_config": {
-        "max_retries": 2,
-        "retry_interval_hours": 6
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
       },
-      "created_at": "2026-08-02T10:00:00Z",
-      "updated_at": "2026-08-02T10:03:12Z"
+      "created_at": "2026-08-25T15:42:00.178000Z",
+      "updated_at": "2026-08-26T02:31:11.995000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good morning",
+        "callee_name": "Test Candidate",
+        "current_time": "08:00:23 26 August 2026 Wednesday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 0.13,
+      "user_speech_duration": 0.0,
+      "engagement_status": "NOT_ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "USER",
+      "started_at": "2026-08-26T02:30:23.718Z",
+      "ended_at": "2026-08-26T02:30:50Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {},
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000005",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "COMPLETED",
+      "request_id": "req_982cf4cc12f942148d595d8f1ca83c7d",
+      "duration_seconds": 66,
+      "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+      "result": {
+        "summary": "[scrubbed]",
+        "reachable": false,
+        "interested": false,
+        "current_ctc": null,
+        "expected_ctc": null,
+        "role_interests": null,
+        "career_interests": null,
+        "negotiation_range": null,
+        "open_to_negotiation": false,
+        "overall_recommendation": "NOT AVAILABLE"
+      },
+      "custom_data": {
+        "company": "Flipkart",
+        "job_role": "Node js Developer",
+        "location": "Bangalore"
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-24T06:45:11.689000Z",
+      "updated_at": "2026-08-24T06:47:26.057000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good afternoon",
+        "callee_name": "Test Candidate",
+        "current_time": "12:15:38 24 August 2026 Monday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 1.1,
+      "user_speech_duration": 7.78,
+      "engagement_status": "ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "USER",
+      "started_at": "2026-08-24T06:45:39.053Z",
+      "ended_at": "2026-08-24T06:46:58Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {
+        "call_result_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_status_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_summary_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_recording_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar"
+      },
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000006",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "COMPLETED",
+      "request_id": "req_c3eba3a941f5462c91b8dc9f180a86c8",
+      "duration_seconds": 50,
+      "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+      "result": {
+        "summary": "[scrubbed]",
+        "reachable": false,
+        "interested": false,
+        "current_ctc": null,
+        "expected_ctc": null,
+        "role_interests": null,
+        "career_interests": null,
+        "negotiation_range": null,
+        "open_to_negotiation": false,
+        "overall_recommendation": "[scrubbed]"
+      },
+      "custom_data": {
+        "company": "Bulandshar",
+        "job_role": "Java Developer",
+        "location": "India"
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-24T06:35:38.003000Z",
+      "updated_at": "2026-08-24T06:38:15.765000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good afternoon",
+        "callee_name": "Test Candidate",
+        "current_time": "12:06:38 24 August 2026 Monday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 0.83,
+      "user_speech_duration": 10.74,
+      "engagement_status": "ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "AGENT",
+      "started_at": "2026-08-24T06:36:38.912Z",
+      "ended_at": "2026-08-24T06:37:47Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {
+        "call_result_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_status_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_summary_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_recording_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar"
+      },
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000007",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "COMPLETED",
+      "request_id": "test-diag-2",
+      "duration_seconds": 73,
+      "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+      "result": {
+        "summary": "[scrubbed]",
+        "reachable": true,
+        "interested": false,
+        "current_ctc": "[scrubbed]",
+        "expected_ctc": "[scrubbed]",
+        "role_interests": "NOT AVAILABLE",
+        "career_interests": "NOT AVAILABLE",
+        "negotiation_range": "NOT AVAILABLE",
+        "open_to_negotiation": false,
+        "overall_recommendation": "NOT AVAILABLE"
+      },
+      "custom_data": {
+        "company": "XYZ",
+        "job_role": "AI Software Engineer",
+        "location": "Noida"
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-24T06:28:48.130000Z",
+      "updated_at": "2026-08-24T06:31:23.171000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good afternoon",
+        "callee_name": "Test Candidate",
+        "current_time": "11:59:23 24 August 2026 Monday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 1.22,
+      "user_speech_duration": 4.46,
+      "engagement_status": "ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "USER",
+      "started_at": "2026-08-24T06:29:23.563Z",
+      "ended_at": "2026-08-24T06:30:53Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {
+        "call_result_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_status_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_summary_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar",
+        "call_recording_callback_url": "https://overfeed-affront-decree.ngrok-free.dev/api/webhooks/hunar"
+      },
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000008",
+      "agent_id": "agt_00000000000000000000000003",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "COMPLETED",
+      "request_id": "outreach--918139845454-Senior-Backend-Engineer",
+      "duration_seconds": 50,
+      "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+      "result": {
+        "call_summary": "[scrubbed]",
+        "notice_period": null,
+        "interest_level": "[scrubbed]",
+        "consented_to_call": "[scrubbed]",
+        "preferred_contact_method": null
+      },
+      "custom_data": {
+        "company": "Acme Corp",
+        "job_role": "Senior Backend Engineer",
+        "current_title": "Backend Engineer",
+        "current_company": "KPMG",
+        "sourcing_reason": "Strong backend fundamentals matching the role requirements."
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-23T10:52:31.777000Z",
+      "updated_at": "2026-08-23T10:54:48.926000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good evening",
+        "callee_name": "Test Candidate",
+        "current_time": "16:23:24 23 August 2026 Sunday",
+        "persona_name": "Roy",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 0.83,
+      "user_speech_duration": 4.9,
+      "engagement_status": "ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "AGENT",
+      "started_at": "2026-08-23T10:53:24.832Z",
+      "ended_at": "2026-08-23T10:54:23Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {},
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000009",
+      "agent_id": "agt_00000000000000000000000004",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "COMPLETED",
+      "request_id": "screen--918139845454-Backend-Engineer",
+      "duration_seconds": 732,
+      "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+      "result": {
+        "current_ctc": "[scrubbed]",
+        "expected_ctc": "[scrubbed]",
+        "notice_period": "[scrubbed]",
+        "overall_summary": "[scrubbed]",
+        "reason_for_leaving": "[scrubbed]",
+        "skill_confirmations": [
+          {
+            "skill": "[scrubbed]",
+            "confidence": "[scrubbed]",
+            "candidate_response_summary": "[scrubbed]"
+          },
+          {
+            "skill": "[scrubbed]",
+            "confidence": "[scrubbed]",
+            "candidate_response_summary": "[scrubbed]"
+          },
+          {
+            "skill": "[scrubbed]",
+            "confidence": "[scrubbed]",
+            "candidate_response_summary": "[scrubbed]"
+          },
+          {
+            "skill": "[scrubbed]",
+            "confidence": "[scrubbed]",
+            "candidate_response_summary": "[scrubbed]"
+          },
+          {
+            "skill": "[scrubbed]",
+            "confidence": "[scrubbed]",
+            "candidate_response_summary": "[scrubbed]"
+          }
+        ],
+        "years_of_experience": "[scrubbed]"
+      },
+      "custom_data": {
+        "company": "Acme Corp",
+        "job_role": "Backend Engineer",
+        "jd_skills": "Python, FastAPI, REST API design, PostgreSQL, asyncio",
+        "resume_summary": "About 1 year of backend engineering experience. Worked with FastAPI, PostgreSQL, and RabbitMQ in a production KPMG project."
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-23T09:18:18.613000Z",
+      "updated_at": "2026-08-23T09:31:25.989000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good afternoon",
+        "callee_name": "Test Candidate",
+        "current_time": "14:48:26 23 August 2026 Sunday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 12.2,
+      "user_speech_duration": 477.7,
+      "engagement_status": "ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "AGENT",
+      "started_at": "2026-08-23T09:18:26.494Z",
+      "ended_at": "2026-08-23T09:30:46Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {},
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
+    },
+    {
+      "id": "cal_00000000000000000000000010",
+      "agent_id": "agt_00000000000000000000000002",
+      "callee_name": "Test Candidate",
+      "mobile_number": "+919876543210",
+      "status": "COMPLETED",
+      "request_id": "screen-cand-1",
+      "duration_seconds": 239,
+      "recording_url": "https://recordings.example.invalid/scrubbed/rec_0001.mp3",
+      "result": {
+        "summary": "[scrubbed]",
+        "reachable": true,
+        "interested": true,
+        "current_ctc": "[scrubbed]",
+        "expected_ctc": "[scrubbed]",
+        "role_interests": "[scrubbed]",
+        "career_interests": "[scrubbed]",
+        "negotiation_range": "[scrubbed]",
+        "open_to_negotiation": true,
+        "overall_recommendation": "NOT AVAILABLE"
+      },
+      "custom_data": {
+        "company": "Hunar.ai",
+        "job_role": "Backend Engineer",
+        "location": "Bangalore"
+      },
+      "retry_config": {
+        "max_retries": null,
+        "retry_interval_hours": 0,
+        "max_retry_count": 0
+      },
+      "created_at": "2026-08-23T08:08:46.862000Z",
+      "updated_at": "2026-08-23T08:16:01.176000Z",
+      "language": "ENGLISH",
+      "campaign_id": null,
+      "lifecycle_status": "COMPLETED",
+      "system_data": {
+        "greeting": "Good afternoon",
+        "callee_name": "Test Candidate",
+        "current_time": "13:39:25 23 August 2026 Sunday",
+        "persona_name": "Neha",
+        "mobile_number": "+919876543210"
+      },
+      "duration_minutes": 3.98,
+      "user_speech_duration": 91.28,
+      "engagement_status": "ENGAGED",
+      "answered_by": "HUMAN",
+      "call_ended_by": "AGENT",
+      "started_at": "2026-08-23T08:09:26.129Z",
+      "ended_at": "2026-08-23T08:13:28Z",
+      "triggered_by": null,
+      "max_retries": 0,
+      "retry_count": 0,
+      "retries_left": 0,
+      "next_retry_scheduled_at": null,
+      "redial_status": null,
+      "timezone": "Asia/Kolkata",
+      "from_phone_number": "+919876543210",
+      "callback_config": {
+        "call_result_callback_url": "https://hunarai-vv1s.onrender.com/webhooks/hunar",
+        "call_status_callback_url": "https://hunarai-vv1s.onrender.com/webhooks/hunar",
+        "call_summary_callback_url": "https://hunarai-vv1s.onrender.com/webhooks/hunar",
+        "call_recording_callback_url": "https://hunarai-vv1s.onrender.com/webhooks/hunar"
+      },
+      "guardrails": {
+        "allowed_days": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI",
+          "SAT",
+          "SUN"
+        ],
+        "last_call_time": "21:00",
+        "earliest_call_time": "08:00"
+      }
     }
-  ]
+  ],
+  "count": 488,
+  "next": "https://api.voice.hunar.ai/external/v1/calls/?page=2",
+  "previous": null
 }

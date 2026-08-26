@@ -4,15 +4,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/primitives/ErrorState";
 import { useGuardrails } from "@/lib/hooks/useGuardrails";
 
-const DAY_ABBREV: Record<string, string> = {
-  MONDAY: "Mon",
-  TUESDAY: "Tue",
-  WEDNESDAY: "Wed",
-  THURSDAY: "Thu",
-  FRIDAY: "Fri",
-  SATURDAY: "Sat",
-  SUNDAY: "Sun",
-};
+// Backend sends "MON".."SUN" (Hunar's own format); title-case it for display.
+function titleCase(day: string): string {
+  return day.charAt(0) + day.slice(1).toLowerCase();
+}
 
 export function GuardrailStrip() {
   const { data: guardrails, isPending, isError, error, refetch } = useGuardrails();
@@ -24,7 +19,7 @@ export function GuardrailStrip() {
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-border bg-card px-4 py-2.5 text-xs">
       <span className="font-medium text-muted-foreground">Calling window</span>
       <span className="tabular-nums">
-        {guardrails.allowed_days.map((day) => DAY_ABBREV[day]).join("/")} ·{" "}
+        {guardrails.allowed_days.map(titleCase).join("/")} ·{" "}
         {guardrails.earliest_call_time}–{guardrails.last_call_time} {guardrails.timezone}
       </span>
       <span className="tabular-nums text-muted-foreground">

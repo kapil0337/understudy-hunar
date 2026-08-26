@@ -17,9 +17,10 @@ Or via the monorepo's `docker compose` setup — see the [root README](../README
 ```bash
 uv run ruff check .          # lint
 uv run ruff format .         # format
-uv run mypy app alembic tests  # type check (strict)
+uv run mypy app alembic tests scripts  # type check (strict)
 uv run pytest                # tests
 uv run alembic upgrade head  # apply migrations
+uv run python scripts/seed.py  # idempotent demo seed — see scripts/seed.py's docstring
 ```
 
 ## Layout
@@ -31,5 +32,7 @@ uv run alembic upgrade head  # apply migrations
 - `app/integrations/` — adapters for external HTTP APIs (Hunar, NVIDIA, PDL), one per service
 - `alembic/` — migrations
 - `fixtures/` — test/seed data — no real keys, numbers, or PII, ever (see `fixtures/README.md`)
+- `scripts/` — one-off/dev scripts: `seed.py` (demo data), `demo_rehearsal.py` (real LLM calls),
+  `smoke_hunar.py` / `capture_hunar_fixtures.py` (real Hunar calls), `replay_webhook.py`
 
 See [CLAUDE.md](../CLAUDE.md) at the repo root for the project brief and hard rules.

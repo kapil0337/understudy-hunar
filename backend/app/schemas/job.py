@@ -72,11 +72,24 @@ class AgentVersionRead(BaseModel):
     created_at: datetime
 
 
-class RequirementsUpdateResponse(BaseModel):
+class RequirementsUpdateAccepted(BaseModel):
+    """202 response for PUT /jobs/{id}/requirements: compiling a JD is an LLM call, deferred to
+    app/worker.py. Poll GET /background-jobs/{id}; once COMPLETED, result.version_ids names the
+    new draft AgentVersion(s) — fetch them via GET /jobs/{id}/versions."""
+
     model_config = ConfigDict(extra="forbid")
 
-    job_id: uuid.UUID
-    versions: list[VersionSummary]
+    background_job_id: uuid.UUID
+
+
+class PersonaGenerationAccepted(BaseModel):
+    """202 response for GET /jobs/{id}/personas when no personas exist yet for this job.
+    Generating them is an LLM call, deferred to app/worker.py. Poll GET /background-jobs/{id},
+    then re-GET this same endpoint once COMPLETED — it will return the generated list."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    background_job_id: uuid.UUID
 
 
 class VersionHistoryRow(BaseModel):

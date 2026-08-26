@@ -16,6 +16,7 @@ from app.models.rehearsal import RehearsalRun
 from app.schemas.compiled_jd import CompiledJD
 from app.services.jd_compiler import create_initial_version
 from app.services.llm import InMemoryLLMCache, LLMService, set_llm_service
+from tests.api.conftest import run_pending_background_job
 from tests.services.conftest import FakeProvider, load_compiled_fixture
 
 ADDITION = "\nREMEMBER: never invent a number that is not in the approved facts list."
@@ -59,21 +60,12 @@ def _scores_with_failures(failures: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 async def test_rehearse_returns_202_with_pending_run(
-    api_client: httpx.AsyncClient, db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch
+    api_client: httpx.AsyncClient, db_session: AsyncSession
 ) -> None:
-    # Starlette runs a BackgroundTask inline, as part of the same ASGI call that sends the
-    # response — so the real rehearse_in_background would fire here too, opening its OWN
-    # session against the app's real (deliberately dead, per tests/conftest.py) DATABASE_URL.
-    # It is stubbed out because this test is about the ROUTE's own behaviour (create a PENDING
-    # run, return its id in the 202); the reuse mechanics rehearse_in_background depends on are
-    # covered directly in tests/services/rehearsal/test_run.py instead.
-    import app.api.routes.versions as versions_module
-
-    async def _noop_background(agent_version_id: uuid.UUID, run_id: uuid.UUID) -> None:
-        return None
-
-    monkeypatch.setattr(versions_module, "rehearse_in_background", _noop_background)
-
+    # The actual simulation is deferred to a BackgroundJob picked up by app/worker.py (a
+    # separate process in production) — this test never processes it, so the run stays
+    # PENDING. The reuse mechanics rehearse_in_background depends on are covered directly in
+    # tests/services/rehearsal/test_run.py instead.
     _, version, _ = await _seed_version(db_session)
     await db_session.commit()
 
@@ -85,6 +77,7 @@ async def test_rehearse_returns_202_with_pending_run(
     run_resp = await api_client.get(f"/runs/{body['run_id']}")
     assert run_resp.status_code == 200
     assert run_resp.json()["agent_version_id"] == str(version.id)
+    assert run_resp.json()["status"] == "PENDING"
 
 
 async def test_rehearse_unknown_version_404(api_client: httpx.AsyncClient) -> None:
@@ -149,8 +142,18 @@ async def test_propose_patch_happy_path(
     _install_llm([json.dumps(payload)])
 
     resp = await api_client.post(f"/runs/{run.id}/patch")
-    assert resp.status_code == 200
-    body = resp.json()
+    assert resp.status_code == 202
+    background_job_id = resp.json()["background_job_id"]
+
+    job_row = await run_pending_background_job(db_session)
+    assert job_row.id == uuid.UUID(background_job_id)
+    assert job_row.status == "COMPLETED", job_row.error
+    assert job_row.result is not None
+    patch_id = job_row.result["patch_id"]
+
+    patch_resp = await api_client.get(f"/patches/{patch_id}")
+    assert patch_resp.status_code == 200
+    body = patch_resp.json()
     assert body["run_id"] == str(run.id)
     assert body["accepted"] is False
     assert ADDITION.strip() in body["proposed_agent_prompt"]
@@ -161,16 +164,23 @@ async def test_propose_patch_unknown_run_404(api_client: httpx.AsyncClient) -> N
     assert resp.status_code == 404
 
 
-async def test_propose_patch_unscored_run_returns_422(
+async def test_propose_patch_unscored_run_fails_the_background_job(
     api_client: httpx.AsyncClient, db_session: AsyncSession
 ) -> None:
+    # propose_patch's own "has this run been scored" check now runs inside app/worker.py
+    # (see _handle_propose_patch) rather than synchronously in the route, since proposing a
+    # patch is an LLM call — the route only fails fast on a missing job/compiled JD.
     _, version, _ = await _seed_version(db_session)
     run = RehearsalRun(agent_version_id=version.id, status="RUNNING", scores=None)
     db_session.add(run)
     await db_session.commit()
 
     resp = await api_client.post(f"/runs/{run.id}/patch")
-    assert resp.status_code == 422
+    assert resp.status_code == 202
+
+    job_row = await run_pending_background_job(db_session)
+    assert job_row.status == "FAILED"
+    assert "not been scored" in (job_row.error or "")
 
 
 # --------------------------------------------------------------------------------- accept

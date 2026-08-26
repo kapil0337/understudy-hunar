@@ -1,34 +1,85 @@
 {
   "id": "agt_00000000000000000000000001",
-  "name": "Understudy Screener (EN)",
+  "name": "Delivery Rider — Neha v1 (English)",
   "language": "ENGLISH",
   "voice_persona": "NEHA",
   "persona_name": "Neha",
-  "agent_prompt": "You are a recruiter screening candidates for a backend role.",
-  "objective": "Determine interest, notice period and expected CTC.",
-  "introduction": "Hi {{candidate_name}}, calling about the {{role_title}} role.",
-  "result_prompt": "Summarise interest, notice period and expected CTC.",
+  "agent_prompt": "You are {persona_name}, a recruiter calling {callee_name} about a {role_title} role in {role_location}. Speak English.\n\nGOAL\nScreen this candidate in under 90 seconds. Be warm, direct, and quick. This is a phone call:\nshort sentences, one question at a time, no lists read aloud.\n\nWHAT YOU MAY SAY ABOUT THE ROLE\nYou may state ONLY the following facts. This list is exhaustive.\n- We offer a salary range of Rs 18,000 to Rs 24,000 per month\n- Fuel allowance of Rs 2,500 per month is provided\n- Weekly payouts are made every Monday\n- A company t-shirt and delivery bag are provided\n- Accident insurance cover is provided\n- A joining bonus of Rs 1,000 is given after 50 completed deliveries\n- Two shifts are available: morning (7 AM to 3 PM) and evening (3 PM to 11 PM)\n- Six days a week, one weekly off\n- Prior delivery experience is a plus but not required\n\nIf asked anything not covered above — exact pay for their case, contract terms, start date\nguarantees, anything at all — say you do not have that detail and a human recruiter will\nfollow up. NEVER guess, estimate, extrapolate, or invent a fact about this role. Saying \"I\ndon't have that detail\" is always the correct answer when the fact is not on the list above.\n\nSCREENING QUESTIONS — ask these in order, all of them:\n1. (boolean) Do you have a two-wheeler in working condition?\n2. (boolean) Do you have a valid two-wheeler driving licence?\n3. (boolean) Do you have an Android smartphone?\n4. (boolean) Are you comfortable riding in Chennai city traffic?\n5. (boolean) Can you read basic English or Tamil addresses on the app?\n\nAsk them conversationally, not as a form. Accept short answers and move on. Do not ask for\ndocuments, numbers they would need to look up, or anything they could not answer from memory.\n\nIF THEY ARE NOT INTERESTED\nThank them sincerely, do not push or re-pitch more than once, confirm they want no further\ncontact if they say so, and end the call politely.\n\nCLOSING\nSummarise the next step in one sentence, thank them, and end. Target under 90 seconds total.\n",
+  "objective": "Screen candidates for Delivery Rider in Adyar: confirm interest, ask the screening questions, and capture a structured result in under 90 seconds.",
+  "introduction": "Hi {callee_name}, this is {persona_name} calling about a Delivery Rider opening in Adyar. Do you have ninety seconds to talk?",
+  "result_prompt": "From this call, extract exactly these fields: have_two_wheeler, have_driving_licence, have_android_smartphone, comfortable_riding_in_chennai, can_read_addresses, interested, qualified, earliest_start,\nrejection_reason.\n\nUse only what the candidate actually said. If a question was not asked or not answered, leave\nthat field empty rather than guessing. Set qualified to false if any knockout criterion was\nfailed. Set rejection_reason only when interested or qualified is false.\n",
   "result_schema": {
     "type": "object",
-    "properties": {
-      "interested": {
-        "type": "boolean"
-      },
-      "notice_period_days": {
-        "type": "integer"
-      },
-      "expected_ctc": {
-        "type": "string"
-      }
-    },
     "required": [
-      "interested"
-    ]
+      "have_two_wheeler",
+      "have_driving_licence",
+      "have_android_smartphone",
+      "comfortable_riding_in_chennai",
+      "can_read_addresses",
+      "interested",
+      "qualified",
+      "earliest_start",
+      "rejection_reason"
+    ],
+    "properties": {
+      "qualified": {
+        "type": "boolean",
+        "description": "Did the candidate pass every knockout criterion?"
+      },
+      "interested": {
+        "type": "boolean",
+        "description": "Did the candidate express interest in proceeding?"
+      },
+      "earliest_start": {
+        "type": "string",
+        "description": "When the candidate said they could start, in their own words."
+      },
+      "have_two_wheeler": {
+        "type": "boolean",
+        "description": "Do you have a two-wheeler in working condition?"
+      },
+      "rejection_reason": {
+        "type": "string",
+        "description": "If not qualified or not interested, the reason. Empty otherwise."
+      },
+      "can_read_addresses": {
+        "type": "boolean",
+        "description": "Can you read basic English or Tamil addresses on the app?"
+      },
+      "have_driving_licence": {
+        "type": "boolean",
+        "description": "Do you have a valid two-wheeler driving licence?"
+      },
+      "have_android_smartphone": {
+        "type": "boolean",
+        "description": "Do you have an Android smartphone?"
+      },
+      "comfortable_riding_in_chennai": {
+        "type": "boolean",
+        "description": "Are you comfortable riding in Chennai city traffic?"
+      }
+    }
   },
   "custom_variables": [
-    "candidate_name",
+    "role_location",
     "role_title"
   ],
-  "created_at": "2026-08-01T09:15:00Z",
-  "updated_at": "2026-08-01T09:15:00Z"
+  "created_at": "2026-08-25T10:09:51.816000Z",
+  "updated_at": null,
+  "status": "ACTIVE",
+  "voice_name": "Neha",
+  "summary": "This recruiting agent screens candidates for the Delivery Rider position in Adyar, assessing qualifications and interest in under 90 seconds for a logistics company.",
+  "logo": "https://hunar-voice-prod-071853465125-ap-south-1-an.s3.ap-south-1.amazonaws.com/org_SNeHjs0neCJ0n/agent-logos/agent_logo_1024px_20260825_100950.png",
+  "agent_code": "FD53",
+  "silence_response": "Are you there?",
+  "conclusion": "Have a wonderful day.",
+  "result_variables": [
+    "type",
+    "required",
+    "properties"
+  ],
+  "required_variables": [
+    "callee_name",
+    "mobile_number"
+  ]
 }

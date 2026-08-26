@@ -21,8 +21,8 @@ from tests.integrations.conftest import load_fixture
 def test_paginated_parses_results_key() -> None:
     page = Paginated[Agent].model_validate(load_fixture("agents_list.json"))
 
-    assert page.count == 2
-    assert len(page.results) == 2
+    assert page.count == 53
+    assert len(page.results) == 20
 
 
 @pytest.mark.parametrize("key", ["results", "data", "items"])

@@ -13,6 +13,7 @@ from app.integrations.hunar.client import BASE_URL as HUNAR_BASE_URL
 from app.models.persona import Persona
 from app.services.llm import InMemoryLLMCache, LLMService, set_llm_service
 from app.services.outreach import BLOCK_NO_PHONE
+from tests.api.conftest import run_pending_background_job
 from tests.services.conftest import FakeProvider, load_compiled_fixture, load_raw_jd
 
 
@@ -35,11 +36,16 @@ async def _create_job(client: httpx.AsyncClient) -> str:
 
 
 async def _compile_requirements(
-    client: httpx.AsyncClient, job_id: str, jd_name: str = "delivery_rider_chennai"
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    job_id: str,
+    jd_name: str = "delivery_rider_chennai",
 ) -> None:
     _install_compiler_llm(jd_name)
     resp = await client.put(f"/jobs/{job_id}/requirements", json={"raw_jd": load_raw_jd(jd_name)})
-    assert resp.status_code == 200
+    assert resp.status_code == 202
+    job = await run_pending_background_job(session)
+    assert job.status == "COMPLETED", job.error
 
 
 # --------------------------------------------------------------------------------------- jobs
@@ -69,7 +75,7 @@ async def test_get_unknown_job_404(api_client: httpx.AsyncClient) -> None:
 
 
 async def test_requirements_update_compiles_and_creates_draft_versions(
-    api_client: httpx.AsyncClient,
+    api_client: httpx.AsyncClient, db_session: AsyncSession
 ) -> None:
     job_id = await _create_job(api_client)
     _install_compiler_llm("delivery_rider_chennai")
@@ -78,15 +84,24 @@ async def test_requirements_update_compiles_and_creates_draft_versions(
         f"/jobs/{job_id}/requirements",
         json={"raw_jd": load_raw_jd("delivery_rider_chennai")},
     )
-    assert resp.status_code == 200
-    body = resp.json()
-    assert body["job_id"] == job_id
-    assert len(body["versions"]) >= 1
-    assert all(v["version_no"] == 1 for v in body["versions"])
-    assert all(v["hunar_agent_id"] is None for v in body["versions"])  # not published yet
+    assert resp.status_code == 202
+    background_job_id = resp.json()["background_job_id"]
+
+    job = await run_pending_background_job(db_session)
+    assert job.id == uuid.UUID(background_job_id)
+    assert job.status == "COMPLETED", job.error
+    assert job.result is not None
+    assert job.result["job_id"] == job_id
+    assert len(job.result["version_ids"]) >= 1
+
+    status_resp = await api_client.get(f"/background-jobs/{background_job_id}")
+    assert status_resp.status_code == 200
+    assert status_resp.json()["status"] == "COMPLETED"
 
     versions = (await api_client.get(f"/jobs/{job_id}/versions")).json()
-    assert len(versions) == len(body["versions"])
+    assert len(versions) == len(job.result["version_ids"])
+    assert all(v["version_no"] == 1 for v in versions)
+    assert all(v["hunar_agent_id"] is None for v in versions)  # not published yet
     assert all(v["latest_composite_score"] is None for v in versions)  # never rehearsed
 
 
@@ -99,9 +114,11 @@ async def test_source_before_compile_returns_409(api_client: httpx.AsyncClient) 
 # --------------------------------------------------------------------------------- candidates
 
 
-async def test_source_and_list_candidates_best_match_first(api_client: httpx.AsyncClient) -> None:
+async def test_source_and_list_candidates_best_match_first(
+    api_client: httpx.AsyncClient, db_session: AsyncSession
+) -> None:
     job_id = await _create_job(api_client)
-    await _compile_requirements(api_client, job_id)
+    await _compile_requirements(api_client, db_session, job_id)
 
     resp = await api_client.post(f"/jobs/{job_id}/source", json={})
     assert resp.status_code == 200
@@ -118,9 +135,11 @@ async def test_source_and_list_candidates_best_match_first(api_client: httpx.Asy
     assert scores == sorted(scores, reverse=True)
 
 
-async def test_sourcing_twice_does_not_duplicate_candidates(api_client: httpx.AsyncClient) -> None:
+async def test_sourcing_twice_does_not_duplicate_candidates(
+    api_client: httpx.AsyncClient, db_session: AsyncSession
+) -> None:
     job_id = await _create_job(api_client)
-    await _compile_requirements(api_client, job_id)
+    await _compile_requirements(api_client, db_session, job_id)
 
     first = (await api_client.post(f"/jobs/{job_id}/source", json={})).json()
     second = (await api_client.post(f"/jobs/{job_id}/source", json={})).json()
@@ -133,7 +152,7 @@ async def test_personas_returns_existing_rows_without_an_llm_call(
     api_client: httpx.AsyncClient, db_session: AsyncSession
 ) -> None:
     job_id = await _create_job(api_client)
-    await _compile_requirements(api_client, job_id)
+    await _compile_requirements(api_client, db_session, job_id)
 
     persona = Persona(
         job_id=uuid.UUID(job_id),
@@ -161,7 +180,7 @@ async def test_call_launch_guard_board_and_export(
     api_client_with_hunar: httpx.AsyncClient, db_session: AsyncSession
 ) -> None:
     job_id = await _create_job(api_client_with_hunar)
-    await _compile_requirements(api_client_with_hunar, job_id)
+    await _compile_requirements(api_client_with_hunar, db_session, job_id)
 
     sourced = (await api_client_with_hunar.post(f"/jobs/{job_id}/source", json={})).json()
     candidates = sourced["candidates"]

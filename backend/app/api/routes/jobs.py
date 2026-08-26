@@ -22,6 +22,7 @@ from app.models.candidate import Candidate
 from app.models.enums import Language
 from app.models.job import Job
 from app.models.outreach import Outreach
+from app.models.persona import Persona
 from app.models.rehearsal import RehearsalRun
 from app.schemas.board import BoardResponse, BoardRow
 from app.schemas.candidate import CallRequest, CandidateRead, SourceRequest, SourceResponse
@@ -29,16 +30,17 @@ from app.schemas.compiled_jd import CompiledJD
 from app.schemas.job import (
     JobCreate,
     JobRead,
+    PersonaGenerationAccepted,
     PersonaRead,
     RequirementsUpdate,
-    RequirementsUpdateResponse,
+    RequirementsUpdateAccepted,
     VersionHistoryRow,
     VersionSummary,
 )
 from app.schemas.outreach import CallLaunchSummary
-from app.services.jd_compiler import compile_jd, create_initial_version, publish_version
+from app.services import background_jobs
+from app.services.jd_compiler import publish_version
 from app.services.outreach import OutreachError, call_candidates, refresh_outreach
-from app.services.personas import get_or_regenerate_personas
 from app.services.ranking import apply_match, score_candidate
 from app.services.sourcing import get_sourcing_service
 
@@ -104,32 +106,22 @@ async def get_job(job_id: uuid.UUID, session: AsyncSession = Depends(get_db)) ->
 
 @router.put(
     "/{job_id}/requirements",
+    status_code=status.HTTP_202_ACCEPTED,
     summary="Update a job's requirements",
     description="Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, "
     "unpublished) for every language the compiled JD implies. Never edits an existing version — "
-    "versions are immutable (CLAUDE.md).",
+    "versions are immutable (CLAUDE.md). Compiling is an LLM call, so this returns immediately "
+    "with a job id; poll GET /background-jobs/{id}, then GET /jobs/{id}/versions once COMPLETED.",
 )
 async def update_requirements(
     job_id: uuid.UUID, body: RequirementsUpdate, session: AsyncSession = Depends(get_db)
-) -> RequirementsUpdateResponse:
-    job = await _get_job(session, job_id)
-    compiled = await compile_jd(body.raw_jd, session=session)
-
-    job.raw_jd = body.raw_jd
-    job.compiled = compiled.model_dump(mode="json")
-    session.add(job)
-    await session.flush()
-
-    versions = [
-        await create_initial_version(session, job.id, compiled, language)
-        for language in compiled.candidate_languages
-    ]
-    await session.commit()
-
-    return RequirementsUpdateResponse(
-        job_id=job.id,
-        versions=[VersionSummary.model_validate(v, from_attributes=True) for v in versions],
+) -> RequirementsUpdateAccepted:
+    await _get_job(session, job_id)
+    background_job = await background_jobs.enqueue(
+        session, "compile_jd", {"job_id": str(job_id), "raw_jd": body.raw_jd}
     )
+    await session.commit()
+    return RequirementsUpdateAccepted(background_job_id=background_job.id)
 
 
 @router.get(
@@ -217,15 +209,33 @@ async def publish_job_version(
     return VersionSummary.model_validate(published, from_attributes=True)
 
 
-@router.get("/{job_id}/personas", summary="The six rehearsal personas")
+@router.get(
+    "/{job_id}/personas",
+    summary="The six rehearsal personas",
+    description="Returns the generated personas, or 202 + a job id on the first call for a "
+    "job (generating them is an LLM call, deferred to app/worker.py) — poll "
+    "GET /background-jobs/{id} then re-GET this same endpoint once COMPLETED.",
+)
 async def list_personas(
-    job_id: uuid.UUID, session: AsyncSession = Depends(get_db)
-) -> list[PersonaRead]:
+    job_id: uuid.UUID, response: Response, session: AsyncSession = Depends(get_db)
+) -> list[PersonaRead] | PersonaGenerationAccepted:
     job = await _get_job(session, job_id)
-    compiled = _require_compiled(job)
-    personas = await get_or_regenerate_personas(session, job.id, compiled)
+    _require_compiled(job)  # fail fast if there's nothing to generate personas from
+
+    existing = (
+        (await session.execute(select(Persona).where(col(Persona.job_id) == job.id)))
+        .scalars()
+        .all()
+    )
+    if existing:
+        return [PersonaRead.model_validate(p, from_attributes=True) for p in existing]
+
+    background_job = await background_jobs.enqueue(
+        session, "regenerate_personas", {"job_id": str(job.id)}
+    )
     await session.commit()
-    return [PersonaRead.model_validate(p, from_attributes=True) for p in personas]
+    response.status_code = status.HTTP_202_ACCEPTED
+    return PersonaGenerationAccepted(background_job_id=background_job.id)
 
 
 # ------------------------------------------------------------------------------- candidates

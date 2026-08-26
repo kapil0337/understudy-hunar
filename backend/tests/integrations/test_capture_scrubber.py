@@ -92,6 +92,49 @@ def test_ids_are_stable_and_cross_referenced() -> None:
     assert first["id"].startswith("agt_")
 
 
+def test_replaces_free_text_inside_call_result() -> None:
+    """A call's `result` is LLM-generated prose about a real candidate — it can name them,
+    quote a salary, summarise what they said, none of which is caught by scrubbing known key
+    names alone. Found via a real capture that committed exactly this (candidate names and
+    CTC figures in `result.summary`) before this test existed."""
+    out = scrub(
+        {
+            "result": {
+                "summary": "Vasu Gupta said their current CTC is 8,05,000.",
+                "interested": True,
+                "current_ctc": "8,05,000",
+                "overall_recommendation": "NOT AVAILABLE",
+            }
+        }
+    )
+
+    assert out["result"]["summary"] == capture.PLACEHOLDER_RESULT_TEXT
+    assert out["result"]["current_ctc"] == capture.PLACEHOLDER_RESULT_TEXT
+    assert out["result"]["interested"] is True  # non-string values pass through untouched
+    assert out["result"]["overall_recommendation"] == "NOT AVAILABLE"  # Hunar's own sentinel
+
+
+def test_replaces_free_text_nested_inside_call_result() -> None:
+    """Same as above, but for a result shape that nests prose inside a list (real example:
+    result_schema.skill_confirmations, a list of {skill, confidence, candidate_response_summary}
+    objects)."""
+    out = scrub(
+        {
+            "result": {
+                "skill_confirmations": [
+                    {"skill": "FastAPI", "candidate_response_summary": "Gangula Sai Srijan said.."}
+                ]
+            }
+        }
+    )
+
+    assert out["result"]["skill_confirmations"][0]["skill"] == capture.PLACEHOLDER_RESULT_TEXT
+    assert (
+        out["result"]["skill_confirmations"][0]["candidate_response_summary"]
+        == capture.PLACEHOLDER_RESULT_TEXT
+    )
+
+
 def test_nested_structures_are_scrubbed() -> None:
     out = scrub(
         {"results": [{"custom_data": {"mobile_number": "+919812345678"}}]},

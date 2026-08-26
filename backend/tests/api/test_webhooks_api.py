@@ -128,10 +128,36 @@ async def test_invalid_signature_returns_401(api_client: httpx.AsyncClient) -> N
     assert resp.status_code == 401
 
 
-async def test_missing_headers_returns_401(api_client: httpx.AsyncClient) -> None:
+async def test_missing_timestamp_header_returns_400(api_client: httpx.AsyncClient) -> None:
     payload = load_fixture("webhook_call_status.json")
-    resp = await api_client.post("/webhooks/hunar/status", json=payload)
-    assert resp.status_code == 401
+    raw_body = json.dumps(payload).encode()
+
+    resp = await api_client.post(
+        "/webhooks/hunar/status",
+        content=raw_body,
+        headers={
+            "X-Hunar-Signature": _sign(API_KEY, "1", raw_body),
+            "Content-Type": "application/json",
+        },
+    )
+    assert resp.status_code == 400
+    assert "X-Hunar-Timestamp" in resp.json()["message"]
+
+
+async def test_missing_signature_header_returns_400(api_client: httpx.AsyncClient) -> None:
+    payload = load_fixture("webhook_call_status.json")
+    raw_body = json.dumps(payload).encode()
+
+    resp = await api_client.post(
+        "/webhooks/hunar/status",
+        content=raw_body,
+        headers={
+            "X-Hunar-Timestamp": str(int(time.time())),
+            "Content-Type": "application/json",
+        },
+    )
+    assert resp.status_code == 400
+    assert "X-Hunar-Signature" in resp.json()["message"]
 
 
 async def test_unresolved_call_is_still_accepted(api_client: httpx.AsyncClient) -> None:

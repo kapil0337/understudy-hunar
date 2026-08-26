@@ -46,7 +46,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: mypy
-        run: uv run mypy app alembic tests
+        run: uv run mypy app alembic tests scripts
 
       # alembic migrates whatever DATABASE_URL points at; scoped to this step only, that is
       # deliberately the test database. pytest itself never sees DATABASE_URL — conftest
@@ -80,6 +80,9 @@ jobs:
 
       - name: eslint
         run: npm run lint
+
+      - name: vitest
+        run: npm run test
 
       - name: next build
         run: npm run build

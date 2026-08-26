@@ -11,6 +11,14 @@ import os
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://unused:unused@127.0.0.1:1/unused")
 os.environ.setdefault("ENVIRONMENT", "test")
 
+# Disable Settings' own `.env` file loading before anything constructs one: a developer's real
+# backend/.env (with real keys) sitting next to this file would otherwise get picked up whenever
+# a test deletes a key from os.environ expecting "absent", since pydantic-settings falls through
+# env var -> .env file -> default. Tests control configuration via os.environ/monkeypatch only.
+from app.core.settings import Settings as _Settings  # noqa: E402
+
+_Settings.model_config["env_file"] = None
+
 from collections.abc import AsyncIterator  # noqa: E402
 
 import pytest  # noqa: E402

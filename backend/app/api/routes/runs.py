@@ -13,8 +13,8 @@ from app.models.job import Job
 from app.models.persona import Persona
 from app.models.rehearsal import RehearsalCase, RehearsalRun
 from app.schemas.compiled_jd import CompiledJD
-from app.schemas.run import CaseRead, CaseSummary, PatchRead, RunRead
-from app.services.rehearsal.patch import PatchProposalError, propose_patch
+from app.schemas.run import CaseRead, CaseSummary, PatchProposalAccepted, RunRead
+from app.services import background_jobs
 
 router = APIRouter(tags=["rehearsal"])
 
@@ -118,25 +118,17 @@ async def get_case(
 
 @router.post(
     "/runs/{run_id}/patch",
+    status_code=status.HTTP_202_ACCEPTED,
     summary="Propose a prompt patch addressing this run's worst failures",
+    description="Proposing a patch is an LLM call, so this returns immediately with a job id; "
+    "poll GET /background-jobs/{id}, then GET /patches/{id} (result.patch_id) once COMPLETED.",
 )
 async def propose_run_patch(
     run_id: uuid.UUID, session: AsyncSession = Depends(get_db)
-) -> PatchRead:
+) -> PatchProposalAccepted:
     run = await _get_run(session, run_id)
-    compiled = await _compiled_for_run(session, run)
+    await _compiled_for_run(session, run)  # fail fast if there's nothing to patch against
 
-    try:
-        patch = await propose_patch(session, run, compiled)
-    except PatchProposalError as exc:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+    job = await background_jobs.enqueue(session, "propose_patch", {"run_id": str(run_id)})
     await session.commit()
-
-    return PatchRead(
-        id=patch.id,
-        run_id=patch.run_id,
-        proposed_agent_prompt=patch.proposed_agent_prompt,
-        rationale=patch.rationale,
-        accepted=patch.accepted,
-        resulting_version_id=patch.resulting_version_id,
-    )
+    return PatchProposalAccepted(background_job_id=job.id)

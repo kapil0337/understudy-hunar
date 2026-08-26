@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.routes import candidates, debug, jobs, patches, runs, versions, webhooks
+from app.api.routes import (
+    background_jobs,
+    candidates,
+    debug,
+    jobs,
+    patches,
+    runs,
+    versions,
+    webhooks,
+)
 from app.core.settings import get_settings
 from app.schemas.guardrails import GuardrailsRead
 from app.services import guardrails as guardrails_service
@@ -49,3 +58,4 @@ router.include_router(patches.router)
 router.include_router(candidates.router)
 router.include_router(webhooks.router)
 router.include_router(debug.router)
+router.include_router(background_jobs.router)

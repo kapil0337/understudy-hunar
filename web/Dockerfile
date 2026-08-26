@@ -12,6 +12,11 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+# NEXT_PUBLIC_* vars are inlined into the client bundle at build time, not read at container
+# start — so this must be an ARG available to `npm run build`, not just a runtime ENV.
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 RUN npm run build
 
 ENV NODE_ENV=production
