@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useJobs } from "@/lib/hooks/useJobs";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DeleteJobButton } from "@/components/jobs/DeleteJobButton";
+import { ThemeToggle } from "@/components/shell/ThemeToggle";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -32,20 +34,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Skeleton className="h-7 w-full" />
             </div>
           ) : isError ? (
-            <p className="px-2 py-1 text-xs text-muted-foreground">Couldn&apos;t load jobs</p>
+            <p className="px-2 py-1 text-xs text-muted-foreground">
+              Couldn&apos;t load jobs
+            </p>
           ) : jobs.length === 0 ? (
-            <p className="px-2 py-1 text-xs text-muted-foreground">No jobs yet</p>
+            <p className="px-2 py-1 text-xs text-muted-foreground">
+              No jobs yet
+            </p>
           ) : (
             <ul className="flex flex-col gap-0.5">
               {jobs.map((job) => {
                 const active = pathname.startsWith(`/jobs/${job.id}`);
                 return (
-                  <li key={job.id}>
+                  <li key={job.id} className="group flex items-center gap-0.5">
                     <Link
                       href={`/jobs/${job.id}/compile`}
                       title={job.title}
                       className={cn(
-                        "block truncate rounded-md px-2 py-1.5 text-sm transition-colors",
+                        "block min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-sm transition-colors",
                         active
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
                           : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
@@ -53,6 +59,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     >
                       {job.title}
                     </Link>
+                    <DeleteJobButton
+                      jobId={job.id}
+                      jobTitle={job.title}
+                      className="opacity-0 focus-visible:opacity-100 group-hover:opacity-100"
+                    />
                   </li>
                 );
               })}
@@ -60,11 +71,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           )}
         </nav>
 
-        <div className="border-t border-sidebar-border px-2 py-2">
+        <div className="flex items-center justify-between gap-2 border-t border-sidebar-border px-2 py-2">
           <Link
             href="/debug"
             className={cn(
-              "block rounded-md px-2 py-1.5 text-xs transition-colors",
+              "rounded-md px-2 py-1.5 text-xs transition-colors",
               pathname === "/debug"
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-muted-foreground hover:bg-sidebar-accent/60",
@@ -72,6 +83,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             Debug
           </Link>
+          <ThemeToggle />
         </div>
       </aside>
 

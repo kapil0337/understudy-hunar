@@ -40,6 +40,7 @@ def test_capabilities_all_false_when_keys_absent(monkeypatch: pytest.MonkeyPatch
     monkeypatch.delenv("PDL_API_KEY", raising=False)
     monkeypatch.delenv("CORESIGNAL_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
     get_settings.cache_clear()
     try:
         settings = get_settings()
@@ -49,6 +50,7 @@ def test_capabilities_all_false_when_keys_absent(monkeypatch: pytest.MonkeyPatch
             "pdl": False,
             "coresignal": False,
             "gemini": False,
+            "groq": False,
         }
     finally:
         get_settings.cache_clear()

@@ -44,7 +44,7 @@ from app.integrations.sourcing.base import (
     SourcingQuotaExceeded,
     SourcingResult,
 )
-from app.integrations.sourcing.ratelimit import TokenBucket
+from app.integrations.ratelimit import TokenBucket
 
 logger = structlog.get_logger()
 

@@ -71,6 +71,30 @@ async def test_get_unknown_job_404(api_client: httpx.AsyncClient) -> None:
     assert resp.status_code == 404
 
 
+async def test_delete_unknown_job_404(api_client: httpx.AsyncClient) -> None:
+    resp = await api_client.delete(f"/jobs/{uuid.uuid4()}")
+    assert resp.status_code == 404
+
+
+async def test_delete_job_removes_it_and_everything_scoped_to_it(
+    api_client: httpx.AsyncClient, db_session: AsyncSession
+) -> None:
+    job_id = await _create_job(api_client)
+    await _compile_requirements(api_client, db_session, job_id)
+    sourced = (await api_client.post(f"/jobs/{job_id}/source", json={})).json()
+    assert len(sourced["candidates"]) > 0
+
+    resp = await api_client.delete(f"/jobs/{job_id}")
+    assert resp.status_code == 204
+    assert resp.content == b""
+
+    assert (await api_client.get(f"/jobs/{job_id}")).status_code == 404
+    assert not any(j["id"] == job_id for j in (await api_client.get("/jobs")).json())
+
+    # Deleting again is a 404, not a silent no-op — the job is actually gone, not just hidden.
+    assert (await api_client.delete(f"/jobs/{job_id}")).status_code == 404
+
+
 # ------------------------------------------------------------------------------- requirements
 
 

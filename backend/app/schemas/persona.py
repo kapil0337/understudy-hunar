@@ -1,4 +1,8 @@
-"""Draft schema the LLM fills in when generating one persona.
+"""The JD-independent pieces of the draft schema the LLM fills in when generating one persona.
+
+The full schema (including ground_truth_answers) is JD-specific — built fresh per compiled JD by
+app/services/personas.py._build_persona_batch_model — but a persona's profile and behaviour
+don't depend on the JD's own questions, so those two pieces live here and get reused as-is.
 
 The model only invents flavour — names, backstories, and the raw answer values a persona would
 give for each screening question. `ground_truth.qualified` is never asked of it:
@@ -34,9 +38,13 @@ ARCHETYPES: tuple[Archetype, ...] = (
 Verbosity = Literal["terse", "normal", "verbose"]
 Cooperativeness = Literal["cooperative", "neutral", "hostile"]
 
-# Not a per-question dynamic type on purpose: KnockoutCriterion.value takes the same approach
-# (bool | float | str | list[str]) rather than a schema built fresh per JD. Type CORRECTNESS
-# per question is checked afterwards in app/services/personas.py, against answer_type.
+# The shape one ground-truth answer takes once app/services/personas.py has converted the LLM's
+# response back to a plain dict (see _personas_from_batch). The LLM itself is never asked to fill
+# a dict[str, AnswerValue] directly — that shape can only ask in prose for one entry per
+# screening question, never enforce it. app/services/personas.py._build_persona_batch_model
+# builds a fresh, JD-specific model instead, with one REQUIRED field per question id, typed by
+# that question's answer_type — the same fresh-schema idea app/services/jd_compiler.py's
+# _require_all_properties uses to keep a compiled JD's own fields from being silently optional.
 AnswerValue = bool | float | str
 
 
@@ -59,27 +67,3 @@ class PersonaBehaviourDraft(BaseModel):
     cooperativeness: Cooperativeness
     language_switching: bool
     off_script_questions: list[str] = Field(default_factory=list)
-
-
-class PersonaDraft(BaseModel):
-    """One persona as the LLM produces it. `qualified` is deliberately absent — see the module
-    docstring."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    archetype: Archetype
-    profile: PersonaProfileDraft
-    ground_truth_answers: dict[str, AnswerValue] = Field(
-        description="One entry per screening question id, in the type its answer_type implies."
-    )
-    expected_interested: bool
-    behaviour: PersonaBehaviourDraft
-
-
-class PersonaBatch(BaseModel):
-    """Exactly the six archetypes generate_personas requires, generated together in one call so
-    they stay comparable across runs (CLAUDE.md)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    personas: list[PersonaDraft] = Field(min_length=6, max_length=6)

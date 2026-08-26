@@ -10,16 +10,23 @@ model — which is what keeps scoring objective instead of a self-graded vibe ch
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal
 
 import structlog
+from pydantic import BaseModel, ConfigDict, Field, create_model
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col
 
 from app.models.persona import Persona
 from app.schemas.compiled_jd import CompiledJD, KnockoutCriterion, ScreeningQuestion
-from app.schemas.persona import ARCHETYPES, AnswerValue, Archetype, PersonaBatch
+from app.schemas.persona import (
+    ARCHETYPES,
+    AnswerValue,
+    Archetype,
+    PersonaBehaviourDraft,
+    PersonaProfileDraft,
+)
 from app.services.llm import LLMService, get_llm_service
 
 logger = structlog.get_logger()
@@ -170,6 +177,48 @@ Facts you may draw on for background/situation flavour (do not contradict or go 
 """
 
 
+def _ground_truth_field_type(question: ScreeningQuestion) -> Any:
+    if question.answer_type == "boolean":
+        return bool
+    if question.answer_type == "number":
+        return float
+    if question.answer_type == "enum":
+        return Literal[tuple(question.options or [])]  # type: ignore[valid-type]
+    return str
+
+
+def _build_persona_batch_model(compiled: CompiledJD) -> type[BaseModel]:
+    """A fresh PersonaBatch/PersonaDraft pair, built per compiled JD, whose
+    ground_truth_answers has one REQUIRED field per screening question id — not the open
+    dict[str, AnswerValue] shape app/schemas/persona.py deliberately uses instead, which can
+    only ask a model in prose to include every question, never force it structurally. Built
+    here rather than there because it depends on this specific JD's questions, unlike every
+    other schema in that module.
+    """
+    ground_truth_fields = {
+        question.id: (_ground_truth_field_type(question), ...)
+        for question in compiled.screening_questions
+    }
+    ground_truth_model = create_model(
+        "GroundTruthAnswers", __config__=ConfigDict(extra="forbid"), **ground_truth_fields
+    )
+
+    persona_draft_model = create_model(
+        "PersonaDraft",
+        __config__=ConfigDict(extra="forbid"),
+        archetype=(Archetype, ...),
+        profile=(PersonaProfileDraft, ...),
+        ground_truth_answers=(ground_truth_model, ...),
+        expected_interested=(bool, ...),
+        behaviour=(PersonaBehaviourDraft, ...),
+    )
+    return create_model(
+        "PersonaBatch",
+        __config__=ConfigDict(extra="forbid"),
+        personas=(list[persona_draft_model], Field(min_length=6, max_length=6)),
+    )
+
+
 async def generate_personas(
     compiled: CompiledJD,
     *,
@@ -181,17 +230,21 @@ async def generate_personas(
     Not persisted — the caller decides whether to save them (see get_or_regenerate_personas).
     """
     service = llm or get_llm_service()
+    batch_model = _build_persona_batch_model(compiled)
 
     messages: list[dict[str, str]] = [
         {"role": "system", "content": _PERSONA_SYSTEM_PROMPT},
         {"role": "user", "content": _user_prompt(compiled)},
     ]
 
-    batch = await service.structured_complete("simulator", messages, PersonaBatch)
+    batch = await service.structured_complete("simulator", messages, batch_model)
     try:
         return _personas_from_batch(compiled, batch, job_id=job_id)
     except PersonaGenerationError as first_error:
-        logger.warning("persona_generation_invalid_retrying", error=str(first_error))
+        # Bind the message here: Python unbinds the exception name at the end of the
+        # except block, so it is not available further down.
+        first_error_text = str(first_error)
+        logger.warning("persona_generation_invalid_retrying", error=first_error_text)
 
     # Retry ONCE, feeding back exactly what was wrong — same pattern as
     # LLMService.structured_complete's schema retry and propose_patch's dropped-question retry.
@@ -205,18 +258,18 @@ async def generate_personas(
         {
             "role": "user",
             "content": (
-                f"That output was invalid:\n{first_error}\n\n"
+                f"That output was invalid:\n{first_error_text}\n\n"
                 "Return the full corrected set of six personas again, fixing only that problem."
             ),
         },
     ]
-    batch = await service.structured_complete("simulator", repair_messages, PersonaBatch)
+    batch = await service.structured_complete("simulator", repair_messages, batch_model)
     return _personas_from_batch(compiled, batch, job_id=job_id)
 
 
-def _personas_from_batch(
-    compiled: CompiledJD, batch: PersonaBatch, *, job_id: Any
-) -> list[Persona]:
+def _personas_from_batch(compiled: CompiledJD, batch: Any, *, job_id: Any) -> list[Persona]:
+    """`batch` is an instance of the dynamic model _build_persona_batch_model returns — its
+    exact shape only exists at runtime, per compiled JD, so it cannot be given a static type."""
     found = sorted(draft.archetype for draft in batch.personas)
     if found != sorted(ARCHETYPES):
         raise PersonaGenerationError(
@@ -225,11 +278,13 @@ def _personas_from_batch(
 
     personas: list[Persona] = []
     for draft in batch.personas:
-        problems = _invalid_answers(compiled, draft.ground_truth_answers)
+        answers: dict[str, Any] = draft.ground_truth_answers.model_dump()
+
+        problems = _invalid_answers(compiled, answers)
         if problems:
             raise PersonaGenerationError(f"{draft.archetype}: {'; '.join(problems)}")
 
-        qualified = evaluate_knockouts(compiled.knockout_criteria, draft.ground_truth_answers)
+        qualified = evaluate_knockouts(compiled.knockout_criteria, answers)
         expected = _EXPECTED_QUALIFIED.get(draft.archetype)
         if expected is not None and qualified is not expected:
             raise PersonaGenerationError(
@@ -238,7 +293,7 @@ def _personas_from_batch(
             )
 
         ground_truth: dict[str, Any] = {
-            **draft.ground_truth_answers,
+            **answers,
             "interested": draft.expected_interested,
             "qualified": qualified,
         }

@@ -39,6 +39,7 @@ from app.schemas.job import (
 )
 from app.schemas.outreach import CallLaunchSummary
 from app.services import background_jobs
+from app.services import jobs as jobs_service
 from app.services.jd_compiler import publish_version
 from app.services.outreach import OutreachError, call_candidates, refresh_outreach
 from app.services.ranking import apply_match, score_candidate
@@ -102,6 +103,20 @@ async def list_jobs(session: AsyncSession = Depends(get_db)) -> list[JobRead]:
 async def get_job(job_id: uuid.UUID, session: AsyncSession = Depends(get_db)) -> JobRead:
     job = await _get_job(session, job_id)
     return JobRead.model_validate(job, from_attributes=True)
+
+
+@router.delete(
+    "/{job_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a job",
+    description="Permanently deletes the job and everything scoped to it — candidates, "
+    "outreach/call history, agent versions, rehearsal runs and cases, and proposed patches. "
+    "Irreversible.",
+)
+async def delete_job(job_id: uuid.UUID, session: AsyncSession = Depends(get_db)) -> None:
+    await _get_job(session, job_id)
+    await jobs_service.delete_job(session, job_id)
+    await session.commit()
 
 
 @router.put(

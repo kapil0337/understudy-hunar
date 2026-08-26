@@ -139,6 +139,27 @@ async def test_cache_key_differs_by_provider_query_and_limit() -> None:
     assert sourcing_cache_key("pdl", base) != sourcing_cache_key("pdl", different_query)
 
 
+async def test_empty_result_is_not_cached(db_session: AsyncSession) -> None:
+    """An empty result never spent a collect credit, so there's nothing the cache protects by
+    keeping it — and keeping it would permanently hide candidates a retry could still find."""
+    pdl = FakeSourcingProvider(
+        "pdl", [SourcingResult(provider="pdl", candidates=[]), _result("pdl")]
+    )
+    service = SourcingService(providers={"pdl": pdl}, settings=_settings(sourcing_provider="pdl"))
+    query = SourcingQuery(titles=["Delivery Rider"])
+
+    first = await service.search(query, session=db_session)
+    await db_session.flush()
+    assert first.cached is False
+    assert first.candidates == []
+
+    second = await service.search(query, session=db_session)
+
+    assert second.cached is False
+    assert len(second.candidates) == 1
+    assert len(pdl.calls) == 2  # provider called again — the empty result was never cached
+
+
 async def test_no_session_means_no_caching() -> None:
     pdl = FakeSourcingProvider("pdl", [_result("pdl"), _result("pdl")])
     service = SourcingService(providers={"pdl": pdl}, settings=_settings(sourcing_provider="pdl"))

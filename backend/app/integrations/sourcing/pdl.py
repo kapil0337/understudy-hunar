@@ -40,7 +40,7 @@ from app.integrations.sourcing.base import (
     SourcingResult,
 )
 from app.integrations.sourcing.exceptions import STATUS_EXCEPTIONS, PDLAPIError
-from app.integrations.sourcing.ratelimit import TokenBucket
+from app.integrations.ratelimit import TokenBucket
 
 logger = structlog.get_logger()
 

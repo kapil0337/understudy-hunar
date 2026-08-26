@@ -123,7 +123,24 @@ async def run_rehearsal(
     by_persona_id = {persona.id: persona for persona in personas}
     case_inputs = [_case_input(case, by_persona_id[case.persona_id]) for case in cases]
 
-    score = await score_rehearsal_run(compiled, case_inputs, llm=service)
+    try:
+        score = await score_rehearsal_run(compiled, case_inputs, llm=service)
+    except Exception as exc:  # noqa: BLE001 - deliberately broad: any judge-call failure
+        # (LLM provider error, rate limit, malformed structured output, ...) must still leave
+        # the run in a terminal state. Without this, simulation can succeed and the run still
+        # hangs at RUNNING forever the moment a coverage/faithfulness call fails, with nothing
+        # in the API or UI ever explaining why — same failure mode _apply_case_scores' sibling
+        # branch above already guards against for simulation failures.
+        run.status = "FAILED"
+        run.error = f"scoring failed: {exc}"
+        run.finished_at = datetime.now(UTC)
+        run.llm_calls = service.stats.calls - calls_before
+        run.cached_calls = service.stats.cached - cached_before
+        session.add(run)
+        await session.commit()
+        logger.exception("rehearsal_run_scoring_failed", run_id=str(run.id))
+        return run
+
     _apply_case_scores(cases, score)
     for case in cases:
         session.add(case)

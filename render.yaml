@@ -51,6 +51,8 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
       - key: PDL_API_KEY
         sync: false
       - key: DEMO_ALLOWED_NUMBERS

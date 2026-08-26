@@ -61,18 +61,23 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = Field(
         default=None, description="Google Gemini API key. Server-side only, never sent to /web."
     )
+    groq_api_key: str | None = Field(
+        default=None, description="Groq API key. Server-side only, never sent to /web."
+    )
 
     # Per-role LLM routing: LLM_PROVIDER_<ROLE> / LLM_MODEL_<ROLE>, with a secondary used when
     # the primary is out of quota or otherwise failing. Roles are compiler | simulator.
+    # meta/llama-3.3-70b-instruct reached end-of-life on NVIDIA's account on 2026-08-26; swapped
+    # for nvidia/llama-3.1-nemotron-70b-instruct, still live on the same account at that time.
     llm_provider_compiler: str = "nvidia"
-    llm_model_compiler: str = "meta/llama-3.3-70b-instruct"
-    llm_fallback_provider_compiler: str | None = "gemini"
-    llm_fallback_model_compiler: str | None = "gemini-3.5-flash-lite"
+    llm_model_compiler: str = "nvidia/llama-3.1-nemotron-70b-instruct"
+    llm_fallback_provider_compiler: str | None = "groq"
+    llm_fallback_model_compiler: str | None = "openai/gpt-oss-120b"
 
     llm_provider_simulator: str = "nvidia"
-    llm_model_simulator: str = "meta/llama-3.3-70b-instruct"
-    llm_fallback_provider_simulator: str | None = "gemini"
-    llm_fallback_model_simulator: str | None = "gemini-3.5-flash-lite"
+    llm_model_simulator: str = "nvidia/llama-3.1-nemotron-70b-instruct"
+    llm_fallback_provider_simulator: str | None = "groq"
+    llm_fallback_model_simulator: str | None = "openai/gpt-oss-120b"
 
     llm_cache_enabled: bool = Field(
         default=True,
@@ -110,13 +115,18 @@ class Settings(BaseSettings):
 
     @property
     def capabilities(self) -> dict[str, bool]:
-        """Which optional integrations are enabled given the current configuration."""
+        """Which optional integrations are enabled given the current configuration.
+
+        bool(...) rather than `is not None`: an env var set to the empty string (as opposed to
+        left unset) still parses to `""`, not None, and `""` is not a usable key either.
+        """
         return {
-            "hunar": self.hunar_api_key is not None,
-            "nvidia": self.nvidia_api_key is not None,
-            "pdl": self.pdl_api_key is not None,
-            "coresignal": self.coresignal_api_key is not None,
-            "gemini": self.gemini_api_key is not None,
+            "hunar": bool(self.hunar_api_key),
+            "nvidia": bool(self.nvidia_api_key),
+            "pdl": bool(self.pdl_api_key),
+            "coresignal": bool(self.coresignal_api_key),
+            "gemini": bool(self.gemini_api_key),
+            "groq": bool(self.groq_api_key),
         }
 
     def llm_route(self, role: str) -> tuple[tuple[str, str], tuple[str, str] | None]:

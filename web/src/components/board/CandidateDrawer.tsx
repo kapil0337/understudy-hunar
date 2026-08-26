@@ -95,7 +95,7 @@ export function CandidateDrawer({ jobId, row, onClose }: CandidateDrawerProps) {
             </DrawerHeader>
 
             <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-6">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2" data-testid="outreach-status-row">
                 {row.status ? <StatusPill status={row.status} kind="call" /> : null}
                 {row.is_simulated ? <SimulatedBadge /> : null}
                 {row.lifecycle_status ? (

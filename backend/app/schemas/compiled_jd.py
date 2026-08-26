@@ -134,6 +134,32 @@ class CompiledJD(BaseModel):
         return self
 
     @model_validator(mode="after")
+    def _knockout_values_match_answer_type(self) -> CompiledJD:
+        """A boolean question's knockout must compare against a bool, and a number question's
+        against a non-bool number — not each other's value shape. The model sometimes copies
+        the compiler prompt's boolean worked example verbatim even for a numeric question,
+        producing e.g. {"operator": "lt", "value": false} against a "number" question."""
+        by_id = {question.id: question for question in self.screening_questions}
+        mismatched: set[str] = set()
+        for criterion in self.knockout_criteria:
+            question = by_id.get(criterion.question_id)
+            if question is None:
+                continue
+            is_bool_value = isinstance(criterion.value, bool)
+            bad_boolean = question.answer_type == "boolean" and not is_bool_value
+            bad_number = question.answer_type == "number" and (
+                is_bool_value or not isinstance(criterion.value, int | float)
+            )
+            if bad_boolean or bad_number:
+                mismatched.add(criterion.question_id)
+        if mismatched:
+            raise ValueError(
+                "knockout value type doesn't match its question's answer_type: "
+                f"{', '.join(sorted(mismatched))}"
+            )
+        return self
+
+    @model_validator(mode="after")
     def _enum_knockouts_use_declared_options(self) -> CompiledJD:
         """An `in`/`eq` knockout against an enum question must use options that question offers,
         otherwise the criterion can never fire and the knockout is silently dead."""

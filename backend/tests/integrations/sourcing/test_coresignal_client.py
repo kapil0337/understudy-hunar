@@ -21,7 +21,7 @@ from app.integrations.sourcing.coresignal import (
     CoresignalUnauthorized,
     build_search_query,
 )
-from app.integrations.sourcing.ratelimit import TokenBucket
+from app.integrations.ratelimit import TokenBucket
 
 # Not a real key: exists only so the auth header has something deterministic to check.
 TEST_API_KEY = "test-key-not-a-real-credential"

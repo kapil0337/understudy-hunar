@@ -9,7 +9,9 @@ import { expect, test } from "@playwright/test";
 test("rehearsal failure and board answers, from the seeded job", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("link", { name: /Delivery Rider/i }).click();
+  // Scoped to the sidebar nav specifically: the job list page also shows a "Delivery Rider"
+  // card, and an unscoped locator matches both.
+  await page.getByRole("navigation").getByRole("link", { name: /Delivery Rider/i }).click();
   await expect(page).toHaveURL(/\/jobs\/.+\/compile/);
 
   await page.getByRole("link", { name: "Rehearsal" }).click();
@@ -36,5 +38,8 @@ test("rehearsal failure and board answers, from the seeded job", async ({ page }
   const drawer = page.locator('[data-slot="drawer-popup"]');
   await expect(drawer.getByText("Result", { exact: true })).toBeVisible();
   await expect(drawer.getByText("Immediately")).toBeVisible(); // earliest_start, from the real result
-  await expect(drawer.getByText("Simulated")).toHaveCount(0); // this row is real, never simulated
+  // Scoped to the call's own status row: the drawer's separate "Rehearsal prediction" section
+  // legitimately shows its own Simulated badge too (that comparison IS simulated, even for a
+  // real call), so an unscoped check here would false-positive on that unrelated badge.
+  await expect(drawer.getByTestId("outreach-status-row").getByText("Simulated")).toHaveCount(0);
 });

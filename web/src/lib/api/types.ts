@@ -77,7 +77,11 @@ export interface paths {
         get: operations["get_job_jobs__job_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete a job
+         * @description Permanently deletes the job and everything scoped to it — candidates, outreach/call history, agent versions, rehearsal runs and cases, and proposed patches. Irreversible.
+         */
+        delete: operations["delete_job_jobs__job_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1266,6 +1270,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["JobRead"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_job_jobs__job_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

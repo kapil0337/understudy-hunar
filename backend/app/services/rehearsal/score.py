@@ -28,7 +28,7 @@ import asyncio
 import difflib
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, create_model
 
 from app.schemas.compiled_jd import CompiledJD
 from app.schemas.rehearsal import (
@@ -173,17 +173,33 @@ def score_efficiency(cases: list[CaseInput]) -> EfficiencyResult:
 # --------------------------------------------------------------------------------- coverage (judged)
 
 
-class _CoverageJudgePersona(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+def _build_coverage_batch_model(question_ids: list[str]) -> type[BaseModel]:
+    """A fresh judge-response model per compiled JD: `asked` becomes one REQUIRED boolean field
+    per screening question id, not the open dict[str, bool] shape a provider enforcing strict
+    structured output (e.g. Groq) rejects outright — additionalProperties:false can only be
+    expressed for a fixed set of properties, never for a deliberately open map. Same fix, and
+    same underlying reason, as app/services/personas.py's _build_persona_batch_model.
 
-    archetype: str
-    asked: dict[str, bool]
-
-
-class _CoverageJudgeBatch(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    personas: list[_CoverageJudgePersona]
+    Named to match the original static classes' __name__ (leading underscore and all): the
+    LLM cache key and every FakeProvider in this package's tests dispatch on schema_name, which
+    is response_model.__name__ — a differently-named dynamic model would silently stop matching
+    both.
+    """
+    asked_fields = {qid: (bool, ...) for qid in question_ids}
+    asked_model = create_model(
+        "_CoverageAsked", __config__=ConfigDict(extra="forbid"), **asked_fields
+    )
+    persona_model = create_model(
+        "_CoverageJudgePersona",
+        __config__=ConfigDict(extra="forbid"),
+        archetype=(str, ...),
+        asked=(asked_model, ...),
+    )
+    return create_model(
+        "_CoverageJudgeBatch",
+        __config__=ConfigDict(extra="forbid"),
+        personas=(list[persona_model], ...),
+    )
 
 
 _COVERAGE_SYSTEM_PROMPT = """\
@@ -219,18 +235,18 @@ async def score_coverage(
         return CoverageResult(score=100.0, cases=[])
 
     service = llm or get_llm_service()
+    question_ids = [q.id for q in compiled.screening_questions]
     batch = await service.structured_complete(
         "simulator",
         [
             {"role": "system", "content": _COVERAGE_SYSTEM_PROMPT},
             {"role": "user", "content": _coverage_user_prompt(compiled, cases)},
         ],
-        _CoverageJudgeBatch,
+        _build_coverage_batch_model(question_ids),
     )
-    by_archetype = {persona.archetype: persona.asked for persona in batch.personas}
+    by_archetype = {persona.archetype: persona.asked.model_dump() for persona in batch.personas}
     _require_full_coverage(cases, set(by_archetype), "coverage")
 
-    question_ids = [q.id for q in compiled.screening_questions]
     case_results: list[CoverageCase] = []
     correct = 0
     total = 0

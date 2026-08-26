@@ -18,6 +18,7 @@ def test_healthz_reports_ok_and_capabilities(
     monkeypatch.delenv("PDL_API_KEY", raising=False)
     monkeypatch.delenv("CORESIGNAL_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
     get_settings.cache_clear()
     try:
         response = client.get("/healthz")
@@ -31,6 +32,7 @@ def test_healthz_reports_ok_and_capabilities(
             "pdl": False,
             "coresignal": False,
             "gemini": False,
+            "groq": False,
         }
     finally:
         get_settings.cache_clear()

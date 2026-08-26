@@ -206,14 +206,20 @@ def _build_result_model(result_schema: dict[str, Any]) -> type[BaseModel]:
     """A Pydantic model built fresh from the version's own result_schema, so the extraction
     call is validated exactly against what Hunar would validate the real call's result against.
     Only .model_dump() is ever called on instances of this — never per-field attribute access —
-    so its dynamic shape does not need to be statically known."""
+    so its dynamic shape does not need to be statically known.
+
+    extra="forbid", matching every other dynamic/static model in this codebase: a provider
+    enforcing strict structured output (e.g. Groq) requires additionalProperties:false on every
+    object in the schema, which Pydantic only emits for a model_json_schema() built with
+    extra="forbid" — "allow" produces a schema such providers reject outright.
+    """
     properties = result_schema.get("properties", {})
     required = set(result_schema.get("required", []))
     fields: dict[str, Any] = {}
     for name, prop in properties.items():
         field_type = _field_type(prop)
         fields[name] = (field_type, ...) if name in required else (field_type | None, None)
-    return create_model("ExtractedResult", __config__=ConfigDict(extra="allow"), **fields)
+    return create_model("ExtractedResult", __config__=ConfigDict(extra="forbid"), **fields)
 
 
 def _format_transcript(transcript: list[TranscriptTurn]) -> str:

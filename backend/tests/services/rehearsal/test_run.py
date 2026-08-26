@@ -40,12 +40,14 @@ class _RehearsalProvider:
         faithfulness: dict[str, Any],
         candidate_reply: str = f"All good, thanks. {CANDIDATE_DONE}",
         fail_marker: str | None = None,
+        fail_on_schema: str | None = None,
     ) -> None:
         self.extraction = extraction
         self.coverage = coverage
         self.faithfulness = faithfulness
         self.candidate_reply = candidate_reply
         self.fail_marker = fail_marker
+        self.fail_on_schema = fail_on_schema
         self.calls: list[dict[str, Any]] = []
 
     async def complete(
@@ -65,6 +67,8 @@ class _RehearsalProvider:
         temperature: float,
     ) -> LLMResponse:
         self.calls.append({"kind": "structured", "schema_name": schema_name})
+        if self.fail_on_schema and schema_name == self.fail_on_schema:
+            raise RuntimeError("simulated scoring failure")
         payload = {
             "_CoverageJudgeBatch": self.coverage,
             "_FaithfulnessJudgeBatch": self.faithfulness,
@@ -176,6 +180,46 @@ async def test_run_rehearsal_marks_failed_when_every_persona_simulation_fails(
     assert run.scores is None
     assert run.error is not None
     assert run.finished_at is not None
+
+
+async def test_run_rehearsal_marks_failed_when_scoring_itself_raises(
+    db_session: AsyncSession,
+    compiled: CompiledJD,
+    persona: Persona,
+    qualified_ground_truth: dict[str, Any],
+    llm_settings: object,
+) -> None:
+    """Simulation can succeed while the later, separate scoring call still fails (a judge's LLM
+    call hitting a rate limit, say) — that must still leave the run FAILED, not stuck RUNNING
+    forever with nothing ever explaining why."""
+    job, version = await _seed(db_session, compiled)
+    persona.job_id = job.id
+    db_session.add(persona)
+    await db_session.flush()
+
+    coverage, faithfulness = _clean_judgements(compiled, persona.archetype)
+    provider = _RehearsalProvider(
+        extraction=extraction_payload(compiled, qualified_ground_truth),
+        coverage=coverage,
+        faithfulness=faithfulness,
+        fail_on_schema="_CoverageJudgeBatch",
+    )
+    service = _service(provider, llm_settings)
+
+    run = await run_rehearsal(db_session, version, compiled, [persona], llm=service)
+
+    assert run.status == "FAILED"
+    assert run.scores is None
+    assert run.error is not None
+    assert "scoring failed" in run.error
+    assert run.finished_at is not None
+
+    stored_cases = (
+        (await db_session.execute(select(RehearsalCase).where(col(RehearsalCase.run_id) == run.id)))
+        .scalars()
+        .all()
+    )
+    assert len(stored_cases) == 1  # the simulation itself did succeed and got persisted
 
 
 async def test_run_rehearsal_reuses_a_given_run_row_instead_of_creating_a_new_one(

@@ -1,5 +1,7 @@
-"""A minimal async token bucket, used to keep PDLProvider under its documented 10 req/min limit
-regardless of how many searches the app fires concurrently."""
+"""A minimal async token bucket, used to keep a provider under its documented rate limit
+regardless of how many calls the app fires concurrently — e.g. PDLProvider's 10 req/min, or
+GroqProvider's account-wide tokens/minute budget (approximated here as a request rate, since the
+actual cost of a call is not known ahead of it)."""
 
 from __future__ import annotations
 

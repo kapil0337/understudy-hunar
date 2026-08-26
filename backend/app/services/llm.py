@@ -36,6 +36,7 @@ from app.integrations.llm.base import (
     Message,
 )
 from app.integrations.llm.gemini import GeminiProvider
+from app.integrations.llm.groq import GroqProvider
 from app.integrations.llm.nvidia import NvidiaProvider
 from app.models.cache import LLMCache
 
@@ -356,6 +357,8 @@ def _build_providers(settings: Settings) -> dict[str, LLMProvider]:
         providers["nvidia"] = NvidiaProvider(settings.nvidia_api_key)
     if settings.gemini_api_key:
         providers["gemini"] = GeminiProvider(settings.gemini_api_key)
+    if settings.groq_api_key:
+        providers["groq"] = GroqProvider(settings.groq_api_key)
     return providers
 
 

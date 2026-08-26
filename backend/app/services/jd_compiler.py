@@ -317,6 +317,11 @@ def build_result_schema(compiled: CompiledJD) -> dict[str, Any]:
         "type": "object",
         "properties": properties,
         "required": [*properties.keys()],
+        # Required by providers enforcing strict JSON-schema structured output (e.g. Groq's
+        # response_format rejects a schema without it on every object) — a standard JSON Schema
+        # keyword, not a Hunar-specific addition, so harmless for the copy of this schema Hunar
+        # also receives as AgentCreate/AgentUpdate.result_schema.
+        "additionalProperties": False,
     }
 
 

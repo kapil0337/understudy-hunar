@@ -83,7 +83,12 @@ class SourcingService:
 
         result = await self._search_with_fallback(provider_name, query)
 
-        if session is not None:
+        # An empty result is never cached: the cache exists to avoid re-spending Coresignal's
+        # per-profile collect credits (see module docstring), and an empty result never spent
+        # any. Caching it anyway would mean a transient zero-match response (a momentary index
+        # gap, a rate limit that silently truncated results, ...) permanently hides real
+        # candidates a retry would have found.
+        if session is not None and result.candidates:
             await _store(session, key, result)
 
         return result

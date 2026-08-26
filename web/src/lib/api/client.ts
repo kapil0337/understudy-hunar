@@ -65,12 +65,22 @@ export class ApiSchemaError extends Error {
   }
 }
 
-async function messageFromErrorBody(status: number, body: unknown): Promise<string> {
+async function messageFromErrorBody(
+  status: number,
+  body: unknown,
+): Promise<string> {
   const parsed = httpValidationErrorSchema.safeParse(body);
   if (parsed.success && parsed.data.detail) {
-    return parsed.data.detail.map((e) => `${e.loc.join(".")}: ${e.msg}`).join("; ");
+    return parsed.data.detail
+      .map((e) => `${e.loc.join(".")}: ${e.msg}`)
+      .join("; ");
   }
-  if (body && typeof body === "object" && "detail" in body && typeof body.detail === "string") {
+  if (
+    body &&
+    typeof body === "object" &&
+    "detail" in body &&
+    typeof body.detail === "string"
+  ) {
     return body.detail;
   }
   return `Request failed with status ${status}`;
@@ -86,7 +96,10 @@ interface RequestOptions<T> {
   signal?: AbortSignal;
 }
 
-function buildUrl(path: string, query?: RequestOptions<unknown>["query"]): string {
+function buildUrl(
+  path: string,
+  query?: RequestOptions<unknown>["query"],
+): string {
   if (!API_BASE_URL) {
     throw new Error(
       "NEXT_PUBLIC_API_BASE_URL is not set — copy web/.env.example to .env.local and fill it in.",
@@ -101,22 +114,36 @@ function buildUrl(path: string, query?: RequestOptions<unknown>["query"]): strin
   return `${base}${path}${qs ? `?${qs}` : ""}`;
 }
 
-async function request<T>(path: string, options: RequestOptions<T>): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestOptions<T>,
+): Promise<T> {
   const { method = "GET", query, body, schema, signal } = options;
   const url = buildUrl(path, query);
 
   const response = await fetch(url, {
     method,
-    headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+    headers:
+      body !== undefined ? { "Content-Type": "application/json" } : undefined,
     body: body !== undefined ? JSON.stringify(body) : undefined,
     signal,
   });
 
+  // A 204 (or any empty body) can still carry a `content-type: application/json` header —
+  // FastAPI does this for routes with no response model — so `.json()` isn't safe to call on
+  // content-type alone; it throws on an empty string instead of just returning undefined.
   const contentType = response.headers.get("content-type") ?? "";
-  const raw = contentType.includes("application/json") ? await response.json() : undefined;
+  const text = contentType.includes("application/json")
+    ? await response.text()
+    : "";
+  const raw = text.length > 0 ? JSON.parse(text) : undefined;
 
   if (!response.ok) {
-    throw new ApiError(response.status, await messageFromErrorBody(response.status, raw), raw);
+    throw new ApiError(
+      response.status,
+      await messageFromErrorBody(response.status, raw),
+      raw,
+    );
   }
 
   const result = schema.safeParse(raw);
@@ -142,10 +169,12 @@ type Language = components["schemas"]["Language"];
 // ------------------------------------------------------------------------------------------ api
 
 export const api = {
-  healthz: (signal?: AbortSignal) => request("/healthz", { schema: healthzResponseSchema, signal }),
+  healthz: (signal?: AbortSignal) =>
+    request("/healthz", { schema: healthzResponseSchema, signal }),
 
   guardrails: {
-    get: (signal?: AbortSignal) => request("/guardrails", { schema: guardrailsReadSchema, signal }),
+    get: (signal?: AbortSignal) =>
+      request("/guardrails", { schema: guardrailsReadSchema, signal }),
   },
 
   jobs: {
@@ -158,9 +187,18 @@ export const api = {
     create: (body: JobCreate, signal?: AbortSignal) =>
       request("/jobs", { method: "POST", body, schema: jobReadSchema, signal }),
 
+    /** Deletes the job and everything scoped to it — candidates, outreach/call history, agent
+     * versions, rehearsal runs/cases, patches. Irreversible; 204 on success. */
+    delete: (jobId: string, signal?: AbortSignal) =>
+      request(`/jobs/${jobId}`, { method: "DELETE", schema: z.void(), signal }),
+
     /** Compiling is an LLM call — returns 202 + a background_job_id immediately; poll
      * api.backgroundJobs.get, then refetch versions once COMPLETED. */
-    updateRequirements: (jobId: string, body: RequirementsUpdate, signal?: AbortSignal) =>
+    updateRequirements: (
+      jobId: string,
+      body: RequirementsUpdate,
+      signal?: AbortSignal,
+    ) =>
       request(`/jobs/${jobId}/requirements`, {
         method: "PUT",
         body,
@@ -190,9 +228,16 @@ export const api = {
     /** Returns the generated personas, or a background_job_id to poll on the first call for a
      * job (generating them is an LLM call) — see personasResponseSchema. */
     listPersonas: (jobId: string, signal?: AbortSignal) =>
-      request(`/jobs/${jobId}/personas`, { schema: personasResponseSchema, signal }),
+      request(`/jobs/${jobId}/personas`, {
+        schema: personasResponseSchema,
+        signal,
+      }),
 
-    sourceCandidates: (jobId: string, body: SourceRequest, signal?: AbortSignal) =>
+    sourceCandidates: (
+      jobId: string,
+      body: SourceRequest,
+      signal?: AbortSignal,
+    ) =>
       request(`/jobs/${jobId}/source`, {
         method: "POST",
         body,
@@ -201,7 +246,10 @@ export const api = {
       }),
 
     listCandidates: (jobId: string, signal?: AbortSignal) =>
-      request(`/jobs/${jobId}/candidates`, { schema: z.array(candidateReadSchema), signal }),
+      request(`/jobs/${jobId}/candidates`, {
+        schema: z.array(candidateReadSchema),
+        signal,
+      }),
 
     launchCalls: (jobId: string, body: CallRequest, signal?: AbortSignal) =>
       request(`/jobs/${jobId}/call`, {
@@ -220,7 +268,10 @@ export const api = {
 
   versions: {
     get: (versionId: string, signal?: AbortSignal) =>
-      request(`/versions/${versionId}`, { schema: agentVersionReadSchema, signal }),
+      request(`/versions/${versionId}`, {
+        schema: agentVersionReadSchema,
+        signal,
+      }),
 
     rehearse: (versionId: string, signal?: AbortSignal) =>
       request(`/versions/${versionId}/rehearse`, {
@@ -242,7 +293,10 @@ export const api = {
       request(`/runs/${runId}`, { schema: runReadSchema, signal }),
 
     getCase: (runId: string, caseId: string, signal?: AbortSignal) =>
-      request(`/runs/${runId}/cases/${caseId}`, { schema: caseReadSchema, signal }),
+      request(`/runs/${runId}/cases/${caseId}`, {
+        schema: caseReadSchema,
+        signal,
+      }),
 
     /** Proposing a patch is an LLM call — returns 202 + a background_job_id; poll
      * api.backgroundJobs.get, then api.patches.get(result.patch_id) once COMPLETED. */
@@ -270,7 +324,10 @@ export const api = {
 
   backgroundJobs: {
     get: (backgroundJobId: string, signal?: AbortSignal) =>
-      request(`/background-jobs/${backgroundJobId}`, { schema: backgroundJobReadSchema, signal }),
+      request(`/background-jobs/${backgroundJobId}`, {
+        schema: backgroundJobReadSchema,
+        signal,
+      }),
   },
 
   candidates: {
@@ -282,7 +339,11 @@ export const api = {
         signal,
       }),
 
-    recordConsent: (candidateId: string, body: ConsentCreate, signal?: AbortSignal) =>
+    recordConsent: (
+      candidateId: string,
+      body: ConsentCreate,
+      signal?: AbortSignal,
+    ) =>
       request(`/candidates/${candidateId}/consent`, {
         method: "POST",
         body,

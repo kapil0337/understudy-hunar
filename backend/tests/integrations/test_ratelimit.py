@@ -5,7 +5,7 @@ import time
 
 import pytest
 
-from app.integrations.sourcing.ratelimit import TokenBucket
+from app.integrations.ratelimit import TokenBucket
 
 
 async def test_acquire_within_capacity_is_immediate() -> None:

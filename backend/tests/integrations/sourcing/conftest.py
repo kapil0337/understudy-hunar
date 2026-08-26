@@ -7,7 +7,7 @@ import pytest
 from tenacity import wait_none
 
 from app.integrations.sourcing.pdl import PDLProvider
-from app.integrations.sourcing.ratelimit import TokenBucket
+from app.integrations.ratelimit import TokenBucket
 
 # Not a real key: exists only so the auth header has something deterministic to check.
 TEST_API_KEY = "test-key-not-a-real-credential"
