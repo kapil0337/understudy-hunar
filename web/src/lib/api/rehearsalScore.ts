@@ -114,6 +114,19 @@ export const METRIC_LABEL: Record<Metric, string> = {
   efficiency: "Efficiency",
 };
 
+/** child minus parent, per metric plus composite — mirrors
+ * backend/app/services/rehearsal/patch.py's score_delta exactly. Computed client-side because
+ * POST /patches/{id}/accept no longer returns it directly: the new run isn't scored yet at
+ * accept time (rehearsing it is deferred to app/worker.py), so the caller polls it to COMPLETED
+ * first and calls this once both scores are in hand. */
+export function computeScoreDelta(parent: RehearsalScore, child: RehearsalScore): Record<string, number> {
+  const delta: Record<string, number> = { composite: child.composite - parent.composite };
+  for (const metric of METRIC_ORDER) {
+    delta[metric] = child[metric].score - parent[metric].score;
+  }
+  return delta;
+}
+
 /** CaseRead.metrics, parsed — the same four components, but narrowed to one persona (built by
  * backend/app/services/rehearsal/run.py's _apply_case_scores). Each component is null only if
  * that case failed before scoring ran. */

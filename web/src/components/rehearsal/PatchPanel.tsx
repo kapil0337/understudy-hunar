@@ -1,11 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DiffView } from "@/components/primitives/DiffView";
 import { ErrorState } from "@/components/primitives/ErrorState";
-import { useAcceptPatch, useProposePatch } from "@/lib/hooks/useRuns";
+import { useAcceptPatch, useLatestRun, useProposePatch } from "@/lib/hooks/useRuns";
 import { useVersion } from "@/lib/hooks/useVersions";
-import { METRIC_LABEL, METRIC_ORDER, patchRationaleSchema, type Failure } from "@/lib/api/rehearsalScore";
+import {
+  METRIC_LABEL,
+  METRIC_ORDER,
+  computeScoreDelta,
+  patchRationaleSchema,
+  rehearsalScoreSchema,
+  type Failure,
+  type RehearsalScore,
+} from "@/lib/api/rehearsalScore";
 import { cn } from "@/lib/utils";
 
 interface PatchPanelProps {
@@ -13,6 +22,10 @@ interface PatchPanelProps {
   /** Only set once the run is COMPLETED — proposing a fix needs a scored run to work from. */
   runId: string | undefined;
   versionId: string | undefined;
+  /** The current run's own scores, parsed — needed to compute the accepted patch's score delta
+   * client-side (the accept response has no scores yet; rehearsing the new version is deferred
+   * to app/worker.py, see useAcceptPatch). */
+  parentScores: RehearsalScore | null;
   /** The run's own failures, in the same ranked order the patcher was shown (top 6) — used to
    * resolve each rationale item's failure_id (a 1-based index, not a database id) back to the
    * failure it addresses. */
@@ -20,10 +33,29 @@ interface PatchPanelProps {
   onAccepted: (result: { versionId: string; runId: string }) => void;
 }
 
-export function PatchPanel({ jobId, runId, versionId, failures, onAccepted }: PatchPanelProps) {
+export function PatchPanel({
+  jobId,
+  runId,
+  versionId,
+  parentScores,
+  failures,
+  onAccepted,
+}: PatchPanelProps) {
   const proposeMutation = useProposePatch();
   const acceptMutation = useAcceptPatch(jobId);
   const { data: version } = useVersion(versionId);
+
+  // Set once accept succeeds — tracks the new version's rehearsal run to completion so the
+  // score-delta banner below has something to compare against parentScores.
+  const [acceptedVersionId, setAcceptedVersionId] = useState<string | undefined>(undefined);
+  const acceptedRunQuery = useLatestRun(acceptedVersionId);
+  const acceptedScores = (() => {
+    if (!acceptedRunQuery.data?.scores) return null;
+    const result = rehearsalScoreSchema.safeParse(acceptedRunQuery.data.scores);
+    return result.success ? result.data : null;
+  })();
+  const scoreDelta =
+    parentScores && acceptedScores ? computeScoreDelta(parentScores, acceptedScores) : null;
 
   const patch = proposeMutation.data;
   const topFailures = failures.slice(0, 6);
@@ -48,8 +80,10 @@ export function PatchPanel({ jobId, runId, versionId, failures, onAccepted }: Pa
             disabled={acceptMutation.isPending}
             onClick={() =>
               acceptMutation.mutate(patch.id, {
-                onSuccess: (result) =>
-                  onAccepted({ versionId: result.version.id, runId: result.run.id }),
+                onSuccess: (result) => {
+                  setAcceptedVersionId(result.version.id);
+                  onAccepted({ versionId: result.version.id, runId: result.run_id });
+                },
               })
             }
           >
@@ -88,32 +122,36 @@ export function PatchPanel({ jobId, runId, versionId, failures, onAccepted }: Pa
         </div>
       ) : null}
 
-      {acceptMutation.data ? (
+      {acceptedVersionId ? (
         <div className="animate-in fade-in slide-in-from-bottom-1 flex flex-wrap items-center gap-3 rounded-md border border-status-completed-bg bg-status-completed-bg px-3 py-2 duration-300">
-          <span className="text-xs font-medium text-status-completed">
-            v{acceptMutation.data.version.version_no} re-rehearsed
-          </span>
-          {[...METRIC_ORDER, "composite" as const].map((metric) => {
-            const delta = acceptMutation.data.score_delta[metric];
-            if (delta === undefined) return null;
-            const positive = delta >= 0;
-            return (
-              <span key={metric} className="text-xs tabular-nums">
-                <span className="text-muted-foreground">
-                  {metric === "composite" ? "Composite" : METRIC_LABEL[metric]}
-                </span>{" "}
-                <span
-                  className={cn(
-                    "font-medium",
-                    positive ? "text-status-completed" : "text-status-failed",
-                  )}
-                >
-                  {positive ? "+" : ""}
-                  {delta.toFixed(1)}
-                </span>
-              </span>
-            );
-          })}
+          {scoreDelta ? (
+            <>
+              <span className="text-xs font-medium text-status-completed">Re-rehearsed</span>
+              {[...METRIC_ORDER, "composite" as const].map((metric) => {
+                const delta = scoreDelta[metric];
+                if (delta === undefined) return null;
+                const positive = delta >= 0;
+                return (
+                  <span key={metric} className="text-xs tabular-nums">
+                    <span className="text-muted-foreground">
+                      {metric === "composite" ? "Composite" : METRIC_LABEL[metric]}
+                    </span>{" "}
+                    <span
+                      className={cn(
+                        "font-medium",
+                        positive ? "text-status-completed" : "text-status-failed",
+                      )}
+                    >
+                      {positive ? "+" : ""}
+                      {delta.toFixed(1)}
+                    </span>
+                  </span>
+                );
+              })}
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground">Re-rehearsing the new version…</span>
+          )}
         </div>
       ) : null}
     </div>

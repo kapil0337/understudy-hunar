@@ -208,6 +208,7 @@ export default function RehearsalPage() {
           jobId={jobId}
           runId={run.status === "COMPLETED" ? run.id : undefined}
           versionId={selectedVersionId}
+          parentScores={scores}
           failures={scores?.failures ?? []}
           onAccepted={({ versionId }) => setSelectedVersionId(versionId)}
         />

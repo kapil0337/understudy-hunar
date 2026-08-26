@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
+import { useBackgroundJob } from "./useBackgroundJobs";
 import { queryKeys } from "./queryKeys";
 
 /** Polls at 2s while the run is PENDING or RUNNING (both non-terminal — PENDING is the brief
@@ -43,22 +45,59 @@ export function useCase(runId: string | undefined, caseId: string | undefined) {
   });
 }
 
+/** Proposing a patch is an LLM call, deferred to app/worker.py — the mutation itself only gets
+ * back a background_job_id. This polls that (useBackgroundJob) and, once COMPLETED, fetches the
+ * actual patch (result.patch_id) — so callers see one `data: PatchRead | undefined`, same shape
+ * as before this was made async. */
 export function useProposePatch() {
-  return useMutation({
+  const [backgroundJobId, setBackgroundJobId] = useState<string | undefined>(undefined);
+
+  const mutation = useMutation({
     mutationFn: (runId: string) => api.runs.proposePatch(runId),
+    onSuccess: (data) => setBackgroundJobId(data.background_job_id),
   });
+  const backgroundJob = useBackgroundJob(backgroundJobId);
+  const patchId =
+    backgroundJob.data?.status === "COMPLETED" &&
+    typeof backgroundJob.data.result?.patch_id === "string"
+      ? backgroundJob.data.result.patch_id
+      : undefined;
+
+  const patchQuery = useQuery({
+    queryKey: queryKeys.patches.detail(patchId ?? ""),
+    queryFn: ({ signal }) => api.patches.get(patchId as string, signal),
+    enabled: patchId !== undefined,
+  });
+
+  return {
+    mutate: mutation.mutate,
+    reset: () => {
+      mutation.reset();
+      setBackgroundJobId(undefined);
+    },
+    data: patchQuery.data,
+    isPending:
+      mutation.isPending ||
+      backgroundJob.data?.status === "PENDING" ||
+      backgroundJob.data?.status === "RUNNING" ||
+      (patchId !== undefined && patchQuery.isPending),
+    isError: mutation.isError || backgroundJob.data?.status === "FAILED" || patchQuery.isError,
+    error:
+      backgroundJob.data?.status === "FAILED"
+        ? new Error(backgroundJob.data.error ?? "Patch proposal failed")
+        : (mutation.error ?? patchQuery.error),
+  };
 }
 
-/** Accepting a patch rehearses the resulting version immediately (CLAUDE.md: a patch's effect is
- * measured, never assumed) — invalidate the job's version list and seed the new run's cache. */
+/** Accepting a patch creates the new version immediately, but rehearsing it is deferred to
+ * app/worker.py — poll useLatestRun(version.id) for the run itself (CLAUDE.md: a patch's effect
+ * is measured, never assumed, so the caller still needs that run to complete). */
 export function useAcceptPatch(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (patchId: string) => api.patches.accept(patchId),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.versions(jobId) });
-      queryClient.setQueryData(queryKeys.runs.detail(data.run.id), data.run);
-      queryClient.setQueryData(queryKeys.runs.latestForVersion(data.version.id), data.run);
     },
   });
 }
