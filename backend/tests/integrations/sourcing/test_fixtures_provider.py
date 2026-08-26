@@ -57,6 +57,16 @@ async def test_search_filters_by_skill() -> None:
     assert all("barcode scanner" in c.skills for c in result.candidates)
 
 
+async def test_search_matches_skills_by_substring_not_exact_equality() -> None:
+    """A compiled JD's skills are an LLM's own free-form wording ("Two-wheeler") and will
+    essentially never equal this fixture set's vocabulary character-for-character
+    ("two-wheeler riding") — exact-set-equality would silently return zero candidates here."""
+    provider = FixtureProvider()
+    result = await provider.search(SourcingQuery(skills=["Two-wheeler"], limit=40))
+    assert result.candidates
+    assert all("two-wheeler riding" in c.skills for c in result.candidates)
+
+
 async def test_search_filters_by_title_substring() -> None:
     provider = FixtureProvider()
     result = await provider.search(SourcingQuery(titles=["Delivery Rider"], limit=40))
