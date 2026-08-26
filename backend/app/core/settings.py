@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,6 +36,22 @@ class Settings(BaseSettings):
         description="Postgres DSN for the test suite only. Must differ from DATABASE_URL — "
         "the suite refuses to run against a database that could also be the real one.",
     )
+
+    @field_validator("database_url", "test_database_url")
+    @classmethod
+    def _force_asyncpg_driver(cls, value: str | None) -> str | None:
+        """A managed Postgres provider's own connection string (Render's fromDatabase, Neon,
+        Supabase, ...) is always plain `postgres://` or `postgresql://` — this app is
+        async-only, so without this it'd hand that straight to SQLAlchemy, which defaults to
+        the sync psycopg2 driver (not installed here) and dies at import time before ever
+        binding a port. Left alone if a driver is already specified (e.g. local .env files,
+        which already write `+asyncpg` by hand)."""
+        if value is None:
+            return value
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return f"postgresql+asyncpg://{value[len(prefix):]}"
+        return value
 
     hunar_api_key: str | None = Field(
         default=None,
