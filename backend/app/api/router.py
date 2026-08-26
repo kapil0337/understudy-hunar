@@ -6,7 +6,6 @@ from app.api.routes import (
     background_jobs,
     candidates,
     debug,
-    internal,
     jobs,
     patches,
     runs,
@@ -60,4 +59,3 @@ router.include_router(candidates.router)
 router.include_router(webhooks.router)
 router.include_router(debug.router)
 router.include_router(background_jobs.router)
-router.include_router(internal.router)

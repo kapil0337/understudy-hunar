@@ -99,23 +99,10 @@ class Settings(BaseSettings):
     public_base_url: str | None = Field(
         default=None,
         description="Publicly reachable base URL for this service (e.g. an ngrok tunnel or "
-        "deployed host). Used to build the four Hunar callback_config URLs — left unset in "
-        "local dev has no correctness impact there: callback_config is simply omitted from the "
-        "call and app/services/outreach.refresh_outreach's polling is what keeps the board "
-        "correct without webhooks ever arriving. Also used, on a serverless deployment with no "
-        "persistent worker, to self-trigger POST /internal/process-jobs right after enqueueing "
-        "(see background_jobs.enqueue_and_trigger) — see cron_secret below.",
-    )
-
-    cron_secret: str | None = Field(
-        default=None,
-        description="Shared secret for POST /internal/process-jobs. Only meaningful on a "
-        "serverless deployment with no persistent worker (e.g. Vercel, via Cron + the "
-        "self-trigger above) — Docker/Render already have app/worker.py polling continuously "
-        "and never call this route. Left unset, the route 404s outright rather than existing "
-        "unauthenticated: it drains real LLM-call budget, so it's never left open. Matches "
-        "Vercel's own CRON_SECRET convention — Vercel sends `Authorization: Bearer "
-        "$CRON_SECRET` automatically to a Cron-invoked route once this env var is set.",
+        "deployed host), used to build the four Hunar callback_config URLs. Left unset in "
+        "local dev has no correctness impact: callback_config is simply omitted from the call "
+        "and app/services/outreach.refresh_outreach's polling is what keeps the board correct "
+        "without webhooks ever arriving.",
     )
 
     @property

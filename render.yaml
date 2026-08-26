@@ -2,11 +2,6 @@
 # depends on for every LLM call. The frontend deploys to Vercel from source (see web/README.md)
 # — Vercel does not read this file and does not run web/Dockerfile.
 #
-# Alternative: backend/vercel.json deploys the backend to Vercel too (as a second project, all
-# the way — no Render account needed), trading app/worker.py's persistent process for Vercel
-# Cron + a best-effort self-trigger. See README.md's Deployment section for the full picture and
-# the tradeoffs; use whichever one file matches where you actually deployed, not both.
-#
 # `dockerContext: ./backend` matters on top of `dockerfilePath`: without it Render uploads the
 # whole monorepo (web/, docs/, node_modules once installed locally, etc.) as build context on
 # every deploy, which is slow on the free tier for no reason — backend/Dockerfile only ever
