@@ -83,7 +83,7 @@ def test_build_search_query_includes_titles_skills_locations_years() -> None:
 async def test_search_never_populates_a_phone_number(
     coresignal_provider: CoresignalProvider,
 ) -> None:
-    """The core CLAUDE.md rule for this provider: phone_e164 must never come from Coresignal —
+    """The core CONTRIBUTING.md rule for this provider: phone_e164 must never come from Coresignal —
     and unlike PDL, this API has no phone-presence flag of any kind."""
     respx.post(SEARCH_URL).mock(return_value=httpx.Response(200, json=[1, 2]))
     respx.get(_collect_url(1)).mock(

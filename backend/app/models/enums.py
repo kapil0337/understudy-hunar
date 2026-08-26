@@ -4,7 +4,7 @@ from enum import StrEnum
 
 
 class Language(StrEnum):
-    """Belongs to the agent, not the call — see CLAUDE.md."""
+    """Belongs to the agent, not the call — see CONTRIBUTING.md."""
 
     ENGLISH = "ENGLISH"
     HINDI = "HINDI"
@@ -35,7 +35,7 @@ class AgentVersionOrigin(StrEnum):
 
 
 class CallStatus(StrEnum):
-    """Hunar's call status values — see CLAUDE.md."""
+    """Hunar's call status values — see CONTRIBUTING.md."""
 
     NOT_STARTED = "NOT_STARTED"
     SCHEDULED = "SCHEDULED"

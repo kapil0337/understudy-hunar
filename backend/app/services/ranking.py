@@ -1,6 +1,6 @@
 """Deterministic candidate/job match scoring. No LLM call — every component here is a plain
 function of the candidate and the compiled JD, so the result is reproducible and explainable,
-never a black box (CLAUDE.md). MatchBreakdown carries each component with its weight so the UI
+never a black box (CONTRIBUTING.md). MatchBreakdown carries each component with its weight so the UI
 can render a segmented bar instead of a bare number.
 """
 

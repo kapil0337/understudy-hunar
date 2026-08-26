@@ -56,7 +56,7 @@ async def patch_candidate(
     "/{candidate_id}/consent",
     summary="Record consent",
     description="Sets phone_e164 and consent_recorded_at together — the only route that does, "
-    "per CLAUDE.md's rule that a call needs an explicitly consented number.",
+    "per CONTRIBUTING.md's rule that a call needs an explicitly consented number.",
 )
 async def record_candidate_consent(
     candidate_id: uuid.UUID, body: ConsentCreate, session: AsyncSession = Depends(get_db)

@@ -1,5 +1,6 @@
-# Render Blueprint for the backend only. The frontend deploys to Vercel from source (see
-# web/README.md) — Vercel does not read this file and does not run web/Dockerfile.
+# Render Blueprint for the backend only: the API (web service) and the job-queue worker it
+# depends on for every LLM call. The frontend deploys to Vercel from source (see web/README.md)
+# — Vercel does not read this file and does not run web/Dockerfile.
 #
 # `dockerContext: ./backend` matters on top of `dockerfilePath`: without it Render uploads the
 # whole monorepo (web/, docs/, node_modules once installed locally, etc.) as build context on
@@ -58,4 +59,38 @@ services:
       - key: DEMO_ALLOWED_NUMBERS
         sync: false
       - key: PUBLIC_BASE_URL
+        sync: false
+
+  # Claims and executes BackgroundJob rows (compile_jd, regenerate_personas, propose_patch,
+  # rehearse) — see app/worker.py and app/services/background_jobs.py. Without this service,
+  # every one of those returns 202 and then sits PENDING forever: nothing is polling the queue.
+  # Same image as the web service, just a different start command and no HTTP port/health check.
+  # Only needs an LLM key and the database — it never touches Hunar, sourcing, or CORS.
+  #
+  # Render's free tier has historically only covered Web Services and Static Sites, not
+  # Background Workers — if `plan: free` isn't offered for this service type when you deploy,
+  # this one service needs at least Starter.
+  - type: worker
+    name: understudy-worker
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: python -m app.worker
+    plan: free
+    region: singapore
+    numInstances: 1
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        fromDatabase:
+          name: understudy-db
+          property: connectionString
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false

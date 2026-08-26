@@ -90,7 +90,7 @@ export function useProposePatch() {
 }
 
 /** Accepting a patch creates the new version immediately, but rehearsing it is deferred to
- * app/worker.py — poll useLatestRun(version.id) for the run itself (CLAUDE.md: a patch's effect
+ * app/worker.py — poll useLatestRun(version.id) for the run itself (CONTRIBUTING.md: a patch's effect
  * is measured, never assumed, so the caller still needs that run to complete). */
 export function useAcceptPatch(jobId: string) {
   const queryClient = useQueryClient();

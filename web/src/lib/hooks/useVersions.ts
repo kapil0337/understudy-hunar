@@ -27,7 +27,7 @@ export function useVersion(versionId: string | undefined) {
 }
 
 /** Updating voice_persona or language requires resending the full agent shape together — the
- * caller assembles that body; this hook only owns the request/invalidate cycle (CLAUDE.md). */
+ * caller assembles that body; this hook only owns the request/invalidate cycle (CONTRIBUTING.md). */
 export function usePublishVersion(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({

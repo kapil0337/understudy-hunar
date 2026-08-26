@@ -11,7 +11,7 @@ from app.models._shared import utcnow
 
 
 class LLMCache(SQLModel, table=True):
-    """Keyed by sha256(role, model, messages, schema) — see CLAUDE.md. Caching here is what
+    """Keyed by sha256(role, model, messages, schema) — see CONTRIBUTING.md. Caching here is what
     makes iterating on the rehearsal loop affordable, not an optimisation."""
 
     __tablename__ = "llm_cache"

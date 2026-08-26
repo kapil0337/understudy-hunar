@@ -1,6 +1,6 @@
 """People Data Labs Person Search provider.
 
-Free tier facts that shape everything below (see CLAUDE.md):
+Free tier facts that shape everything below (see CONTRIBUTING.md):
   - 100 credits/month, so `query.limit` is hard-capped at MAX_RESULTS_PER_SEARCH regardless of
     what the caller asked for.
   - 10 requests/minute, enforced here with a token bucket rather than trusted to the caller.

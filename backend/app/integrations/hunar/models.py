@@ -5,7 +5,7 @@ exactly, so an unexpected value from Hunar surfaces as a validation error at the
 instead of being silently coerced. The DB-side equivalents live in app/models/enums.py.
 
 Response models are deliberately permissive about unknown fields (`extra="allow"`): per
-CLAUDE.md, when unsure about API behaviour, never invent fields and never drop them either —
+CONTRIBUTING.md, when unsure about API behaviour, never invent fields and never drop them either —
 log the raw response and keep what came back.
 """
 
@@ -69,7 +69,7 @@ class _HunarRequest(BaseModel):
 class RetryConfig(_HunarRequest):
     """Must be complete or omitted entirely — a partial object is a 422.
 
-    Note the request/response asymmetry documented in CLAUDE.md: we send `max_retry_count`,
+    Note the request/response asymmetry documented in CONTRIBUTING.md: we send `max_retry_count`,
     Hunar returns `max_retries`. RetryConfigResponse below models the latter.
     """
 
@@ -118,7 +118,7 @@ class Agent(_HunarModel):
 
 
 class AgentCreate(_HunarRequest):
-    """Every field here is required by POST /agents/ per CLAUDE.md."""
+    """Every field here is required by POST /agents/ per CONTRIBUTING.md."""
 
     name: str
     language: Language
@@ -141,7 +141,7 @@ class AgentUpdate(_HunarRequest):
 
     Changing voice_persona or language requires resending name, objective, language,
     voice_persona, persona_name, agent_prompt, introduction, result_prompt and result_schema
-    together (CLAUDE.md). Those fields are therefore all required here rather than optional:
+    together (CONTRIBUTING.md). Those fields are therefore all required here rather than optional:
     a partial update that silently drops them is the failure mode this guards against.
     """
 
@@ -170,7 +170,7 @@ class Call(_HunarModel):
     request_id: str | None = None
     duration_seconds: int | None = None
     recording_url: str | None = None
-    # Shaped by the agent's result_schema. There is NO transcript field (CLAUDE.md).
+    # Shaped by the agent's result_schema. There is NO transcript field (CONTRIBUTING.md).
     result: dict[str, Any] | None = None
     custom_data: dict[str, Any] | None = None
     retry_config: RetryConfigResponse | None = None
@@ -207,7 +207,7 @@ class Paginated[T](_HunarModel):
     """Hunar's list envelope.
 
     `results` accepts the usual DRF-style aliases: the exact key is not pinned down in
-    CLAUDE.md, and quietly returning an empty list because we guessed the wrong one would be a
+    CONTRIBUTING.md, and quietly returning an empty list because we guessed the wrong one would be a
     silent bug. extra="allow" keeps whatever else came back, so nothing is lost either way.
     """
 

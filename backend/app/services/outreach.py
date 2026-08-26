@@ -1,6 +1,6 @@
 """Launch and track outbound screening calls.
 
-Two operations, both described in CLAUDE.md:
+Two operations, both described in CONTRIBUTING.md:
 
   * call_candidates — the unbypassable consent/DNC guard, lazy agent_version publishing,
     preflight, and one POST /calls/ per allowed candidate.
@@ -60,7 +60,7 @@ class OutreachError(Exception):
 
 # ------------------------------------------------------------------------------------- guard
 
-#: Recruiter-visible block reasons for the unbypassable guard (CLAUDE.md: "no override flag,
+#: Recruiter-visible block reasons for the unbypassable guard (CONTRIBUTING.md: "no override flag,
 #: no env bypass"). Anything else in BlockedCandidate.reason is a preflight/API error message.
 BLOCK_NOT_FOUND = "not_found"
 BLOCK_DNC = "dnc"
@@ -136,7 +136,7 @@ _KNOWN_CUSTOM_VARIABLES = frozenset({"callee_name", "role_title", "role_location
 def _build_custom_data(
     agent: Agent, candidate: Candidate, job: Job, compiled: CompiledJD
 ) -> dict[str, Any]:
-    """custom_data must contain EVERY key in the agent's custom_variables (CLAUDE.md). Only the
+    """custom_data must contain EVERY key in the agent's custom_variables (CONTRIBUTING.md). Only the
     three variables publish_version defaults to have a known value source; an agent declaring
     anything else fails loudly rather than sending an invented placeholder value."""
     unknown = [v for v in agent.custom_variables if v not in _KNOWN_CUSTOM_VARIABLES]
@@ -154,7 +154,7 @@ def _build_custom_data(
 
 
 # Fixed IST business-hours window: Hunar's guardrails are HH:MM with no documented timezone
-# field on CallCreate (nothing in CLAUDE.md's Hunar API facts names one), and every candidate
+# field on CallCreate (nothing in CONTRIBUTING.md's Hunar API facts names one), and every candidate
 # in this project's scope is India-based, so a single fixed window is the honest choice rather
 # than inventing an API field to carry a timezone that does not exist server-side.
 DEFAULT_RETRY_CONFIG = RetryConfig(max_retry_count=2, retry_interval_hours=6)

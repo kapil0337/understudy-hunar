@@ -48,7 +48,7 @@ def test_build_search_body_includes_titles_skills_locations() -> None:
 
 @respx.mock
 async def test_search_never_populates_a_phone_number(pdl_provider: PDLProvider) -> None:
-    """The core CLAUDE.md rule for this provider: phone_e164 must never come from PDL, on
+    """The core CONTRIBUTING.md rule for this provider: phone_e164 must never come from PDL, on
     either shape the free tier can return for phone_numbers."""
     respx.post(BASE_URL).mock(
         return_value=httpx.Response(

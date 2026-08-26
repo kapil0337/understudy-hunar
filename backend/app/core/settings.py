@@ -82,7 +82,7 @@ class Settings(BaseSettings):
     llm_cache_enabled: bool = Field(
         default=True,
         description="Cache LLM responses by sha256(role, model, messages, schema). On by "
-        "default — per CLAUDE.md this is what makes iterating on the rehearsal loop affordable.",
+        "default — per CONTRIBUTING.md this is what makes iterating on the rehearsal loop affordable.",
     )
 
     demo_allowed_numbers: str = Field(

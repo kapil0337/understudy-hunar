@@ -20,7 +20,7 @@ BODY = b'{"call_id":"cal_1","status":"COMPLETED"}'
 
 
 def independent_signature(api_key: str, timestamp: str, body: bytes) -> str:
-    """Recompute the signature straight from the CLAUDE.md spec, without touching the
+    """Recompute the signature straight from the CONTRIBUTING.md spec, without touching the
     implementation under test. If signature.py drifts from the spec, this disagrees."""
     message = f"{timestamp}.".encode() + body
     return base64.b64encode(

@@ -35,4 +35,4 @@ uv run python scripts/seed.py  # idempotent demo seed — see scripts/seed.py's 
 - `scripts/` — one-off/dev scripts: `seed.py` (demo data), `demo_rehearsal.py` (real LLM calls),
   `smoke_hunar.py` / `capture_hunar_fixtures.py` (real Hunar calls), `replay_webhook.py`
 
-See [CLAUDE.md](../CLAUDE.md) at the repo root for the project brief and hard rules.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) at the repo root for the project brief and hard rules.

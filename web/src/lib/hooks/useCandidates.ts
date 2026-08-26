@@ -28,7 +28,7 @@ export function useSourceCandidates(jobId: string) {
   });
 }
 
-/** The consent/DNC guard is unbypassable server-side (CLAUDE.md) — this hook just surfaces
+/** The consent/DNC guard is unbypassable server-side (CONTRIBUTING.md) — this hook just surfaces
  * whatever `blocked` list comes back in CallLaunchSummary; it never filters candidates itself. */
 export function useLaunchCalls(jobId: string) {
   const queryClient = useQueryClient();

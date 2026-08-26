@@ -9,7 +9,7 @@ fixture_name defaults to delivery_rider_chennai; see backend/fixtures/jd/ for th
 
 Needs DATABASE_URL and at least one of NVIDIA_API_KEY/GEMINI_API_KEY — every LLM call in here is
 real. It never touches the real Hunar API: that is the entire point of rehearsing before dialing
-(CLAUDE.md). Safe to re-run; each run writes a fresh Job/AgentVersion/RehearsalRun rather than
+(CONTRIBUTING.md). Safe to re-run; each run writes a fresh Job/AgentVersion/RehearsalRun rather than
 reusing a previous one (only the compiled-JD cache and any already-generated personas are
 reused, both keyed by content).
 """

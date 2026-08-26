@@ -1,6 +1,6 @@
 """Hunar webhook signature verification.
 
-Per CLAUDE.md, the signature arrives in the `X-Hunar-Signature` header, timed by
+Per CONTRIBUTING.md, the signature arrives in the `X-Hunar-Signature` header, timed by
 `X-Hunar-Timestamp` (both confirmed header names), as a base64 HMAC-SHA256 over:
 
     f"{X-Hunar-Timestamp}.".encode() + raw_body_bytes

@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 class BlockedCandidate(BaseModel):
     """One candidate call_candidates refused to dial, and why. Recruiters must see this list —
-    per CLAUDE.md the guard is unbypassable, so a skip is never silent."""
+    per CONTRIBUTING.md the guard is unbypassable, so a skip is never silent."""
 
     model_config = ConfigDict(extra="forbid")
 

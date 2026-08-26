@@ -379,7 +379,7 @@ async def test_publish_derives_a_hunar_name_from_job_title_since_no_name_column_
     jd_name: str, db_session: AsyncSession
 ) -> None:
     """AgentVersion has no `name` field (see the agent_version table definition in
-    CLAUDE.md) — publish_version must derive Hunar's required `name` from data that actually
+    CONTRIBUTING.md) — publish_version must derive Hunar's required `name` from data that actually
     exists rather than from a field that was never stored."""
     job = Job(title="Distinctive Job Title", raw_jd=load_raw_jd(jd_name))
     db_session.add(job)
@@ -431,7 +431,7 @@ async def test_publish_sends_full_field_set_on_update(
     jd_name: str, db_session: AsyncSession
 ) -> None:
     """Changing voice_persona or language requires resending the full documented field set
-    (CLAUDE.md) — the update path must never send a partial payload."""
+    (CONTRIBUTING.md) — the update path must never send a partial payload."""
     job = Job(title="Test Role", raw_jd=load_raw_jd(jd_name))
     db_session.add(job)
     await db_session.flush()

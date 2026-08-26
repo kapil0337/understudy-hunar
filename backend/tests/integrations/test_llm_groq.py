@@ -23,6 +23,7 @@ async def provider() -> AsyncIterator[GroqProvider]:
             "test-groq-key",
             max_attempts=2,
             retry_wait=wait_none(),
+            rate_limit_retry_wait_seconds=0,
             rate_limiter=TokenBucket(capacity=1000, period_seconds=60),
             client=transport,
         )
@@ -94,7 +95,13 @@ async def test_structured_complete_sends_json_schema_response_format(
 
 
 @respx.mock
-async def test_429_raises_quota_exceeded_not_retried(provider: GroqProvider) -> None:
+async def test_429_is_retried_up_to_the_limit_then_raises_quota_exceeded(
+    provider: GroqProvider,
+) -> None:
+    # Unlike nvidia.py/gemini.py, a 429 here is retried (MAX_RATE_LIMIT_RETRIES times) before
+    # giving up — see groq.py's module docstring for why: Groq is often the only provider
+    # actually working, so failing outright on the first 429 discards a rehearsal run's already-
+    # completed persona simulations over what is usually a transient per-minute limit.
     route = respx.post(f"{BASE_URL}/chat/completions").mock(
         return_value=httpx.Response(429, json={"error": "rate limited"})
     )
@@ -102,7 +109,37 @@ async def test_429_raises_quota_exceeded_not_retried(provider: GroqProvider) -> 
     with pytest.raises(LLMQuotaExceeded):
         await provider.complete("model-a", [{"role": "user", "content": "hi"}], 0.2)
 
-    assert route.call_count == 1
+    assert route.call_count == 3  # the initial attempt plus MAX_RATE_LIMIT_RETRIES retries
+
+
+@respx.mock
+async def test_429_then_success_is_retried_successfully(provider: GroqProvider) -> None:
+    route = respx.post(f"{BASE_URL}/chat/completions").mock(
+        side_effect=[
+            httpx.Response(429, json={"error": "rate limited"}),
+            httpx.Response(200, json=chat_response("recovered")),
+        ]
+    )
+
+    result = await provider.complete("model-a", [{"role": "user", "content": "hi"}], 0.2)
+
+    assert result.text == "recovered"
+    assert route.call_count == 2
+
+
+@respx.mock
+async def test_429_honours_retry_after_header_when_present(provider: GroqProvider) -> None:
+    route = respx.post(f"{BASE_URL}/chat/completions").mock(
+        side_effect=[
+            httpx.Response(429, headers={"retry-after": "0"}, json={"error": "rate limited"}),
+            httpx.Response(200, json=chat_response("recovered")),
+        ]
+    )
+
+    result = await provider.complete("model-a", [{"role": "user", "content": "hi"}], 0.2)
+
+    assert result.text == "recovered"
+    assert route.call_count == 2
 
 
 @respx.mock

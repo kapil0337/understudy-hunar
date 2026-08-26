@@ -1,7 +1,7 @@
 """Ingest one inbound Hunar webhook. The route (app/api/routes/webhooks.py) stays thin: read
 the raw request body and headers, call process_webhook, translate the outcome to a status code.
 
-Steps, matching CLAUDE.md:
+Steps, matching CONTRIBUTING.md:
 
   1. The caller reads raw bytes before parsing — process_webhook takes raw_body, not a parsed
      dict, because the signature is computed over those exact bytes; re-serialising parsed JSON

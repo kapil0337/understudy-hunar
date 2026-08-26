@@ -45,7 +45,7 @@ type _CheckVoicePersona = Expect<
   Equal<z.infer<typeof voicePersonaSchema>, components["schemas"]["VoicePersona"]>
 >;
 
-/** Hunar call lifecycle status — see CLAUDE.md. Terminal states: {@link TERMINAL_CALL_STATUSES}. */
+/** Hunar call lifecycle status — see CONTRIBUTING.md. Terminal states: {@link TERMINAL_CALL_STATUSES}. */
 export const callStatusSchema = z.enum([
   "NOT_STARTED",
   "SCHEDULED",

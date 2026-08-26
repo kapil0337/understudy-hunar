@@ -50,7 +50,7 @@ export function useDeleteJob() {
  * background_job_id, so this polls that (useBackgroundJob) and invalidates the job + its
  * versions once the compile actually lands, rather than on the immediate 202. Recompiling always
  * creates new draft AgentVersion row(s) — versions are immutable, never edited in place
- * (CLAUDE.md). */
+ * (CONTRIBUTING.md). */
 export function useUpdateRequirements(jobId: string) {
   const queryClient = useQueryClient();
   const [backgroundJobId, setBackgroundJobId] = useState<string | undefined>(

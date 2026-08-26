@@ -82,6 +82,7 @@ class GroqProvider:
         max_attempts: int = DEFAULT_MAX_ATTEMPTS,
         retry_wait: WaitBaseT | None = None,
         rate_limiter: TokenBucket | None = None,
+        rate_limit_retry_wait_seconds: float = DEFAULT_RATE_LIMIT_RETRY_WAIT_SECONDS,
         client: httpx.AsyncClient | None = None,
     ) -> None:
         if not api_key:
@@ -93,6 +94,10 @@ class GroqProvider:
         self._rate_limiter = rate_limiter or TokenBucket(
             DEFAULT_RATE_LIMIT_REQUESTS, DEFAULT_RATE_LIMIT_PERIOD_SECONDS
         )
+        # Separate from retry_wait above: that paces tenacity's 5xx/transport retry, this paces
+        # the 429-specific loop in _attempt, which needs to wait long enough for the account's
+        # per-minute token budget to actually recover, not tenacity's sub-second backoff curve.
+        self._rate_limit_retry_wait_seconds = rate_limit_retry_wait_seconds
         # Headers per-request so an injected client behaves identically to one we build.
         self._headers = {
             "Authorization": f"Bearer {api_key}",
@@ -192,20 +197,19 @@ class GroqProvider:
 
         raise AssertionError("unreachable: the loop above always returns or raises")
 
-    @staticmethod
-    def _retry_after_seconds(response: httpx.Response) -> float:
+    def _retry_after_seconds(self, response: httpx.Response) -> float:
         # Groq does not document sending Retry-After on a 429; check anyway rather than assume
-        # it is absent, and fall back to a fixed wait sized off the account's 8000 tokens/minute
-        # budget (DEFAULT_RATE_LIMIT_RETRY_WAIT_SECONDS) if it is missing or unparseable.
+        # it is absent, and fall back to self._rate_limit_retry_wait_seconds if it is missing or
+        # unparseable.
         header = response.headers.get("retry-after")
         if header is None:
-            return DEFAULT_RATE_LIMIT_RETRY_WAIT_SECONDS
+            return self._rate_limit_retry_wait_seconds
         try:
             return max(0.0, float(header))
         except ValueError:
-            return DEFAULT_RATE_LIMIT_RETRY_WAIT_SECONDS
+            return self._rate_limit_retry_wait_seconds
 
-    def _raise_for_status(self, response: httpx.Response) -> LLMResponse:
+    def _raise_for_status(self, response: httpx.Response) -> NoReturn:
         body = response.text
         # 402 out of credit, or a 429 with MAX_RATE_LIMIT_RETRIES already spent above: both mean
         # give up rather than retry further.

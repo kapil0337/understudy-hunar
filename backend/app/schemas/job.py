@@ -30,7 +30,7 @@ class JobRead(BaseModel):
 
 class RequirementsUpdate(BaseModel):
     """Body for PUT /jobs/{id}/requirements — a revised raw JD. Recompiling always creates new
-    draft AgentVersion row(s); it never edits an existing one (CLAUDE.md: versions immutable)."""
+    draft AgentVersion row(s); it never edits an existing one (CONTRIBUTING.md: versions immutable)."""
 
     model_config = ConfigDict(extra="forbid")
 

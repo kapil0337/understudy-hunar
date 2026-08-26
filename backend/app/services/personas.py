@@ -1,7 +1,7 @@
 """Generate the six comparable candidate personas used to rehearse an agent version.
 
 Every run scores against the same six archetypes so version-to-version comparisons stay apples
-to apples (CLAUDE.md). The LLM only invents flavour: names, backstories, and the raw answer
+to apples (CONTRIBUTING.md). The LLM only invents flavour: names, backstories, and the raw answer
 values a persona would give for each screening question. `ground_truth.qualified` is computed
 here in Python by applying the JD's knockout_criteria to those answers — never asked of the
 model — which is what keeps scoring objective instead of a self-graded vibe check.

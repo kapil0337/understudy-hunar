@@ -2,12 +2,39 @@
 
 Rehearse-then-dial voice recruiting on the Hunar Voice Agents API.
 
+## Overview
+
+Frontline hiring — delivery riders, warehouse pickers, retail associates — runs on phone screens,
+not resumes: someone calls the candidate, asks a fixed set of questions, and decides who moves
+forward. Voice AI agents can now make that call instead of a recruiter, but handing a role's
+screen straight to an LLM-driven agent is risky: a bad prompt can skip a required question,
+misstate something about the job, or run long enough that candidates hang up — and normally you
+only find out after it has already called someone.
+
+Understudy adds a rehearsal step in between. A job description compiles into a voice agent's exact
+prompt and result schema. That agent is then run against six synthetic candidate personas and
+scored on four independent, mostly-deterministic metrics — before it is ever allowed to dial a
+real person. If rehearsal finds a problem, a patch is proposed and the fix is measured by
+re-rehearsing, never just assumed to have worked. Only a version that scores well gets published
+to Hunar and used for real, consented outbound calls.
+
 **Live demo:** `TODO — deploy backend to Render (render.yaml) and frontend to Vercel, then link
 both here.` **2-minute walkthrough:** `TODO — record and link here.` Neither is live yet; see
 [Setup](#setup) to run it locally in the meantime, or `make seed` for real, no-key data to click
 through once it's running.
 
-## What answers what
+## Tech stack
+
+- **Backend** — FastAPI, Python 3.12, PostgreSQL (SQLAlchemy async + Alembic), managed with `uv`
+- **Frontend** — Next.js 15 (App Router), TypeScript (strict), Tailwind, shadcn/ui
+- **LLM** — NVIDIA / Gemini behind one caching adapter (`app/services/llm.py`), keyed by
+  `sha256(role, model, messages, schema)` so re-running a rehearsal costs nothing
+- **Voice** — Hunar Voice Agents API: agent create/publish, outbound calls, signed webhooks
+- **Infra** — Docker Compose locally; Render (backend) + Vercel (frontend) for deploy
+- **Tests** — 562 backend tests (pytest, 34 modules) · 25 frontend tests (vitest, 5 suites) · 1
+  Playwright E2E spec · gitleaks pre-commit + CI secret scanning
+
+## Assignment coverage
 
 | Assignment item | Where |
 | --- | --- |
@@ -15,13 +42,7 @@ through once it's running.
 | 2 — The application | The whole app: compile → rehearse → source → call → board, `backend/` + `web/` |
 | 3 — Attendance without apps | [docs/attendance-without-apps.md](docs/attendance-without-apps.md) |
 
-## The idea
-
-A job description compiles into a voice agent's exact prompt and result schema. That agent is
-rehearsed — run against six synthetic personas and scored on four independent metrics — before it
-is ever published to Hunar or allowed to dial a real person. A rehearsal that finds problems can
-be patched, and the patch is re-rehearsed to measure whether it actually helped, never assumed.
-Only once a version looks good does it get published and used for real, consented outbound calls.
+## How it works
 
 ```mermaid
 flowchart LR

@@ -27,7 +27,7 @@ def test_paginated_parses_results_key() -> None:
 
 @pytest.mark.parametrize("key", ["results", "data", "items"])
 def test_paginated_accepts_known_list_aliases(key: str) -> None:
-    """The envelope key is not pinned down in CLAUDE.md; silently returning [] because we
+    """The envelope key is not pinned down in CONTRIBUTING.md; silently returning [] because we
     guessed wrong would be a hard bug to spot."""
     agent = load_fixture("agent_detail.json")
 

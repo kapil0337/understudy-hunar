@@ -19,7 +19,7 @@ drifting call to call):
 composite = extraction_accuracy*0.40 + coverage*0.25 + faithfulness*0.25 + efficiency*0.10.
 compute_composite() is the ONLY place that number is produced, and it always returns it bundled
 with all four components and the failures list — a bare composite is exactly the opaque number
-this product exists to replace (CLAUDE.md), so nothing in this module hands one back alone.
+this product exists to replace (CONTRIBUTING.md), so nothing in this module hands one back alone.
 """
 
 from __future__ import annotations

@@ -97,7 +97,7 @@ export interface paths {
         get?: never;
         /**
          * Update a job's requirements
-         * @description Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, unpublished) for every language the compiled JD implies. Never edits an existing version — versions are immutable (CLAUDE.md). Compiling is an LLM call, so this returns immediately with a job id; poll GET /background-jobs/{id}, then GET /jobs/{id}/versions once COMPLETED.
+         * @description Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, unpublished) for every language the compiled JD implies. Never edits an existing version — versions are immutable (CONTRIBUTING.md). Compiling is an LLM call, so this returns immediately with a job id; poll GET /background-jobs/{id}, then GET /jobs/{id}/versions once COMPLETED.
          */
         put: operations["update_requirements_jobs__job_id__requirements_put"];
         post?: never;
@@ -212,7 +212,7 @@ export interface paths {
         put?: never;
         /**
          * Launch outbound screening calls
-         * @description Blocked candidates are returned WITH reasons, never silently skipped — the consent/DNC guard is unbypassable (CLAUDE.md).
+         * @description Blocked candidates are returned WITH reasons, never silently skipped — the consent/DNC guard is unbypassable (CONTRIBUTING.md).
          */
         post: operations["launch_calls_jobs__job_id__call_post"];
         delete?: never;
@@ -443,7 +443,7 @@ export interface paths {
         put?: never;
         /**
          * Record consent
-         * @description Sets phone_e164 and consent_recorded_at together — the only route that does, per CLAUDE.md's rule that a call needs an explicitly consented number.
+         * @description Sets phone_e164 and consent_recorded_at together — the only route that does, per CONTRIBUTING.md's rule that a call needs an explicitly consented number.
          */
         post: operations["record_candidate_consent_candidates__candidate_id__consent_post"];
         delete?: never;
@@ -596,7 +596,7 @@ export interface components {
         /**
          * BlockedCandidate
          * @description One candidate call_candidates refused to dial, and why. Recruiters must see this list —
-         *     per CLAUDE.md the guard is unbypassable, so a skip is never silent.
+         *     per CONTRIBUTING.md the guard is unbypassable, so a skip is never silent.
          */
         BlockedCandidate: {
             /**
@@ -861,7 +861,7 @@ export interface components {
         };
         /**
          * Language
-         * @description Belongs to the agent, not the call — see CLAUDE.md.
+         * @description Belongs to the agent, not the call — see CONTRIBUTING.md.
          * @enum {string}
          */
         Language: "ENGLISH" | "HINDI" | "TAMIL" | "TELUGU" | "KANNADA" | "MARATHI" | "MALAYALAM" | "GUJARATI" | "BENGALI" | "TURKISH" | "ARABIC" | "SPANISH";
@@ -983,7 +983,7 @@ export interface components {
         /**
          * RequirementsUpdate
          * @description Body for PUT /jobs/{id}/requirements — a revised raw JD. Recompiling always creates new
-         *     draft AgentVersion row(s); it never edits an existing one (CLAUDE.md: versions immutable).
+         *     draft AgentVersion row(s); it never edits an existing one (CONTRIBUTING.md: versions immutable).
          */
         RequirementsUpdate: {
             /** Raw Jd */

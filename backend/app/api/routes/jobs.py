@@ -1,5 +1,5 @@
 """Everything nested under /jobs. Handlers stay thin: fetch, delegate to app/services/, shape
-the response — no business logic lives here (CLAUDE.md)."""
+the response — no business logic lives here (CONTRIBUTING.md)."""
 
 from __future__ import annotations
 
@@ -125,7 +125,7 @@ async def delete_job(job_id: uuid.UUID, session: AsyncSession = Depends(get_db))
     summary="Update a job's requirements",
     description="Recompiles the raw JD and creates a new draft AgentVersion (origin=COMPILED, "
     "unpublished) for every language the compiled JD implies. Never edits an existing version — "
-    "versions are immutable (CLAUDE.md). Compiling is an LLM call, so this returns immediately "
+    "versions are immutable (CONTRIBUTING.md). Compiling is an LLM call, so this returns immediately "
     "with a job id; poll GET /background-jobs/{id}, then GET /jobs/{id}/versions once COMPLETED.",
 )
 async def update_requirements(
@@ -347,7 +347,7 @@ async def list_candidates(
     "/{job_id}/call",
     summary="Launch outbound screening calls",
     description="Blocked candidates are returned WITH reasons, never silently skipped — the "
-    "consent/DNC guard is unbypassable (CLAUDE.md).",
+    "consent/DNC guard is unbypassable (CONTRIBUTING.md).",
 )
 async def launch_calls(
     job_id: uuid.UUID,

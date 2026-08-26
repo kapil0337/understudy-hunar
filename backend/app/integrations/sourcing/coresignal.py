@@ -8,7 +8,7 @@ asks for, unlike PDL where a bigger free-tier search is one call.
 
 Coresignal's docs do not publish example request/response bodies for this endpoint, so the
 shapes below were verified live against the real API (2026-08-26) rather than guessed at, per
-CLAUDE.md's "never invent fields":
+CONTRIBUTING.md's "never invent fields":
   - search response: a bare JSON array of integer ids, e.g. [123, 456, ...]. A raw `{"size": N}`
     sibling key is rejected with `extra_forbidden`, so result count is controlled client-side by
     truncating the id list, not via the request body.

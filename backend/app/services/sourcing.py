@@ -39,7 +39,7 @@ logger = structlog.get_logger()
 
 
 def sourcing_cache_key(provider: str, query: SourcingQuery) -> str:
-    """sha256(provider, query, limit) per CLAUDE.md's caching convention. `limit` is included
+    """sha256(provider, query, limit) per CONTRIBUTING.md's caching convention. `limit` is included
     explicitly even though it is already a SourcingQuery field, so the key's shape documents the
     three inputs it is defined over."""
     payload = json.dumps(

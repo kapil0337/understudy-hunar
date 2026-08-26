@@ -77,7 +77,7 @@ app = FastAPI(
 
 app.add_middleware(RequestIDMiddleware)
 # The web app's own origin only — never "*", since credentials-free or not, this is the API
-# surface a browser calls directly (CLAUDE.md: no raw calls bypass the adapter/typed-client
+# surface a browser calls directly (CONTRIBUTING.md: no raw calls bypass the adapter/typed-client
 # discipline on the frontend either).
 app.add_middleware(
     CORSMiddleware,

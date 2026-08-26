@@ -1,6 +1,6 @@
 """The org-wide calling policy: allowed days/hours and retry behaviour for every outbound call.
 
-publish_version previously omitted guardrails/retry_config entirely, which per CLAUDE.md means
+publish_version previously omitted guardrails/retry_config entirely, which per CONTRIBUTING.md means
 "inherit org defaults" — but Hunar's own agent-detail response never echoes those back (see
 tests/fixtures/hunar/agent_detail.json, a real scrubbed capture with neither field present), so
 there was no way to answer "what's our calling window right now" from anything Hunar returns.

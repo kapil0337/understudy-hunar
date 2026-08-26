@@ -1,6 +1,6 @@
 """Simulate one rehearsal call between the actual agent prompt and a candidate persona.
 
-Two actors, both driven through app/services/llm.py with role="simulator" (CLAUDE.md — every
+Two actors, both driven through app/services/llm.py with role="simulator" (CONTRIBUTING.md — every
 LLM call goes through llm.py, and there is no third role for "the agent side of a rehearsal";
 rehearsing IS simulating a call, on both sides of it):
 
@@ -49,7 +49,7 @@ _AGENT_DONE_TOKEN = "[[CALL_COMPLETE]]"
 _CANDIDATE_DONE_TOKEN = "[[CALL_ENDED]]"
 
 # The four placeholders Hunar substitutes from the agent's own persona_name plus custom_data
-# (see CLAUDE.md and app/services/jd_compiler.py's build_agent_prompt/build_introduction).
+# (see CONTRIBUTING.md and app/services/jd_compiler.py's build_agent_prompt/build_introduction).
 _PLACEHOLDER_KEYS = ("persona_name", "callee_name", "role_title", "role_location")
 
 

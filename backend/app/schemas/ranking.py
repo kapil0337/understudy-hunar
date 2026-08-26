@@ -2,7 +2,7 @@
 
 Mirrors app/schemas/rehearsal.py's rule for RehearsalScore: the composite number is never handed
 back without the breakdown it was computed from, so the UI can render a segmented bar per
-CLAUDE.md rather than showing an opaque score.
+CONTRIBUTING.md rather than showing an opaque score.
 """
 
 from __future__ import annotations

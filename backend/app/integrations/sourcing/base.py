@@ -1,7 +1,7 @@
 """Shared contract for candidate sourcing providers.
 
 A provider turns a search query into a list of normalised candidate leads. It never returns a
-usable phone number: per CLAUDE.md, phone_e164 is only ever set through the consent flow
+usable phone number: per CONTRIBUTING.md, phone_e164 is only ever set through the consent flow
 (app/services/consent.py), regardless of which provider found the candidate. `needs_phone` is
 therefore always True here — it exists so the UI can say "needs consent outreach" rather than
 implying a number is already on file.

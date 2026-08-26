@@ -21,7 +21,7 @@ interface ScoreBarProps {
   className?: string;
 }
 
-/** A composite score is never shown without its breakdown (CLAUDE.md) — the bar is always
+/** A composite score is never shown without its breakdown (CONTRIBUTING.md) — the bar is always
  * visually segmented by each component's weight; hovering a segment names it and its score. */
 export function ScoreBar({ segments, className }: ScoreBarProps) {
   return (

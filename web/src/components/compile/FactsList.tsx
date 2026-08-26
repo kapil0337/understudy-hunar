@@ -10,7 +10,7 @@ interface FactsListProps {
   onChange: (values: string[]) => void;
 }
 
-/** facts_the_agent_may_state — the whole faithfulness contract (CLAUDE.md: anything the agent
+/** facts_the_agent_may_state — the whole faithfulness contract (CONTRIBUTING.md: anything the agent
  * says beyond this list is a fabrication at scoring time), so each fact is a full sentence, one
  * per line, not a short chip. */
 export function FactsList({ values, onChange }: FactsListProps) {

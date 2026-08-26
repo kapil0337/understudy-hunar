@@ -512,7 +512,7 @@ async def publish_version(
     Creates when the version has no hunar_agent_id, updates otherwise. The update path sends
     the full documented field set, since changing voice_persona or language requires it.
 
-    AgentVersion has no `name` column of its own (see CLAUDE.md's field list) — Hunar's `name`
+    AgentVersion has no `name` column of its own (see CONTRIBUTING.md's field list) — Hunar's `name`
     is a display label with no equivalent in our schema, so it is derived here from the job's
     title plus the version's own identity rather than invented at build time and stored.
     """

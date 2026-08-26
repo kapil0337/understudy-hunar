@@ -2,7 +2,7 @@
  * The one typed fetch wrapper. Every route the app calls goes through `request()` below, which
  * builds the URL, sends the request, and Zod-parses the response — a schema mismatch throws
  * ApiSchemaError naming the path, so a backend contract change surfaces here instead of as
- * `undefined` deep in a component. NEXT_PUBLIC_API_BASE_URL is the only public env var (CLAUDE.md
+ * `undefined` deep in a component. NEXT_PUBLIC_API_BASE_URL is the only public env var (CONTRIBUTING.md
  * — Hunar/NVIDIA keys are server-side-only and must never reach this file's counterpart on the
  * server side of the fence).
  */
@@ -156,7 +156,7 @@ async function request<T>(
 // -------------------------------------------------------------------------------- request bodies
 // Request bodies are sent, not parsed — they're typed straight from the generated schema rather
 // than re-validated with Zod, since `request()`'s job is to validate what comes back, not what we
-// send (CLAUDE.md: "Every response Zod-parsed").
+// send (CONTRIBUTING.md: "Every response Zod-parsed").
 
 type JobCreate = components["schemas"]["JobCreate"];
 type RequirementsUpdate = components["schemas"]["RequirementsUpdate"];

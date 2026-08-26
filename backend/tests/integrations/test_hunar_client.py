@@ -243,13 +243,13 @@ async def test_get_call_exposes_result_and_recording_but_no_transcript(
         "overall_recommendation": "NOT AVAILABLE",
     }
     assert call.recording_url is not None
-    # There is NO transcript field in the Hunar API (CLAUDE.md); nothing should invent one.
+    # There is NO transcript field in the Hunar API (CONTRIBUTING.md); nothing should invent one.
     assert not hasattr(call, "transcript")
 
 
 @respx.mock
 async def test_get_call_maps_response_retry_field_name(hunar_client: HunarClient) -> None:
-    """Requests send max_retry_count; responses come back as max_retries (CLAUDE.md).
+    """Requests send max_retry_count; responses come back as max_retries (CONTRIBUTING.md).
 
     The captured call never retried, so its real retry_config.max_retries is null — that field
     is overridden here to demonstrate the mapping against a call that did.

@@ -106,7 +106,7 @@ async def record_consent(
     channel: str = "MANUAL",
 ) -> Candidate:
     """Set phone_e164 and consent_recorded_at on a candidate. This is the ONLY place those two
-    fields are written together — the hard rule in CLAUDE.md (no outbound call without consent)
+    fields are written together — the hard rule in CONTRIBUTING.md (no outbound call without consent)
     depends on nothing else being able to set them independently of each other."""
     candidate = await session.get(Candidate, candidate_id)
     if candidate is None:

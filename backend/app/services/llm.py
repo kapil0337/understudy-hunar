@@ -1,4 +1,4 @@
-"""The single door every LLM call goes through (CLAUDE.md).
+"""The single door every LLM call goes through (CONTRIBUTING.md).
 
 Responsibilities, in order:
   1. Route the call by role (compiler | simulator) to a provider+model, with a fallback.
@@ -179,7 +179,7 @@ def _require_all_properties(schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def cache_key(role: str, model: str, messages: list[Message], schema_name: str) -> str:
-    """sha256(role, model, messages, schema name), per CLAUDE.md.
+    """sha256(role, model, messages, schema name), per CONTRIBUTING.md.
 
     Messages are serialised with sorted keys so an identical conversation always hashes the
     same regardless of dict ordering.
