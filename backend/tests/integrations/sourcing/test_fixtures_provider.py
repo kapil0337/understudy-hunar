@@ -41,6 +41,15 @@ async def test_search_filters_by_location() -> None:
     assert all(c.location == "Chennai" for c in result.candidates)
 
 
+async def test_search_treats_country_level_location_as_unfiltered() -> None:
+    """A compiled JD for a nationwide role can extract locations=["India"] — every fixture
+    candidate is already India-based and stored as a bare city name, so a literal substring
+    match against "india" would otherwise silently return zero candidates for every such job."""
+    provider = FixtureProvider()
+    result = await provider.search(SourcingQuery(locations=["India"], limit=40))
+    assert len(result.candidates) == 40
+
+
 async def test_search_filters_by_skill() -> None:
     provider = FixtureProvider()
     result = await provider.search(SourcingQuery(skills=["barcode scanner"], limit=40))

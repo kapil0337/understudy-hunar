@@ -18,10 +18,10 @@ real person. If rehearsal finds a problem, a patch is proposed and the fix is me
 re-rehearsing, never just assumed to have worked. Only a version that scores well gets published
 to Hunar and used for real, consented outbound calls.
 
-**Live demo:** `TODO — deploy backend to Render (render.yaml) and frontend to Vercel, then link
-both here.` **2-minute walkthrough:** `TODO — record and link here.` Neither is live yet; see
-[Setup](#setup) to run it locally in the meantime, or `make seed` for real, no-key data to click
-through once it's running.
+**Live demo:** https://understudy-hunar.vercel.app/ (frontend, Vercel) · backend:
+https://understudy-backend-tuyp.onrender.com (`/healthz`). **2-minute walkthrough:**
+[docs/understudy-demo.webm](docs/understudy-demo.webm). See [Setup](#setup) to run it locally, or
+`make seed` for real, no-key data to click through once it's running.
 
 ## Tech stack
 
@@ -36,11 +36,15 @@ through once it's running.
 
 ## Assignment coverage
 
-| Assignment item | Where |
-| --- | --- |
-| 1 — Rehearsal + call screening design, and the outreach channel design | `/jobs/[id]/rehearsal`, `/jobs/[id]/board` screens; [docs/channel-strategy.md](docs/channel-strategy.md) |
-| 2 — The application | The whole app: compile → rehearse → source → call → board, `backend/` + `web/` |
-| 3 — Attendance without apps | [docs/attendance-without-apps.md](docs/attendance-without-apps.md) |
+| Assignment item (as given) | How it's covered | Where |
+| --- | --- | --- |
+| 1 — AI Hiring Assistant: a web app using Hunar's Voice AI Agents (plus any other communication platform for a better solution design) | Understudy compiles a JD into a voice agent prompt, rehearses it against six personas before it's ever allowed to call someone, then publishes to Hunar for real outbound calls. WhatsApp is designed as an additional channel, not built — see the doc. | `/jobs/[id]/rehearsal` screen, `backend/app/services/rehearsal/`; [docs/channel-strategy.md](docs/channel-strategy.md) |
+| 2 — People Search & Reachout: JD in, a people-search API for sourcing, a Voice AI agent for reachout, conversation responses back into a dashboard with answers | Candidates are sourced via PDL (or a fixture fallback), ranked against the compiled JD, called through the same rehearsed voice agent, and every call's extracted answers land on a board. | `/jobs/[id]/candidates`, `/jobs/[id]/board` screens; `backend/app/services/sourcing.py`, `app/integrations/sourcing/`, `app/services/ranking.py` |
+| 3 — Attendance without smartphones (LLMs + everything else available) | Design document, not shipped code — scoped out of a three-day build. | [docs/attendance-without-apps.md](docs/attendance-without-apps.md) |
+
+Items 1 and 2 share one application on purpose: item 1's agent is exactly what item 2 dials for
+reachout, and item 2's board is where item 1's call results land — building them as two separate
+apps would have duplicated the agent-prompt and result-schema logic for no benefit.
 
 ## How it works
 
@@ -190,3 +194,11 @@ personas, not live voice quality (see "What rehearsal does NOT prove" above); Wh
 is a documented seam, not a working channel; and the "attendance without apps" answer
 ([docs/attendance-without-apps.md](docs/attendance-without-apps.md)) is a design document, not
 shipped code — both honestly scoped out of a three-day build, not overlooked.
+
+- **Free-tier LLM keys can run out mid-demo.** Compile, rehearse, and patch all run on free-tier
+  NVIDIA/Gemini/Groq keys (`app/services/llm.py`). If the deployed backend hits a rate limit or
+  exhausts free credits, those actions will fail or stall rather than silently produce wrong
+  output — `GET /healthz` reports which providers are currently configured, and `make seed` (or
+  the equivalent seeded data already loaded on the deployed backend) demonstrates the full
+  rehearsal loop, board, and answers view without calling any LLM, so this doesn't block a review
+  of the app itself.

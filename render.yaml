@@ -46,9 +46,8 @@ services:
         fromDatabase:
           name: understudy-db
           property: connectionString
-      # Update to the deployed Vercel URL after the first frontend deploy.
       - key: CORS_ORIGINS
-        value: https://understudy.vercel.app
+        value: https://understudy-hunar.vercel.app
       - key: SOURCING_PROVIDER
         value: fixtures
       - key: CHANNEL

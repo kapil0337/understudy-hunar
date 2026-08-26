@@ -28,18 +28,32 @@ def _title_matches(candidate: SourcedCandidate, titles: list[str]) -> bool:
 
 
 def _skills_match(candidate: SourcedCandidate, skills: list[str]) -> bool:
+    """Substring, not exact-set-equality: a compiled JD's skills come from an LLM's own free-form
+    wording ("Two-wheeler", "Driving licence") and will essentially never equal this fixture
+    set's own vocabulary ("two-wheeler riding", "prior delivery experience") character-for-
+    character — an exact match here silently returns zero candidates for almost any real JD.
+    Checked both directions since either side's phrase can be the more specific one."""
     if not skills:
         return True
-    candidate_skills = {s.lower() for s in candidate.skills}
-    required = {s.lower() for s in skills}
-    return bool(candidate_skills & required)
+    candidate_skills = [s.lower() for s in candidate.skills]
+    required = [s.lower() for s in skills]
+    return any(req in cand or cand in req for req in required for cand in candidate_skills)
+
+
+#: A compiled JD's search_query can legitimately extract a country-level location ("India",
+#: "Pan India", "All India") for a nationwide role — but every candidate in this fixture set is
+#: already India-based and stored as a bare city name ("Chennai", not "Chennai, India"), so a
+#: literal substring check against one of these terms can never match anything. Treated as "no
+#: location filter" rather than a filter that silently excludes every candidate.
+_COUNTRY_LEVEL_LOCATIONS = {"india", "pan india", "all india"}
 
 
 def _location_matches(candidate: SourcedCandidate, locations: list[str]) -> bool:
-    if not locations:
+    effective = [loc for loc in locations if loc.strip().lower() not in _COUNTRY_LEVEL_LOCATIONS]
+    if not effective:
         return True
     location = (candidate.location or "").lower()
-    return any(loc.lower() in location for loc in locations)
+    return any(loc.lower() in location for loc in effective)
 
 
 def _meets_min_years(candidate: SourcedCandidate, min_years: float | None) -> bool:
