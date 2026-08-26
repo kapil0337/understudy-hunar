@@ -58,6 +58,27 @@ services:
       postgres:
         condition: service_healthy
 
+  # Claims and executes BackgroundJob rows (compile_jd, regenerate_personas, propose_patch,
+  # rehearse) — the LLM-heavy work the API defers instead of running inline (see
+  # app/services/background_jobs.py). Without this running, PUT /jobs/{id}/requirements and
+  # friends return 202 and then nothing ever happens — the job just sits PENDING forever.
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: ["python", "-m", "app.worker"]
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+asyncpg://understudy:understudy@postgres:5432/understudy
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   web:
     build:
       context: ./web

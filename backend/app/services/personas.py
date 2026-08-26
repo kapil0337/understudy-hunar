@@ -182,15 +182,41 @@ async def generate_personas(
     """
     service = llm or get_llm_service()
 
-    batch = await service.structured_complete(
-        "simulator",
-        [
-            {"role": "system", "content": _PERSONA_SYSTEM_PROMPT},
-            {"role": "user", "content": _user_prompt(compiled)},
-        ],
-        PersonaBatch,
-    )
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": _PERSONA_SYSTEM_PROMPT},
+        {"role": "user", "content": _user_prompt(compiled)},
+    ]
 
+    batch = await service.structured_complete("simulator", messages, PersonaBatch)
+    try:
+        return _personas_from_batch(compiled, batch, job_id=job_id)
+    except PersonaGenerationError as first_error:
+        logger.warning("persona_generation_invalid_retrying", error=str(first_error))
+
+    # Retry ONCE, feeding back exactly what was wrong — same pattern as
+    # LLMService.structured_complete's schema retry and propose_patch's dropped-question retry.
+    # Needed because this is a domain-level check (a missing ground_truth_answers key, or a
+    # persona's computed qualification not matching its archetype), which happens after the
+    # model's JSON already validated against PersonaBatch's schema, so structured_complete's own
+    # retry never sees it.
+    repair_messages = [
+        *messages,
+        {"role": "assistant", "content": batch.model_dump_json()},
+        {
+            "role": "user",
+            "content": (
+                f"That output was invalid:\n{first_error}\n\n"
+                "Return the full corrected set of six personas again, fixing only that problem."
+            ),
+        },
+    ]
+    batch = await service.structured_complete("simulator", repair_messages, PersonaBatch)
+    return _personas_from_batch(compiled, batch, job_id=job_id)
+
+
+def _personas_from_batch(
+    compiled: CompiledJD, batch: PersonaBatch, *, job_id: Any
+) -> list[Persona]:
     found = sorted(draft.archetype for draft in batch.personas)
     if found != sorted(ARCHETYPES):
         raise PersonaGenerationError(

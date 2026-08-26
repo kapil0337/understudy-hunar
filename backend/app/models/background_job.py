@@ -35,6 +35,11 @@ class BackgroundJob(SQLModel, table=True):
     status: str = Field(default="PENDING")
     result: dict[str, Any] | None = Field(default=None, sa_type=JSONB)
     error: str | None = Field(default=None, sa_type=Text)
+    # Incremented only when app/worker.py's reaper finds this job stuck in RUNNING past its
+    # staleness threshold (the worker that claimed it died mid-job) — not on ordinary retries,
+    # which the LLM/Hunar clients already handle internally. Bounds how many times a job can be
+    # requeued before it's given up on, so a poison-pill payload can't loop forever.
+    attempts: int = Field(default=0)
     created_at: datetime = Field(
         default_factory=utcnow, sa_column=Column(DateTime(timezone=True), nullable=False)
     )
